@@ -66,4 +66,4 @@ You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/relea
 
 [python3]: https://python.org 'Python3'
 [discord]: https://discord.gg/zNWUXdt 'Discord'
-[wiki]: https://github.com/dscalzi/HeliosLauncher/wiki 'wiki'
+[wiki]: https://github.com/MHProDev/MHDDoS/wiki 'wiki'
