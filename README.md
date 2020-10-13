@@ -8,7 +8,7 @@
 <p align="center">1 Million request pre seacons for test your site security</p>
 
 ![Screenshot 1](https://i.imgur.com/Mo99oLm.png)
-![Screenshot 2](https://i.imgur.com/N4LTP9m.png)
+![Screenshot 2](https://i.imgur.com/aNrHJcA.png)
 
 ## Features
 
