@@ -41,7 +41,7 @@ You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/relea
 
 **Requirements**
 
-* [python]Python3[python]
+* [Python3][python3]
 * requests
 * PySocks
 * cfscrape
