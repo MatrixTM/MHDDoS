@@ -6,10 +6,10 @@
 
 
 <p align="center">1 Million request pre seacons for test your site security</p>
-
+<p align="center">
 ![Screenshot 1](https://i.imgur.com/Mo99oLm.png)
 ![Screenshot 2](https://i.imgur.com/aNrHJcA.png)
-
+</p>
 ## Features
 
 * 💣 HTTP (GET) Flood
