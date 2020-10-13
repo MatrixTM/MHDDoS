@@ -10,7 +10,7 @@
 <p align="center"><img src="https://i.imgur.com/Mo99oLm.png" width="768" height="433" alt="aventium softworks"></p>
 <p align="center"><img src="https://i.imgur.com/aNrHJcA.png" width="768" height="433" alt="aventium softworks"></p>
 
-## Features
+## Features And Method
 
 * 💣 HTTP (GET) Flood
   * The HTTP (GET) request is used to retrieve static content like images. Typically this induces relatively low load on the server per request.
@@ -23,7 +23,7 @@
   * A Method for 1million reload javascripts and css 
   
 * 🧨 CloudFlare Bypass
-  * 20Mellion site us cloudflare dns and antiddos you can bypass it with this script.
+  * 20Mellion site us cloudflare dns and antiddos you can bypass all with this script.
   
 * ⚙️ 1 Million Request pre seacons
 
