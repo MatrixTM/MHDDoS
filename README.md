@@ -2,13 +2,13 @@
 
 <h1 align="center">MHDDoS - Layer7 DDoS Attack Script</h1>
 
-<em><h5 align="center">(Coded Lang - Python)</h5></em>
+<em><h5 align="center">(Code Lang - Python)</h5></em>
 
 
 <p align="center">1 Million request pre seacons for test your site security</p>
 
-![Screenshot 1](https://i.imgur.com/7hDLSv2.png)
-![Screenshot 2](https://i.imgur.com/PQNMwta.png)
+![Screenshot 1](https://i.imgur.com/Mo99oLm.png)
+![Screenshot 2](https://i.imgur.com/aNrHJcA.png)
 
 ## Features
 
@@ -34,8 +34,6 @@
 ## Downloads
 
 You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/releases)
-
-## Development
 
 ### Getting Started
 
