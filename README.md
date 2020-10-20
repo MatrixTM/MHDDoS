@@ -2,7 +2,7 @@
 
 <h1 align="center">MHDDoS - Layer7 DDoS Attack Script</h1>
 
-<em><h5 align="center">(Code Lang - Python)</h5></em>
+<em><h5 align="center">(Code Lang - Python 3)</h5></em>
 
 
 <p align="center">1 Million request pre seacons for test your site security</p>
