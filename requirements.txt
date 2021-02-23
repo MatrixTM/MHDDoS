@@ -1,4 +1,6 @@
 requests
-PySocks
+pysocks
 socks
 cfscrape
+icmplib
+scapy
