@@ -11,26 +11,50 @@
 
 ## Features And Method
 
-* 💣 HTTP (GET) Flood
-  * The HTTP (GET) request is used to retrieve static content like images. Typically this induces relatively low load on the server per request.
-  
-* 🔪 Post Flood
-  * POST requests are more likely to require the server to perform some kind of processing
-  * such as looking up items in a database. Therefore, HTTP POST flood attacks typically impose higher load on the server per request.
-  
-* 🏹 HDR, Header Attack
-  * A Method for 1million reload javascripts and css 
-  
-* 🧨 CloudFlare Bypass
-  * 20Mellion site us cloudflare dns and antiddos you can bypass all with this script.
-  
-* ⚙️ 1 Million Request pre seacons
+ * 💣 Layer7
+   * BYPASS |  Bypass Normal AntiDDoS
+   * GET | GET Flood
+   * POST | POST Flood
+   * OVH | Bypass OVH
+   * STRESS | Send HTTP Packet With High Byte 
+   * OSTRESS | STRESS Without Proxy
+   * DYN | A New Method With Random SubDomain
+   * SLOW | Slowloris Old Method of DDoS
+   * HEAD | https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD
+   * HIT | POST Without PROXY
+   * NULL | Null UserAgent and ...
+   * COOKIE | Random Cookie PHP 'if (isset($_COOKIE))'
+   * BRUST | A Method with more header
+   * PPS | No Header Only 'GET / HTTP/1.1\r\n\r\n'
+   * EVEN | GET Method with more header
+   * GSB | Google Project Shield Bypass
+   * DGB | DDoS Guard Bypass
+   * AVB | Arvan Cloud Bypass
+   * CFB | CloudFlare Bypass
 
-* 🎩 SlowLoris
- * Slowloris is a type of denial of service attack tool which allows a single machine to take down another machine's web server with minimal bandwidth and side effects on unrelated services and ports.
- 
-* 🧩 Layer 4 (UDP)
- * In computer networking, the transport layer is a conceptual division of methods in the layered architecture of protocols in the network stack in the Internet protocol suite and the OSI model. The protocols of this layer provide host-to-host communication services for applications.[1]:§1.1.3 It provides services such as connection-oriented communication, reliability, flow control, and multiplexing.
+* 🧨 Layer4: 
+  * TCP | TCP Flood Bypass
+  * UDP | UDP Flood Bypass
+  * SYN | SYN Flood
+  * VSE | VSE Flood Only Connection
+  * MEM | Memcached Flood
+  * NTP | NTP Flood OLD Method Of Layer4
+
+* 🏹 Layer3
+ * ICMP | Flood ICMP Request
+ * POD | Ping Of Death OLD Method Of DDoS
+
+* ⚙️ Tools - Run With 'python3 start.py tools'
+ * CFIP | Find Real IP address of Website Powered by Cloudflare
+ * DNS | Find WebSite DNS
+ * PING | PING server
+ * CHECK | Check Website is Die or no
+ * DSTAT | a Method show Receive And Send Bytes Size
+
+* 🎩 Other
+ * STOP | STOP All Attacks
+ * TOOLS | Tools Console
+ * HELP | Show Usge Script
 
 #### Issues ? 
  * Telegram : @MH_ProDev_IR
@@ -47,10 +71,12 @@ You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/relea
 **Requirements**
 
 * [Python3][python3]
+* Python-pip3
 * requests
 * PySocks
 * cfscrape
-
+* icmplib
+* scapy
 ---
 
 **Video's**
