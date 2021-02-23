@@ -30,7 +30,7 @@
    * EVEN | GET Method with more header
    * GSB | Google Project Shield Bypass
    * DGB | DDoS Guard Bypass
-   * <img src="chrome-extension://gppongmhjkpfnbhagpmjfkannfbllamg/images/icons/ArvanCloud.png" width="16" height="16" alt="ArvanCloud"> AVB | Arvan Cloud Bypass
+   * <img src="https://i.imgur.com/bGL8qfw.png" width="16" height="16" alt="ArvanCloud"> AVB | Arvan Cloud Bypass
    * CFB | CloudFlare Bypass
 
 * 🧨 Layer4: 
