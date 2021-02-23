@@ -85,7 +85,7 @@ You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/relea
 * Aparat: https://www.aparat.com/v/bHcP9
 * YouTube : Comming soon..
 
-*toturial*
+**toturial**
 
 * Aprat : Comming soon..
 * YouTube : Comming soon..
