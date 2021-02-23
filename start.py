@@ -1470,13 +1470,13 @@ def usgeaseets():
         if (methos in l4) or (methos in l3):
             url = sys.argv[2]
         elif str("http") not in sys.argv[2]:
-            url = "https://madcraft.ir"
+            url = "https://example.ir"
         elif sys.argv[2]:
             url = sys.argv[2]
         else:
-            url = "https://madcraft.ir"
+            url = "https://example.ir"
     except:
-        url = "https://madcraft.ir"
+        url = "https://example.ir"
     try:
         if sys.argv[4]:
             thr = sys.argv[4]
