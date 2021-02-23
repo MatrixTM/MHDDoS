@@ -28,7 +28,7 @@
    * BRUST | A Method with more header
    * PPS | No Header Only 'GET / HTTP/1.1\r\n\r\n'
    * EVEN | GET Method with more header
-   * GSB | Google Project Shield Bypass
+   * <img src="https://masbadar.com/wp-content/uploads/2016/02/Logo-Projects-Shield-2.jpg" width="16" height="16" alt="googleshield"> GSB | Google Project Shield Bypass
    * <img src="https://seeklogo.com/images/D/ddos-guard-logo-CFEFCA409C-seeklogo.com.png" width="16" height="16" alt="DDoSGuard"> DGB | DDoS Guard Bypass
    * <img src="https://i.imgur.com/bGL8qfw.png" width="16" height="16" alt="ArvanCloud"> AVB | Arvan Cloud Bypass
    * <img src="https://techcrunch.com/wp-content/uploads/2019/06/J2LlHqT3qJl0bG9Alpgc-1-730x438.png?w=730" width="16" height="16" alt="CloudFlare"> CFB | CloudFlare Bypass
