@@ -59,7 +59,7 @@
 
 #### Issues ? 
  * Telegram : @MH_ProDev_IR
- * Discord : ᵀᵂ⌠ ! Mʜ_PʀᴏDᴇᴠ ⌡#5642
+ * Discord : MH_ProDev#5642
  * [GitHub][github]
 #### Like the project? Leave a ⭐ star on the repository!
 
