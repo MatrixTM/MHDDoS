@@ -43,7 +43,7 @@
 
 * 🏹 Layer3
   * <img src="https://image.flaticon.com/icons/png/512/388/388466.png" width="16" height="16" alt="icmp"> ICMP | Flood ICMP Request
-  * <img src="https://d1yn1kh78jj1rr.cloudfront.net/image/thumbnail/rDtN98Qoishumwih/funky-tooth-icon_MkIcMp8d_thumb.jpg" width="16" height="16" alt="icmp"> POD | Ping Of Death OLD Method Of DDoS
+  * ⚔️ POD | Ping Of Death OLD Method Of DDoS
 
 * ⚙️ Tools - Run With 'python3 start.py tools'
   * 🌟 CFIP | Find Real IP address of Website Powered by Cloudflare
