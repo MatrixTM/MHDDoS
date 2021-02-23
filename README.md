@@ -1,12 +1,11 @@
 <p align="center"><img src="./screenshot/logo.ico" width="150px" height="150px" alt="aventium softworks"></p>
 
-<h1 align="center">MHDDoS - Layer7 DDoS Attack Script</h1>
+<h1 align="center">MHDDoS - DDoS Attack Script With 36 Method</h1>
 
 <em><h5 align="center">(Code Lang - Python 3)</h5></em>
 
 
 <p align="center">Please Dont Hit '.gov'  and '.ir' Websites :)</p>
-<p align="center">Now With 36 Method And High Power</p>
 
 <p align="center"><img src="https://i.imgur.com/aNrHJcA.png" width="1078" height="433" alt="aventium softworks"></p>
 <p align="center"><img src="https://i.imgur.com/ueDhdte.png" width="1078" height="296" alt="aventium softworks"></p>
