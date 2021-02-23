@@ -7,8 +7,8 @@
 
 <p align="center">Please Dont Hit '.gov'  and '.ir' Websites :)</p>
 
-<p align="center"><img src="https://i.imgur.com/aNrHJcA.png" width="1078" height="433" alt="aventium softworks"></p>
-<p align="center"><img src="https://i.imgur.com/ueDhdte.png" width="1078" height="296" alt="aventium softworks"></p>
+<p align="center"><img src="https://i.imgur.com/aNrHJcA.png" width="1078" height="433" alt="POWER"></p>
+<p align="center"><img src="https://i.imgur.com/ueDhdte.png" width="1078" height="296" alt="SCRIPT"></p>
 
 ## Features And Method
 
@@ -30,7 +30,7 @@
    * EVEN | GET Method with more header
    * GSB | Google Project Shield Bypass
    * DGB | DDoS Guard Bypass
-   * AVB | Arvan Cloud Bypass
+   * <img src="https://www.arvancloud.com/images/icons/logo-typo-fa.jpg" width="32" height="32" alt="ArvanCloud"> AVB | Arvan Cloud Bypass
    * CFB | CloudFlare Bypass
 
 * 🧨 Layer4: 
