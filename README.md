@@ -49,7 +49,7 @@
   * 🌟 CFIP | Find Real IP address of Website Powered by Cloudflare
   * 🔪 DNS | Show Site DNS Records
   * ⚠️ PING | PING server
-  * 📌 CHECK | Check Website is Die or no
+  * 📌 CHECK | Check Website Die or no
   * 😎 DSTAT | a Method show Receive And Send Bytes Size
 
 * 🎩 Other
