@@ -106,7 +106,8 @@ You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/relea
 **Launch Script**
 
 ```console
-> python3 MHDDoSLayer7v1.py
+> python3 start.py
+> python3 start.py bypass https://example.com 5 1000 socks5.txt 100 100
 ```
 
 [python3]: https://python.org 'Python3'
