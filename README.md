@@ -67,7 +67,7 @@
 
 ## Downloads
 
-You can download from [GitHub Releases](https://github.com/[username]/[reponame]/releases)
+You can download from ![alt text]([GitHub Releases](https://github.com/[username]/[reponame]/releases))
 
 ### Getting Started
 
