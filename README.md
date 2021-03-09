@@ -67,7 +67,7 @@
 
 ## Downloads
 
-You can download from [GitHub Releases](https://github.com/MHDDoS/MHDDoS/releases)
+You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/releases)
 
 ### Getting Started
 
@@ -96,7 +96,7 @@ You can download from [GitHub Releases](https://github.com/MHDDoS/MHDDoS/release
 **Clone and Install Script**
 
 ```console
-> git clone https://github.com/MHDDoS/MHDDoS.git
+> git clone https://github.com/MHProDev/MHDDoS.git
 > cd MHDDoS
 > pip3 install -r requirements.txt
 ```
@@ -111,6 +111,6 @@ You can download from [GitHub Releases](https://github.com/MHDDoS/MHDDoS/release
 ```
 
 [python3]: https://python.org 'Python3'
-[github]: https://github.com/MHDDoS/MHDDoS/issues 'GitHub'
+[github]: https://github.com/MHProDev/MHDDoS/issues 'GitHub'
 
 **💰 Donate (BTC):** ```bc1qpn7hz32x3pcapeajth420cahuz6nkrp5c57gz8```
