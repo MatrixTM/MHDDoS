@@ -84,12 +84,12 @@ You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/relea
 **Video's**
 
 * Aparat: https://www.aparat.com/v/bHcP9
-* YouTube : Comming soon..
+* YouTube : https://www.youtube.com/watch?v=2IY7g3S7Yhk
 
 **toturial**
 
-* Aprat : Comming soon..
-* YouTube : Comming soon..
+* Aprat : Coming soon..
+* YouTube : Coming soon..
 
 ---
 
