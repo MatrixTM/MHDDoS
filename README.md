@@ -113,4 +113,4 @@ You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/relea
 [python3]: https://python.org 'Python3'
 [github]: https://github.com/MHProDev/MHDDoS/issues 'GitHub'
 
-**💰 Donate (BTC):** ```bc1qpn7hz32x3pcapeajth420cahuz6nkrp5c57gz8```
+**💰 Donate (BTC):** ```bc1q2ch0srzzyaatshm6agrndav3t820n5cp06tz0g```
