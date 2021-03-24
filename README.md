@@ -114,6 +114,6 @@ You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/relea
 [github]: https://github.com/MHProDev/MHDDoS/issues 'GitHub'
 
 **💰 Donate:**
-* [IDPAY]: https://idpay.ir/mh-prodev 'IDPAY'
-* [BTC]: bitcoin:BC1QHY8XG8VE2SMCXXXL20DZLUX9SDDSLR58TT298X 'BTC'
-* [BHC]: bitcoincash:qrwytj0aghszlqmfnku2h5ms4fad567ueg5g9dn2nu 'BHC'
+* https://idpay.ir/mh-prodev
+* bitcoin:BC1QHY8XG8VE2SMCXXXL20DZLUX9SDDSLR58TT298X
+* bitcoincash:qrwytj0aghszlqmfnku2h5ms4fad567ueg5g9dn2nu
