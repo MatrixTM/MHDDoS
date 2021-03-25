@@ -96,9 +96,9 @@ You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/relea
 **Clone and Install Script**
 
 ```console
-> git clone https://github.com/MHProDev/MHDDoS.git
-> cd MHDDoS
-> pip3 install -r requirements.txt
+git clone https://github.com/MHProDev/MHDDoS.git
+cd MHDDoS
+pip3 install -r requirements.txt
 ```
 
 ---
@@ -106,8 +106,8 @@ You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/relea
 **Launch Script**
 
 ```console
-> python3 start.py
-> python3 start.py bypass https://example.com 5 1000 socks5.txt 100 100
+python3 start.py
+python3 start.py bypass https://example.com 5 1000 socks5.txt 100 100
 ```
 
 [python3]: https://python.org 'Python3'
