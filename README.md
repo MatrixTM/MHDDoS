@@ -8,27 +8,8 @@
 <p align="center">Please Don't Hit '.gov'  and '.ir' Websites :)</p>
 
 <p align="center"><img src="https://i.imgur.com/aNrHJcA.png" width="1078" height="433" alt="POWER"></p>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-<script type="text/javascript" src="https://blockchain.info/Resources/js/pay-now-button.js"></script>
 <p align="center"><img src="https://i.imgur.com/ueDhdte.png" width="1078" height="296" alt="SCRIPT"></p>
-<div align="center" style="font-size:16px;margin:0 auto;width:300px" class="blockchain-btn" data-address="bc1qhy8xg8ve2smcxxxl20dzlux9sddslr58tt298x" data-shared="false">
-  <div class="blockchain stage-begin">
-      <img src="https://blockchain.info/Resources/buttons/donate_64.png"/>
-  </div>
-  <div class="blockchain stage-loading" style="text-align:center">
-      <img src="https://blockchain.info/Resources/loading-large.gif"/>
-  </div>
-  <div class="blockchain stage-ready">
-      <p align="center">Please Donate To Bitcoin Address: <b>[[address]]</b></p>
-      <p align="center" class="qr-code"></p>
-  </div>
-  <div class="blockchain stage-paid">
-      Donation of <b>[[value]] BTC</b> Received. Thank You.
-  </div>
-  <div class="blockchain stage-error">
-      <font color="red">[[error]]</font>
-  </div>
-</div>
+
 ## Features And Method
 
  * 💣 Layer7
