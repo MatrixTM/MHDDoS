@@ -8,6 +8,8 @@
 <p align="center">Please Don't Hit '.gov'  and '.ir' Websites :)</p>
 
 <p align="center"><img src="https://i.imgur.com/aNrHJcA.png" width="1078" height="433" alt="POWER"></p>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://blockchain.info/Resources/js/pay-now-button.js"></script>
 <p align="center"><img src="https://i.imgur.com/ueDhdte.png" width="1078" height="296" alt="SCRIPT"></p>
 <div align="center" style="font-size:16px;margin:0 auto;width:300px" class="blockchain-btn" data-address="bc1qhy8xg8ve2smcxxxl20dzlux9sddslr58tt298x" data-shared="false">
   <div class="blockchain stage-begin">
@@ -135,7 +137,3 @@ python3 start.py bypass https://example.com 5 1000 socks5.txt 100 100
 * bitcoin:BC1QHY8XG8VE2SMCXXXL20DZLUX9SDDSLR58TT298X
 * bitcoincash:qrwytj0aghszlqmfnku2h5ms4fad567ueg5g9dn2nu
 
-
-
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-<script type="text/javascript" src="https://blockchain.info/Resources/js/pay-now-button.js"></script>
