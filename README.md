@@ -117,3 +117,25 @@ python3 start.py bypass https://example.com 5 1000 socks5.txt 100 100
 * https://idpay.ir/mh-prodev
 * bitcoin:BC1QHY8XG8VE2SMCXXXL20DZLUX9SDDSLR58TT298X
 * bitcoincash:qrwytj0aghszlqmfnku2h5ms4fad567ueg5g9dn2nu
+
+<div style="font-size:16px;margin:0 auto;width:300px" class="blockchain-btn" data-address="bc1qhy8xg8ve2smcxxxl20dzlux9sddslr58tt298x" data-shared="false">
+  <div class="blockchain stage-begin">
+      <img src="https://blockchain.info/Resources/buttons/donate_64.png"/>
+  </div>
+  <div class="blockchain stage-loading" style="text-align:center">
+      <img src="https://blockchain.info/Resources/loading-large.gif"/>
+  </div>
+  <div class="blockchain stage-ready">
+      <p align="center">Please Donate To Bitcoin Address: <b>[[address]]</b></p>
+      <p align="center" class="qr-code"></p>
+  </div>
+  <div class="blockchain stage-paid">
+      Donation of <b>[[value]] BTC</b> Received. Thank You.
+  </div>
+  <div class="blockchain stage-error">
+      <font color="red">[[error]]</font>
+  </div>
+</div>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://blockchain.info/Resources/js/pay-now-button.js"></script>
