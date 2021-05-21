@@ -61,7 +61,7 @@
 * Layer4 DDoS Script
 #### Issues ? 
  * Telegram : @MH_ProDev_IR
- * Discord : MH_ProDev#5642
+ * Discord : SudoCoder#1451
  * [GitHub][github]
 #### Like the project? Leave a ⭐ star on the repository!
 
