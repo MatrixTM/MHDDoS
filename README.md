@@ -89,7 +89,7 @@ You can download from [GitHub Releases](https://github.com/MHProDev/MHDDoS/relea
 **toturial**
 
 * Aprat : https://aparat.com/v/XPn5Z
-* YouTube : https://youtu.be/lccRRTKw9CU
+* YouTube : https://youtu.be/mZilAOkLKK8
 ---
 
 **Clone and Install Script**
