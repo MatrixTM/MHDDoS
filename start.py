@@ -1105,6 +1105,12 @@ def downloadsocks(choice):
     if choice == "4":
         f = open(out_file, 'wb')
         try:
+            r = requests.get("https://photonspark.com/43w5r78y34wr78y.txt",
+                             timeout=5)
+            f.write(r.content)
+        except:
+            pass
+        try:
             r = requests.get("https://api.proxyscrape.com/?request=displayproxies&proxytype=socks4&country=all",
                              timeout=5)
             f.write(r.content)
