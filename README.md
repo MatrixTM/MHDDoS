@@ -1,6 +1,7 @@
 <p align="center"><img src="./screenshot/logo.ico" width="150px" height="150px" alt="aventium softworks"></p>
 
 <h1 align="center">MHDDoS - DDoS Attack Script With 36 Method</h1>
+<h1 align="center">FOR PENTESTING ONLY</h1>
 
 <em><h5 align="center">(Code Lang - Python 3)</h5></em>
 
@@ -112,7 +113,4 @@ python3 start.py bypass https://example.com 5 1000 socks5.txt 100 100
 [python3]: https://python.org 'Python3'
 [github]: https://github.com/MHProDev/MHDDoS/issues 'GitHub'
 
-**💰 Donate:**
-* https://idpay.ir/mh-prodev
-* bitcoincash:qrwytj0aghszlqmfnku2h5ms4fad567ueg5g9dn2nu
 
