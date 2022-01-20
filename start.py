@@ -1529,7 +1529,7 @@ def makefile(text):
     print('File: ', text)
 
 if __name__ == '__main__':
-    import os, requests, socket, socks, time, random, threading, sys, ssl, datetime, cfscrape, re
+    import os, requests, socket, socks, time, random, threading, sys, ssl, datetime, cfscrape, re, secrets
     from time import sleep
     from icmplib import ping as pig
     from scapy.layers.inet import TCP
