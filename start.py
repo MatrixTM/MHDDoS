@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import json
+from json import load
 import os.path
-import re
-import string
+from re import compile
+from string import ascii_letters
 from _socket import gethostname
 from contextlib import suppress
 from itertools import cycle
@@ -47,7 +47,7 @@ class Methods:
 
 
 class Tools:
-    randString = lambda length: ''.join(sample(string.ascii_letters, length))
+    randString = lambda length: ''.join(randchoice(ascii_letters) for _ in range(length))
     randIPv4 = lambda: inet_ntoa(data_pack('>I', randint(1, 0xffffffff)))
 
     @staticmethod
@@ -533,7 +533,7 @@ class HttpFlood(Thread):
 
 
 class Regex:
-    IP = re.compile(r"(?:\d{1,3}\.){3}\d{1,3}")
+    IP = compile(r"(?:\d{1,3}\.){3}\d{1,3}")
 
 
 class ProxyManager:
@@ -779,7 +779,7 @@ class ToolsConsole:
 
 if __name__ == '__main__':
     with open("config.json") as f:
-        con = json.load(f)
+        con = load(f)
 
         with suppress(IndexError):
             one = argv[1].upper()
@@ -860,7 +860,7 @@ if __name__ == '__main__':
                 for _ in range(threads):
                     Layer4((target, port), ref, method, event).start()
 
-            print("Attack Success Started !")
+            print("Attack Started !")
             event.set()
             while timer:
                 timer -= 1
