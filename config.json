@@ -1,0 +1,18 @@
+{
+  "proxy-providers": [
+		{"type":4, "url": "https://api.proxyscrape.com/?request=displayproxies&proxytype=socks4",  "timeout": 5},
+		{"type":4, "url": "https://www.proxy-list.download/api/v1/get?type=socks4",  "timeout": 5},
+		{"type":4, "url": "https://www.proxyscan.io/download?type=socks4",  "timeout": 5},
+		{"type":4, "url": "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt",  "timeout": 5},
+		{"type":5, "url": "https://api.proxyscrape.com/?request=displayproxies&proxytype=socks5",  "timeout": 5},
+		{"type":5, "url": "https://www.proxy-list.download/api/v1/get?type=socks5",  "timeout": 5},
+		{"type":5, "url": "https://gist.githubusercontent.com/Azuures/1e0cb7a1097c720b4ed2aa63acd82179/raw/97d2d6a11873ffa8ca763763f7a5dd4035bcf95f/fwefnwex",  "timeout": 5},
+		{"type":5, "url": "https://www.proxyscan.io/download?type=socks5",  "timeout": 5},
+		{"type":5, "url": "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt",  "timeout": 5},
+		{"type":1, "url": "https://api.proxyscrape.com/?request=displayproxies&proxytype=http",  "timeout": 5},
+		{"type":1, "url": "https://www.proxy-list.download/api/v1/get?type=http",  "timeout": 5},
+		{"type":1, "url": "https://www.proxyscan.io/download?type=http",  "timeout": 5},
+		{"type":1, "url": "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt",  "timeout": 5}
+
+	]
+}

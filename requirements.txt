@@ -1,6 +1,8 @@
-requests
-pysocks
-socks
-cfscrape
-icmplib
-scapy
+cloudscraper<=1.2.58
+certifi<=2021.10.8
+yarl<=1.7.2
+requests<=2.27.1
+pysocks<=1.7.1
+git+https://github.com/SecureAuthCorp/impacket.git
+psutil>=5.9.0
+icmplib>=3.0.2
