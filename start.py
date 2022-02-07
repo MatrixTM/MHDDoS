@@ -106,7 +106,7 @@ class Proxy:
 class Layer4(Thread):
     _method: str
     _target: Tuple[str, int]
-    _ref: List[str] | None
+    _ref: Any
     SENT_FLOOD: Any
     _amp_payloads = cycle(Any)
 
@@ -245,7 +245,7 @@ class HttpFlood(Thread):
     _target: URL
     _method: str
     _rpc: int
-    _synevent: Event | None
+    _synevent: Any
     SENT_FLOOD: Any
 
     def __init__(self, target: URL, method: str = "GET", rpc: int = 1,
