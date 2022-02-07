@@ -6,7 +6,7 @@ from functools import partial
 from itertools import cycle
 from json import load
 from math import trunc, log2
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool
 from os import urandom as randbytes
 from pathlib import Path
 from random import randint, choice as randchoice
@@ -558,7 +558,7 @@ class ProxyManager:
         return proxes
 
     @contextmanager
-    def poolcontext(*args, **kwargs):
+    def poolcontext(*args, **kwargs) -> Pool:
         pool = Pool(*args, **kwargs)
         yield pool
         pool.terminate()
@@ -569,8 +569,9 @@ class ProxyManager:
 
     @staticmethod
     def checkAll(proxie: Set[Proxy], url: str = "http://google.com", timeout: int = 1, threads=100) -> Set[Proxy]:
-        with ProxyManager.poolcontext(min(len(proxie) // cpu_count(), threads)) as pool:
-            return {pro[1] for pro in pool.map(partial(ProxyManager.checkProxy, url=url, timeout=timeout), proxie) if
+        print(f"{len(proxie):,} Proxies are getting checked, this may take awhile !")
+        with ProxyManager.poolcontext(min(len(proxie), threads)) as pool:
+            return {pro[1] for pro in pool.map_async(partial(ProxyManager.checkProxy, url=url, timeout=timeout), proxie).get() if
                     pro[0]}
 
 
@@ -856,7 +857,7 @@ if __name__ == '__main__':
                         print("Empty Proxy File, Running flood witout proxy")
                         proxies = None
                     if proxies:
-                        print("Proxy Count: %d" % len(proxies))
+                        print(f"Proxy Count: {len(proxies):,}" )
                     for _ in range(threads):
                         HttpFlood(url, method, rpc, event, uagents, referers, proxy_ty, proxies).start()
 
