@@ -806,7 +806,7 @@ if __name__ == '__main__':
                     rpc = int(argv[6])
                     timer = int(argv[7])
                     proxy_ty = int(argv[3].strip())
-                    proxy_li = Path(currentDir / "files/proxys/" / argv[5].strip())
+                    proxy_li = Path(currentDir / "files/proxies/" / argv[5].strip())
                     useragent_li = Path(currentDir / "files/useragent.txt")
                     referers_li = Path(currentDir / "files/referers.txt")
                     proxies: Any = set()
