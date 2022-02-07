@@ -852,9 +852,9 @@ if __name__ == '__main__':
 
                 if method in {"NTP", "DNS", "CHAR", "MEM"}:
                     if len(argv) == 5:
-                        if not Path(currentDir / ".files/%s" / argv[5].strip()): exit(
+                        if not Path(currentDir / "files" / argv[5].strip()): exit(
                             "The Reflector file doesn't exist ")
-                        ref = set(a.strip() for a in open(currentDir / ".files/%s" / argv[5].strip(), "r+").readlines())
+                        ref = set(a.strip() for a in open(currentDir / "files" / argv[5].strip(), "r+").readlines())
 
                     if not ref: exit("Empty Reflector File ")
 
