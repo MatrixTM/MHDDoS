@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os.path
 
 from contextlib import suppress
 from itertools import cycle
 from json import load
 from math import trunc, log2
 from multiprocessing import Pool, cpu_count
-from random import randint, choice as randchoice
 from os import urandom as randbytes
+from pathlib import Path
+from random import randint, choice as randchoice
 from re import compile
 from socket import (IP_HDRINCL, IPPROTO_IP, inet_ntoa, IPPROTO_TCP, TCP_NODELAY, SOCK_STREAM, AF_INET, SOL_TCP, socket,
                     SOCK_DGRAM, SOCK_RAW, gethostname)
@@ -30,6 +30,7 @@ from socks import socksocket, HTTP, SOCKS5, SOCKS4
 from yarl import URL
 
 localIP = get('http://ip.42.pl/raw').text
+currentDir = Path(__file__).parent
 
 ctx: SSLContext = create_default_context(cafile=where())
 ctx.check_hostname = False
@@ -556,6 +557,7 @@ class ProxyManager:
     def checkAll(proxie: Set[Proxy], url: str = "http://google.com", timeout: int = 1, threads=100) -> Set[Proxy]:
         def checkProxy(poxy: Proxy) -> Tuple[bool, Proxy]:
             return poxy.Check(timeout=timeout, url=url), poxy
+
         return {pro[1] for pro in Pool(min(len(proxie) // cpu_count(), threads)).map(checkProxy, proxie) if pro[0]}
 
 
@@ -778,7 +780,7 @@ class ToolsConsole:
 
 
 if __name__ == '__main__':
-    with open("config.json") as f:
+    with open(currentDir / "config.json") as f:
         con = load(f)
 
         with suppress(IndexError):
@@ -796,14 +798,14 @@ if __name__ == '__main__':
                 rpc = int(argv[6])
                 timer = int(argv[7])
                 proxy_ty = int(argv[3].strip())
-                proxy_li = "./files/proxys/" + argv[5].strip()
+                proxy_li = Path(currentDir / "files/proxys/" / argv[5].strip())
                 proxies: Any = set()
 
-                if not os.path.exists("./files/useragent.txt"): exit("The Useragent file doesn't exist ")
-                if not os.path.exists("./files/referers.txt"): exit("The Referer file doesn't exist ")
+                if not Path(currentDir / "files/useragent.txt").exists(): exit("The Useragent file doesn't exist ")
+                if not Path(currentDir / "files/referers.txt").exists(): exit("The Referer file doesn't exist ")
 
-                uagents = set(a.strip() for a in open("./files/useragent.txt", "r+").readlines())
-                referers = set(a.strip() for a in open("./files/referers.txt", "r+").readlines())
+                uagents = set(a.strip() for a in open(currentDir / "files/useragent.txt", "r+").readlines())
+                referers = set(a.strip() for a in open(currentDir / "files/referers.txt", "r+").readlines())
 
                 if not uagents: exit("Empty Useragent File ")
                 if not referers: exit("Empty Referer File ")
@@ -812,7 +814,7 @@ if __name__ == '__main__':
                 if threads > 1000: print("WARNING! thread is higher than 1000")
                 if rpc > 100: print("WARNING! RPC (Request Pre Connection) is higher than 100")
 
-                if not os.path.exists(proxy_li):
+                if not Path(proxy_li).exists():
                     if rpc > 100: print("WARNING! The file doesn't exist, creating files and downloading proxies.")
                     with open(proxy_li, "a+") as wr:
                         Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
@@ -823,7 +825,7 @@ if __name__ == '__main__':
 
                 with open(proxy_li, "r+") as rr:
                     for pro in Regex.IPPort.findall(rr.read()):
-                            proxies.add(Proxy(pro[0], int(pro[1]), proxy_ty))
+                        proxies.add(Proxy(pro[0], int(pro[1]), proxy_ty))
 
                 if not proxies:
                     print("Empty Proxy File, Running flood witout proxy")
@@ -850,8 +852,9 @@ if __name__ == '__main__':
 
                 if method in {"NTP", "DNS", "CHAR", "MEM"}:
                     if len(argv) == 5:
-                        if not os.path.exists(".files/%s" % argv[5]): exit("The Reflector file doesn't exist ")
-                        ref = set(a.strip() for a in open(".files/%s" % argv[5], "r+").readlines())
+                        if not Path(currentDir / ".files/%s" / argv[5].strip()): exit(
+                            "The Reflector file doesn't exist ")
+                        ref = set(a.strip() for a in open(currentDir / ".files/%s" / argv[5].strip(), "r+").readlines())
 
                     if not ref: exit("Empty Reflector File ")
 
