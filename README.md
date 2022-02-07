@@ -38,10 +38,11 @@
   * <img src="https://cdn.iconscout.com/icon/free/png-256/virus-2165355-1821015.png" width="16" height="16" alt="vse"> VSE | Send VSE Protocol
   * <img src="https://cdn.iconscout.com/icon/free/png-512/redis-4-1175103.png" width="16" height="16" alt="mem"> MEM | Memcached Amplification
   * <img src="https://lyrahosting.com/wp-content/uploads/2020/06/ddos-attack-icon.png" width="16" height="16" alt="ntp"> NTP | NTP Amplification
+  * <img src="https://cdn.icon-icons.com/icons2/2699/PNG/512/minecraft_logo_icon_168974.png" width="16" height="16" alt="minecraft"> MINECRAFT | Minecraft Status Ping Protocol
   * <img src="https://cdn-icons-png.flaticon.com/512/2653/2653461.png" width="16" height="16" alt="dns"> DNS | DNS Amplification
   * <img src="https://lyrahosting.com/wp-content/uploads/2020/06/ddos-attack-icon.png" width="16" height="16" alt="chargen"> CHAR | Chargen Amplification
   * <img src="https://help.apple.com/assets/6171BD2C588E52621824409D/6171BD2D588E5262182440A4/en_US/8b631353e070420f47530bf95f1a7fae.png" width="16" height="16" alt="ard"> ARD | Apple Remote Desktop Amplification
-  * <img src="https://www.tenforums.com/geek/gars/images/2/types/thumb__emote__esktop__onnection.png" width="16" height="16" alt="ard"> RDP |  Remote Desktop Protocol Amplification
+  * <img src="https://www.tenforums.com/geek/gars/images/2/types/thumb__emote__esktop__onnection.png" width="16" height="16" alt="rdp"> RDP |  Remote Desktop Protocol Amplification
 
 * ⚙️ Tools - Run With 'python3 start.py tools'
   * 🌟 CFIP | Find Real IP Address Of Websites Powered By Cloudflare
