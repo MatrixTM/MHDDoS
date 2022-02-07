@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os.path
-from _socket import gethostname
+
 from contextlib import suppress
 from itertools import cycle
 from json import load
 from math import trunc, log2
 from multiprocessing import Pool, cpu_count
-from random import randint, choice as randchoice, randbytes
+from random import randint, choice as randchoice
+from os import urandom as randbytes
 from re import compile
 from socket import (IP_HDRINCL, IPPROTO_IP, inet_ntoa, IPPROTO_TCP, TCP_NODELAY, SOCK_STREAM, AF_INET, SOL_TCP, socket,
-                    SOCK_DGRAM, SOCK_RAW)
+                    SOCK_DGRAM, SOCK_RAW, gethostname)
 from ssl import SSLContext, create_default_context, CERT_NONE
 from string import ascii_letters
 from struct import pack as data_pack
