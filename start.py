@@ -111,7 +111,7 @@ class Layer4(Thread):
     _target: Tuple[str, int]
     _ref: Any
     SENT_FLOOD: Any
-    _amp_payloads = cycle(Any)
+    _amp_payloads = cycle
 
     def __init__(self, target: Tuple[str, int],
                  ref: List[str] = None,
