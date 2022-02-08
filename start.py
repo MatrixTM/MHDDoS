@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress, contextmanager
 from functools import partial
 from itertools import cycle
@@ -17,7 +17,7 @@ from ssl import SSLContext, create_default_context, CERT_NONE
 from string import ascii_letters
 from struct import pack as data_pack
 from sys import argv, exit
-from threading import Thread, Event
+from threading import Thread, Event, Lock
 from time import sleep
 from typing import Set, List, Any, Tuple
 
@@ -94,11 +94,6 @@ class Proxy:
 
     def __repr__(self):
         return "%s:%d" % (self.host, self.port)
-
-    def Check(self, url: str = "https://google.com", timeout: int = 1) -> bool:
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError):
-            return get(url, proxies=self.toRequests(), timeout=timeout).status_code not in [403, 400]
-        return False
 
     def toRequests(self):
         return {'http': "%s://%s:%d" % (self._typeName.lower(),
@@ -544,19 +539,26 @@ class Regex:
 
 
 class ProxyManager:
+
     @staticmethod
     def DownloadFromConfig(cf, Proxy_type: int) -> Set[Proxy]:
         proxes: Set[Proxy] = set()
-        for provider in cf["proxy-providers"]:
-            if Proxy_type != provider["type"]: continue
+        lock = Lock()
+        with ThreadPoolExecutor(max_workers=len(cf["proxy-providers"])) as executor:
+            for provider in cf["proxy-providers"]:
+                if Proxy_type != provider["type"]: continue
+                print(provider)
+                executor.submit(ProxyManager.download(provider, proxes, lock))
 
-            print(provider)
-            with suppress(TimeoutError, exceptions.ConnectionError, exceptions.ReadTimeout):
-                data = get(provider["url"], timeout=provider["timeout"]).text
-                for proy in Regex.IPPort.findall(data):
-                    proxes.add(Proxy(proy[0], int(proy[1]), provider["type"]))
         return proxes
 
+    @staticmethod
+    def download(provider, proxes: Set[Proxy], threadLock: Lock) -> Any:
+        with suppress(TimeoutError, exceptions.ConnectionError, exceptions.ReadTimeout):
+            data = get(provider["url"], timeout=provider["timeout"]).text
+            for proy in Regex.IPPort.findall(data):
+                with threadLock:
+                    proxes.add(Proxy(proy[0], int(proy[1]), provider["type"]))
     @contextmanager
     def poolcontext(*args, **kwargs) -> Pool:
         pool = Pool(*args, **kwargs)
@@ -565,7 +567,9 @@ class ProxyManager:
 
     @staticmethod
     def checkProxy(pxy: Proxy, url: str = "http://google.com", timeout: int = 1) -> Tuple[bool, Proxy]:
-        return pxy.Check(timeout=timeout, url=url), pxy
+        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError):
+            return get(url, proxies=pxy.toRequests(), timeout=timeout).status_code not in [403, 400], pxy
+        return False, pxy
 
     @staticmethod
     def checkAll(proxie: Set[Proxy], url: str = "http://google.com", timeout: int = 1, threads=100) -> Set[Proxy]:
@@ -751,8 +755,8 @@ class ToolsConsole:
     @staticmethod
     def usage():
         print(('* Coded By MH_ProDev For Better Stresser\n'
-               'Note: If You Don\'t Have a Proxy List, Script Won\'t Use Proxy\n'
-               'If Proxy File doesn\'t exist, Script Will Download Proxy\n'
+               'Note: If the Proxy list is empty, the attack will run without proxies\n'
+               '      If the Proxy file doesn\'t exist, the script will download proxies and check them.\n'
                ' Layer7: python3 %s <method> <url> <socks_type5.4.1> <threads> <proxylist> <rpc> <duration>\n'
                ' Layer4: python3 %s <method> <ip:port> <threads> <duration> <reflector file, (only use with Amplification>\n'
                '\n'
@@ -842,8 +846,9 @@ if __name__ == '__main__':
                         proxy_li.parent.mkdir(parents=True, exist_ok=True)
                         with proxy_li.open("w") as wr:
                             Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
-                            Proxies = ProxyManager.checkAll(Proxies, url.human_repr(), threads)
-
+                            Proxies = ProxyManager.checkAll(Proxies, url.human_repr(), 1, threads)
+                            if not Proxies:
+                                exit("Proxy Check failed, Your network may be the problem | The target may not be available.")
                             stringBuilder = ""
                             for proxy in Proxies:
                                 stringBuilder += (proxy.__str__() + "\n")
