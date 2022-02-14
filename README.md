@@ -56,7 +56,6 @@
   * 🌠 TOOLS | Console Tools
   * 👑 HELP | Show Usage Script
 
-* Layer4 DDoS Script
 #### Issues ? 
  * Telegram : https://t.me/DD0SChat
  * Discord : MH_ProDev#2681
