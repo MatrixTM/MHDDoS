@@ -566,13 +566,13 @@ class ProxyManager:
         pool.terminate()
 
     @staticmethod
-    def checkProxy(pxy: Proxy, url: str = "http://google.com", timeout: int = 1) -> Tuple[bool, Proxy]:
+    def checkProxy(pxy: Proxy, url: str = "https://httpbin.org/get", timeout: int = 1) -> Tuple[bool, Proxy]:
         with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError):
-            return get(url, proxies=pxy.toRequests(), timeout=timeout).status_code not in [400], pxy
+            return get(url, proxies=pxy.toRequests(), timeout=timeout).status_code not in [400, 403], pxy
         return False, pxy
 
     @staticmethod
-    def checkAll(proxie: Set[Proxy], url: str = "http://google.com", timeout: int = 1, threads=100) -> Set[Proxy]:
+    def checkAll(proxie: Set[Proxy], url: str = "https://httpbin.org/get", timeout: int = 1, threads=100) -> Set[Proxy]:
         print(f"{len(proxie):,} Proxies are getting checked, this may take awhile !")
         with ProxyManager.poolcontext(min(len(proxie), threads)) as pool:
             return {pro[1] for pro in pool.map_async(partial(ProxyManager.checkProxy, url=url, timeout=timeout), proxie).get() if
@@ -846,7 +846,7 @@ if __name__ == '__main__':
                         proxy_li.parent.mkdir(parents=True, exist_ok=True)
                         with proxy_li.open("w") as wr:
                             Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
-                            Proxies = ProxyManager.checkAll(Proxies, url.human_repr(), 1, threads)
+                            Proxies = ProxyManager.checkAll(Proxies, "https://httpbin.org/get", 1, threads)
                             if not Proxies:
                                 exit("Proxy Check failed, Your network may be the problem | The target may not be available.")
                             stringBuilder = ""
