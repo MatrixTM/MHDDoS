@@ -568,7 +568,7 @@ class ProxyManager:
     @staticmethod
     def checkProxy(pxy: Proxy, url: str = "http://google.com", timeout: int = 1) -> Tuple[bool, Proxy]:
         with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError):
-            return get(url, proxies=pxy.toRequests(), timeout=timeout).status_code not in [403, 400], pxy
+            return get(url, proxies=pxy.toRequests(), timeout=timeout).status_code not in [400], pxy
         return False, pxy
 
     @staticmethod
