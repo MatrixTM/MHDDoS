@@ -1,8 +1,6 @@
 cloudscraper<=1.2.58
 certifi<=2021.10.8
-yarl<=1.7.2
 requests==2.27.1
-pysocks<=1.7.1
 impacket>=0.9.24
 psutil>=5.9.0
 icmplib>=2.1.1

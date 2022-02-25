@@ -71,12 +71,14 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 
 **Requirements**
 
+* [cloudscraper](https://github.com/VeNoMouS/cloudscraper)
+* [impacket](https://github.com/SecureAuthCorp/impacket)
+* [requests](https://github.com/psf/requests)
 * [Python3][python3]
-* requests
-* Pysocks
-* cfscrape
-* icmplib
-* scapy
+* [PyRoxy](https://github.com/MHProDev/PyRoxy)
+* [icmplib](https://github.com/ValentinBELYN/icmplib)
+* [certifi](https://github.com/certifi/python-certifi)
+* [psutil](https://github.com/giampaolo/psutil)
 ---
 
 **Videos**
