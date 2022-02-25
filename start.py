@@ -501,7 +501,7 @@ class ProxyManager:
     def download(provider, proxes: Set[Proxy], threadLock: Lock, proxy_type: ProxyType) -> Any:
         with suppress(TimeoutError, exceptions.ConnectionError, exceptions.ReadTimeout):
             data = get(provider["url"], timeout=provider["timeout"]).text
-            for proxy in ProxyUtiles.parseAll(data, proxy_type):
+            for proxy in ProxyUtiles.parseAllIPPort(data, proxy_type):
                 with threadLock:
                     proxes.add(proxy)
 
