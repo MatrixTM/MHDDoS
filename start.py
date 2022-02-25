@@ -286,7 +286,8 @@ class HttpFlood(Thread):
     def open_connection(self) -> socket:
         sock = socket(AF_INET, SOCK_STREAM)
         if self._proxies:
-            sock = next(self._proxies).wrap(sock)
+            sock.close()
+            sock = next(self._proxies).open_socket(AF_INET, SOCK_STREAM)
 
         sock.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
         if self._target.scheme.lower() == "https":
