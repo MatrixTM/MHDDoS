@@ -683,6 +683,7 @@ class ToolsConsole:
         print(('* Coded By MH_ProDev For Better Stresser\n'
                'Note: If the Proxy list is empty, the attack will run without proxies\n'
                '      If the Proxy file doesn\'t exist, the script will download proxies and check them.\n'
+               '      Proxy Type 0 = All in config.yml\n'
                ' Layer7: python3 %s <method> <url> <socks_type5.4.1> <threads> <proxylist> <rpc> <duration>\n'
                ' Layer4: python3 %s <method> <ip:port> <threads> <duration> <reflector file, (only use with '
                'Amplification>\n'
@@ -711,7 +712,7 @@ class ToolsConsole:
                                                         argv[0],
                                                         randchoice([*Methods.LAYER7_METHODS]),
                                                         "https://example.com",
-                                                        randchoice([4, 5, 1]),
+                                                        randchoice([4, 5, 1, 0]),
                                                         randint(850, 1000),
                                                         randint(50, 100),
                                                         randint(1000, 3600),
@@ -764,7 +765,7 @@ if __name__ == '__main__':
                     if not uagents: exit("Empty Useragent File ")
                     if not referers: exit("Empty Referer File ")
 
-                    if proxy_ty not in {4, 5, 1}: exit("Socks Type Not Found [4, 5, 1]")
+                    if proxy_ty not in {4, 5, 1, 0}: exit("Socks Type Not Found [4, 5, 1, 0]")
                     if threads > 1000: print("WARNING! thread is higher than 1000")
                     if rpc > 100: print("WARNING! RPC (Request Pre Connection) is higher than 100")
 
