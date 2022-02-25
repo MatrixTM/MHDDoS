@@ -78,6 +78,7 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 * [icmplib](https://github.com/ValentinBELYN/icmplib)
 * [certifi](https://github.com/certifi/python-certifi)
 * [psutil](https://github.com/giampaolo/psutil)
+* [yarl](https://github.com/aio-libs/yarl)
 ---
 
 **Videos**
