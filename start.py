@@ -281,7 +281,6 @@ class HttpFlood(Thread):
         payload += "Host: %s\r\n" % self._target.authority
         payload += self.randHeadercontent
         payload += other if other else ""
-        print(payload)
         return str.encode(f"{payload}\r\n")
 
     def open_connection(self) -> socket:
@@ -501,7 +500,7 @@ class ProxyManager:
     def download(provider, proxes: Set[Proxy], threadLock: Lock, proxy_type: ProxyType) -> Any:
         with suppress(TimeoutError, exceptions.ConnectionError, exceptions.ReadTimeout):
             data = get(provider["url"], timeout=provider["timeout"]).text
-            for proxy in ProxyUtiles.parseAllIPPort(data, proxy_type):
+            for proxy in ProxyUtiles.parseAllIPPort(data.splitlines(), proxy_type):
                 with threadLock:
                     proxes.add(proxy)
 
