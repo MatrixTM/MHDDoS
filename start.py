@@ -494,7 +494,7 @@ class ProxyManager:
         for provider in cf["proxy-providers"]:
             if provider["type"] != Proxy_type and Proxy_type != 0: continue
             print("Downloading Proxies form %s" % provider["url"])
-            ProxyManager.download(provider, proxes, lock, ProxyType.stringToProxyType(provider["type"]))
+            ProxyManager.download(provider, proxes, lock, ProxyType.stringToProxyType(str(provider["type"])))
         return proxes
 
     @staticmethod
