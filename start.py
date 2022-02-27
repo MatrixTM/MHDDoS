@@ -747,9 +747,12 @@ if __name__ == '__main__':
                 method = one
                 event = Event()
 
+                if method not in Methods.ALL_METHODS:
+                    exit("Method Not Found %s" % ", ".join(Methods.ALL_METHODS))
+
                 if method in Methods.LAYER7_METHODS:
                     urlraw = argv[2].strip()
-                    if not urlraw.startswith("http://"): urlraw = "http://" + urlraw
+                    if not urlraw.startswith("http"): urlraw = "http://" + urlraw
                     url = URL(urlraw)
                     threads = int(argv[4])
                     rpc = int(argv[6])
