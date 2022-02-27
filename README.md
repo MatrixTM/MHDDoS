@@ -70,7 +70,7 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 
 **Requirements**
 
-* [cloudscraper](https://github.com/VeNoMouS/cloudscraper)
+* [cfscrape](https://github.com/Anorov/cloudflare-scrape)
 * [impacket](https://github.com/SecureAuthCorp/impacket)
 * [requests](https://github.com/psf/requests)
 * [Python3][python3]

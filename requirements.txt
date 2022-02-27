@@ -1,4 +1,4 @@
-cloudscraper<=1.2.58
+cfscrape<=2.1.1
 certifi<=2021.10.8
 requests==2.27.1
 impacket>=0.9.24
