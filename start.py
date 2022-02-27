@@ -747,7 +747,9 @@ if __name__ == '__main__':
                 event = Event()
 
                 if method in Methods.LAYER7_METHODS:
-                    url = URL(argv[2].strip())
+                    urlraw = argv[2].strip()
+                    if not urlraw.startswith("http://"): urlraw = "http://" + urlraw
+                    url = URL(urlraw)
                     threads = int(argv[4])
                     rpc = int(argv[6])
                     timer = int(argv[7])
