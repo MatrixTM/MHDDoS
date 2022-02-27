@@ -220,7 +220,7 @@ class HttpFlood(Thread):
         self._target = target
         self._raw_target = (self._target.host, (self._target.port or 80))
 
-        if not self._target.host[len(self._target.host)].isdigit():
+        if not self._target.host[len(self._target.host)-1].isdigit():
             self._raw_target = (gethostbyname(self._target.host), (self._target.port or 80))
 
         if not referers:
