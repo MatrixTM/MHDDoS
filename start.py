@@ -101,7 +101,9 @@ class Layer4:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
         while 1:
-            self.SENT_FLOOD()
+            with suppress(Exception):
+                while 1:
+                    self.SENT_FLOOD()
 
     def select(self, name):
         self.SENT_FLOOD = self.TCP
