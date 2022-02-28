@@ -88,7 +88,6 @@ class Layer4:
                  ref: List[str] = None,
                  method: str = "TCP",
                  synevent: Event = None):
-        super().__init__(daemon=True)
         self._amp_payload = None
         self._amp_payloads = cycle([])
         self._ref = ref
