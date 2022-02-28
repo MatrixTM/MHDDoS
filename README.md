@@ -1,6 +1,6 @@
 <p align="center"><img src="./screenshot/logo.ico" width="150px" height="150px" alt="aventium softworks"></p>
 
-<h1 align="center">MHDDoS - DDoS Attack Script With 36 Methods</h1>
+<h1 align="center">MHDDoS - DDoS Attack Script With 40 Methods</h1>
 
 <em><h5 align="center">(Code Lang - Python 3)</h5></em>
 
@@ -27,6 +27,9 @@
    * <img src="https://masbadar.com/wp-content/uploads/2016/02/Logo-Projects-Shield-2.jpg" width="16" height="16" alt="googleshield"> GSB | Google Project Shield Bypass
    * <img src="https://seeklogo.com/images/D/ddos-guard-logo-CFEFCA409C-seeklogo.com.png" width="16" height="16" alt="DDoSGuard"> DGB | DDoS Guard Bypass
    * <img src="https://i.imgur.com/bGL8qfw.png" width="16" height="16" alt="ArvanCloud"> AVB | Arvan Cloud Bypass
+   * <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/1024px-Google_%22G%22_Logo.svg.png" width="16" height="16" alt="Google bot"> BOT | Like Google bot
+   * <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Apache_HTTP_Server_Logo_%282016%29.svg/1000px-Apache_HTTP_Server_Logo_%282016%29.svg.png" width="16" height="16" alt="Apache Webserver"> APACHE | Apache Expliot
+   * <img src="https://icon-library.com/images/icon-for-wordpress/icon-for-wordpress-16.jpg" width="16" height="16" alt="wordpress expliot"> XMLRPC | WP XMLRPC expliot (add /xmlrpc.php)
    * <img src="https://techcrunch.com/wp-content/uploads/2019/06/J2LlHqT3qJl0bG9Alpgc-1-730x438.png?w=730" width="16" height="16" alt="CloudFlare"> CFB | CloudFlare Bypass
    * <img src="https://techcrunch.com/wp-content/uploads/2019/06/J2LlHqT3qJl0bG9Alpgc-1-730x438.png?w=730" width="16" height="16" alt="CloudFlare UnderAttack Mode"> CFBUAM | CloudFlare Under Attack Mode Bypass
    * <img src="http://iclouddnsbypass.com/wp-content/uploads/2015/02/iCloudDNSBypassServer.ico" width="16" height="16" alt="bypass"> BYPASS |  Bypass Normal AntiDDoS
