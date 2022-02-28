@@ -12,6 +12,7 @@
 		{"type":1, "url": "https://www.proxy-list.download/api/v1/get?type=http",  "timeout": 5},
 		{"type":1, "url": "https://www.proxyscan.io/download?type=http",  "timeout": 5},
 		{"type":1, "url": "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt",  "timeout": 5}
+	  	{"type":1, "url": "https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt",  "timeout": 5}
 
 	]
 }
