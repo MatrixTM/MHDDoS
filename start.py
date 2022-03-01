@@ -779,7 +779,6 @@ class ProxyManager:
             for future in as_completed(future_to_download):
                 for pro in future.result():
                     proxes.add(pro)
-        print(proxes)
         return proxes
 
     @staticmethod
