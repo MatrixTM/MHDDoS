@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import suppress
 from itertools import cycle
 from json import load
@@ -763,26 +764,38 @@ class HttpFlood(Thread):
 class ProxyManager:
     @staticmethod
     def DownloadFromConfig(cf, Proxy_type: int) -> Set[Proxy]:
-        proxes: Set[Proxy] = set()
-        lock = Lock()
-        logger.info("Downloading Proxies form %d Providers" % len(cf["proxy-providers"]))
-        for provider in cf["proxy-providers"]:
-            if provider["type"] != Proxy_type and Proxy_type != 0: continue
-            typ = ProxyType.stringToProxyType(str(provider["type"]))
-            logger.debug("Downloading Proxies form (URL: %s, Type: %s, Timeout: %d)" % (provider["url"], typ.name, provider["timeout"]))
-            ProxyManager.download(provider, proxes, lock, typ)
+        providrs = [provider for provider in cf["proxy-providers"] if
+                    provider["type"] == Proxy_type or Proxy_type == 0]
+        logger.info("Downloading Proxies form %d Providers" % len(providrs))
+        proxes:Set[Proxy] = set()
+
+        with ThreadPoolExecutor(len(providrs)) as executor:
+            future_to_download = {
+                executor.submit(ProxyManager.download,
+                                provider,
+                                ProxyType.stringToProxyType(str(provider["type"])))
+                for provider in providrs
+            }
+            for future in as_completed(future_to_download):
+                for pro in future.result():
+                    proxes.add(pro)
+        print(proxes)
         return proxes
 
     @staticmethod
-    def download(provider, proxes: Set[Proxy], threadLock: Lock, proxy_type: ProxyType) -> Any:
+    def download(provider, proxy_type: ProxyType) -> Set[Proxy]:
+        logger.debug("Downloading Proxies form (URL: %s, Type: %s, Timeout: %d)" % (provider["url"],
+                                                                                    proxy_type.name,
+                                                                                    provider["timeout"]))
+        proxes:Set[Proxy] = set()
         with suppress(TimeoutError, exceptions.ConnectionError, exceptions.ReadTimeout):
             data = get(provider["url"], timeout=provider["timeout"]).text
             try:
                 for proxy in ProxyUtiles.parseAllIPPort(data.splitlines(), proxy_type):
-                    with threadLock:
-                        proxes.add(proxy)
+                    proxes.add(proxy)
             except Exception as e:
-                logger.info('Download Proxy Error: %s' % (e.__str__() or e.__repr__()))
+                logger.error('Download Proxy Error: %s' % (e.__str__() or e.__repr__()))
+        return proxes
 
 
 class ToolsConsole:
