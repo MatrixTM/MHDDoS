@@ -768,9 +768,9 @@ class ProxyManager:
         logger.info("Downloading Proxies form %d Providers" % len(cf["proxy-providers"]))
         for provider in cf["proxy-providers"]:
             if provider["type"] != Proxy_type and Proxy_type != 0: continue
-            typ = ProxyType.stringToProxyType(str(provider["type"])
+            typ = ProxyType.stringToProxyType(str(provider["type"]))
             logger.debug("Downloading Proxies form (URL: %s, Type: %s, Timeout: %d)" % (provider["url"], typ.name, provider["timeout"]))
-            ProxyManager.download(provider, proxes, lock, typ))
+            ProxyManager.download(provider, proxes, lock, typ)
         return proxes
 
     @staticmethod
