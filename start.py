@@ -765,7 +765,7 @@ class ProxyManager:
     def DownloadFromConfig(cf, Proxy_type: int) -> Set[Proxy]:
         proxes: Set[Proxy] = set()
         lock = Lock()
-        logger.info("Downloading Proxies form %d Providers" % len(cf["proxy-providers"]:))
+        logger.info("Downloading Proxies form %d Providers" % len(cf["proxy-providers"]))
         for provider in cf["proxy-providers"]:
             if provider["type"] != Proxy_type and Proxy_type != 0: continue
             typ = ProxyType.stringToProxyType(str(provider["type"])
