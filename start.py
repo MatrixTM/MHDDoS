@@ -657,7 +657,7 @@ class ProxyManager:
                     with threadLock:
                         proxes.add(proxy)
             except Exception as e:
-                print('download proxy error', proxy, e)
+                print('download proxy error', e)
 
 
 class ToolsConsole:
