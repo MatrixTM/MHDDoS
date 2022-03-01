@@ -1,9 +1,14 @@
 <p align="center"><img src="./screenshot/logo.ico" width="150px" height="150px" alt="aventium softworks"></p>
 
 <h1 align="center">MHDDoS - DDoS Attack Script With 40 Methods</h1>
-
 <em><h5 align="center">(Code Lang - Python 3)</h5></em>
 
+<p align="center">
+<a href="#"><img alt="MHDDoS forks" src="https://img.shields.io/github/forks/MHProDev/MHDDoS?style=for-the-badge"></a>
+<a href="#"><img alt="MHDDoS last commit (main)" src="https://img.shields.io/github/last-commit/MHProDev/MHDDoS/main?color=green&style=for-the-badge"></a>
+<a href="#"><img alt="MHDDoS Repo stars" src="https://img.shields.io/github/stars/MHProDev/MHDDoS?style=for-the-badge&color=yellow"></a>
+<a href="#"><img alt="MHDDoS License" src="https://img.shields.io/github/license/MHProDev/MHDDoS?color=orange&style=for-the-badge"></a>
+<a href="https://github.com/MHProDev/MHDDoS/issues"><img alt="MHDDoS issues" src="https://img.shields.io/github/issues/MHProDev/MHDDoS?color=purple&style=for-the-badge"></a>
 
 <p align="center">Please Don't Attack '.gov' and '.ir' Websites :)</p>
 
@@ -12,7 +17,8 @@
 
 ## Features And Methods
 
- * 💣 Layer7
+ * 💣 Layer7![68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f666f726b732f4d4850726f4465762f4d4844446f533f7374796c653d666f722d7468652d6261646765](https://user-images.githubusercontent.com/63018646/156079829-f6dd9164-4d8a-4006-8b11-28fec84b3478.svg)
+
    * <img src="https://image.flaticon.com/icons/png/128/2431/2431664.png" width="16" height="16" alt="get"> GET | GET Flood
    * <img src="https://cdn0.iconfinder.com/data/icons/database-storage-5/60/server__database__fire__burn__safety-512.png" width="16" height="16" alt="post"> POST | POST Flood
    * <img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/OVH_Logo.svg/1200px-OVH_Logo.svg.png" width="16" height="16" alt="ovh"> OVH | Bypass OVH
