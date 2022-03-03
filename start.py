@@ -1083,7 +1083,7 @@ if __name__ == '__main__':
                         proxy_li.parent.mkdir(parents=True, exist_ok=True)
                         with proxy_li.open("w") as wr:
                             Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
-                            logger.info(f"{len(Proxies):,} Proxies are getting checked, this may take awhile !")
+                            logger.info(f"{len(Proxies):,} Proxies are getting checked, this may take awhile!")
                             Proxies = ProxyChecker.checkAll(Proxies, url.human_repr(), 1, threads)
                             if not Proxies: exit(
                                 "Proxy Check failed, Your network may be the problem | The target may not be"
