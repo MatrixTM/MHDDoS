@@ -1121,9 +1121,9 @@ if __name__ == '__main__':
                             not ToolsConsole.checkRawSocket(): exit("Cannot Create Raw Socket ")
 
                     if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
-                        if len(argv) == 7:
-                            logger.setLevel("DEBUG")
-                        if len(argv) == 6:
+                        if len(argv) >= 6:
+                            if len(argv) == 7:
+                              logger.setLevel("DEBUG")
                             refl_li = Path(__dir__ / "files" / argv[5].strip())
                             if not refl_li.exists(): exit("The Reflector file doesn't exist ")
                             ref = set(a.strip() for a in ProxyTools.Patterns.IP.findall(refl_li.open("r+").read()))
