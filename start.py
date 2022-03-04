@@ -26,6 +26,7 @@ from impacket.ImpactPacket import IP, TCP, UDP, Data
 from psutil import process_iter, net_io_counters, virtual_memory, cpu_percent
 from requests import get, Session, exceptions, Response
 from yarl import URL
+import dns.resolver
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s', datefmt="%H:%M:%S")
 logger = getLogger("MHDDoS")
@@ -805,7 +806,7 @@ class ProxyManager:
 
 
 class ToolsConsole:
-    METHODS = {"INFO", "CFIP", "DNS", "PING", "CHECK", "DSTAT"}
+    METHODS = {"INFO", "TSSRV", "CFIP", "DNS", "PING", "CHECK", "DSTAT"}
 
     @staticmethod
     def checkRawSocket():
@@ -940,6 +941,30 @@ class ToolsConsole:
                                       info["isp"],
                                       info["region"]))
 
+            if cmd == "TSSRV":
+                while True:
+                    domain = input(f'{cons}give-me-domain# ')
+                    if not domain: continue
+                    if domain.upper() == "BACK": break
+                    if domain.upper() == "CLEAR":
+                        print("\033c")
+                        continue
+                    if (domain.upper() == "E") or \
+                            (domain.upper() == "EXIT") or \
+                            (domain.upper() == "Q") or \
+                            (domain.upper() == "QUIT") or \
+                            (domain.upper() == "LOGOUT") or \
+                            (domain.upper() == "CLOSE"):
+                        exit(-1)
+                    domain = domain.replace('https://', '').replace('http://', '')
+                    if "/" in domain: domain = domain.split("/")[0]
+                    print('please wait ...', end="\r")
+
+                    info = ToolsConsole.ts_srv(domain)
+                    logger.info(("TCP: %s\n") % (info['_tsdns._tcp.']))
+                    logger.info(("UDP: %s\n") % (info['_ts3._udp.']))
+
+                    
             if cmd == "PING":
                 while True:
                     domain = input(f'{cons}give-me-ipaddress# ')
@@ -1022,6 +1047,24 @@ class ToolsConsole:
                                                         randint(1000, 3600)
                                                         ))
 
+    @staticmethod
+    def ts_srv(domain):
+      records = ['_ts3._udp.', '_tsdns._tcp.']
+      DnsResolver = dns.resolver.Resolver()
+      DnsResolver.timeout = 1
+      DnsResolver.lifetime = 1
+      Info = {}
+      for rec in records:
+        try:
+          srv_records=dns.resolver.resolve(rec+domain, 'SRV')
+          for srv in srv_records:
+              Info[rec] = str(srv.target).rstrip('.')+':'+str(srv.port)
+        except:
+          Info[rec] = 'Not found'
+
+      return(Info)
+
+      
     # noinspection PyUnreachableCode
     @staticmethod
     def info(domain):
