@@ -19,7 +19,6 @@ from sys import argv, exit as _exit
 from threading import Thread, Event, Lock
 from time import sleep, time
 from typing import Set, List, Any, Tuple
-from urllib import parse
 from PyRoxy import Proxy, Tools as ProxyTools, ProxyUtiles, ProxyType, ProxyChecker
 from certifi import where
 from cfscrape import create_scraper
@@ -1082,7 +1081,7 @@ if __name__ == '__main__':
                     if not uagents: exit("Empty Useragent File ")
                     if not referers: exit("Empty Referer File ")
 
-                    if proxy_ty not in {4, 5, 1, 0}: exit("Socks Type Not Found [4, 5, 1, 0]")
+                    if proxy_ty not in {4, 5, 1, 0}: exit("Proxy Type Not Found [4, 5, 1, 0]")
                     if threads > 1000: logger.warning("thread is higher than 1000")
                     if rpc > 100: logger.warning("RPC (Request Pre Connection) is higher than 100")
 
