@@ -10,6 +10,7 @@ from math import trunc, log2
 from multiprocessing import RawValue
 from os import urandom as randbytes
 from pathlib import Path
+from urllib import parse
 from random import randint, choice as randchoice
 from socket import (IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, TCP_NODELAY, SOCK_STREAM, AF_INET, socket,
                     SOCK_DGRAM, SOCK_RAW, gethostname, gethostbyname)
