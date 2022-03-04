@@ -57,6 +57,7 @@
 * ⚙️ Tools - Run With 'python3 start.py tools'
   * 🌟 CFIP | Find Real IP Address Of Websites Powered By Cloudflare
   * 🔪 DNS | Show DNS Records Of Sites
+  * 📍  TSSRV | TeamSpeak SRV Resolver
   * ⚠  PING | PING Servers
   * 📌 CHECK | Check If Websites Status
   * 😎 DSTAT | That Shows Bytes Received, bytes Sent and their amount
@@ -88,6 +89,7 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 * [icmplib](https://github.com/ValentinBELYN/icmplib)
 * [certifi](https://github.com/certifi/python-certifi)
 * [psutil](https://github.com/giampaolo/psutil)
+* [dnspython](https://github.com/rthalley/dnspython)
 * [yarl](https://github.com/aio-libs/yarl)
 ---
 
