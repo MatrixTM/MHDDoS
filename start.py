@@ -8,7 +8,6 @@ from json import load
 from logging import getLogger, shutdown, basicConfig
 from math import trunc, log2
 from multiprocessing import RawValue
-from urllib.parse import urlparse
 from os import urandom as randbytes
 from pathlib import Path
 from random import randint, choice as randchoice
