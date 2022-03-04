@@ -37,7 +37,7 @@ ctx.verify_mode = CERT_NONE
 
 __version__ = "2.1 SNAPSHOT"
 __dir__ = Path(__file__).parent
-__ip__ = get('http://ip.42.pl/raw').text
+__ip__ = get('https://api.my-ip.io/ip').text
 
 
 def exit(*message):
