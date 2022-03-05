@@ -19,6 +19,7 @@ from ssl import CERT_NONE, SSLContext, create_default_context
 from sys import argv
 from sys import exit as _exit
 from threading import Event, Lock, Thread
+from urllib import parse
 from time import sleep, time
 from typing import Any, List, Set, Tuple
 
