@@ -1,7 +1,7 @@
 <p align="center"><img src="https://cdn.discordapp.com/attachments/938175699326484490/948263435412598864/unknown_2.png" width="400px" height="150px" alt="aventium softworks"></p>
 
 <h1 align="center">MHDDoS - DDoS Attack Script With 40 Methods</h1>
-<em><h5 align="center">(Code Lang - Python 3)</h5></em>
+<em><h5 align="center">(Programming Language - Python 3)</h5></em>
 
 <p align="center">
 <a href="#"><img alt="MHDDoS forks" src="https://img.shields.io/github/forks/MHProDev/MHDDoS?style=for-the-badge"></a>
@@ -10,7 +10,7 @@
 <a href="#"><img alt="MHDDoS License" src="https://img.shields.io/github/license/MHProDev/MHDDoS?color=orange&style=for-the-badge"></a>
 <a href="https://github.com/MHProDev/MHDDoS/issues"><img alt="MHDDoS issues" src="https://img.shields.io/github/issues/MHProDev/MHDDoS?color=purple&style=for-the-badge"></a>
 
-<p align="center">Please Don't Attack '.gov' and '.ir' Websites :)</p>
+<p align="center">Please Don't Attack websites without the owners consent.</p>
 
 <p align="center"><img src="https://i.imgur.com/aNrHJcA.png" width="1078" height="433" alt="POWER"></p>
 <p align="center"><img src="https://i.imgur.com/4Q7v2wn.png" width="1078" height="296" alt="SCRIPT"></p>
@@ -54,7 +54,10 @@
   * <img src="https://help.apple.com/assets/6171BD2C588E52621824409D/6171BD2D588E5262182440A4/en_US/8b631353e070420f47530bf95f1a7fae.png" width="16" height="16" alt="ard"> ARD | Apple Remote Desktop Amplification
   * <img src="https://www.tenforums.com/geek/gars/images/2/types/thumb__emote__esktop__onnection.png" width="16" height="16" alt="rdp"> RDP |  Remote Desktop Protocol Amplification
 
-* ⚙️ Tools - Run With 'python3 start.py tools'
+* ⚙️ Tools - Run With 
+`
+python3 start.py tools
+`
   * 🌟 CFIP | Find Real IP Address Of Websites Powered By Cloudflare
   * 🔪 DNS | Show DNS Records Of Sites
   * 📍  TSSRV | TeamSpeak SRV Resolver
