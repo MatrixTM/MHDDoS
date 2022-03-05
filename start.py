@@ -12,7 +12,7 @@ from os import urandom as randbytes
 from pathlib import Path
 from random import choice as randchoice
 from random import randint
-from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, SOCK_DGRAM,
+from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, SOCK_DGRAM,
                     SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
                     gethostname, socket)
 from ssl import CERT_NONE, SSLContext, create_default_context
@@ -1019,8 +1019,8 @@ class ToolsConsole:
                     print('please wait ...', end="\r")
 
                     info = ToolsConsole.ts_srv(domain)
-                    logger.info(("TCP: %s\n") % (info['_tsdns._tcp.']))
-                    logger.info(("UDP: %s\n") % (info['_ts3._udp.']))
+                    logger.info("TCP: %s\n" % (info['_tsdns._tcp.']))
+                    logger.info("UDP: %s\n" % (info['_ts3._udp.']))
 
             if cmd == "PING":
                 while True:
@@ -1179,10 +1179,6 @@ if __name__ == '__main__':
                     if not uagents: exit("Empty Useragent File ")
                     if not referers: exit("Empty Referer File ")
 
-                    if proxy_ty not in {4, 5, 1, 0}:
-                        exit("Proxy Type Not Found [4, 5, 1, 0]")
-                    if threads > 1000:
-                        logger.warning("thread is higher than 1000")
                     if proxy_ty not in {4, 5, 1, 0}:
                         exit("Socks Type Not Found [4, 5, 1, 0]")
                     if threads > 1000:
