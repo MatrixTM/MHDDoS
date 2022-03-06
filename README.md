@@ -86,6 +86,7 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 
 **Requirements**
 
+* [dnspython](https://github.com/rthalley/dnspython)
 * [cfscrape](https://github.com/Anorov/cloudflare-scrape)
 * [impacket](https://github.com/SecureAuthCorp/impacket)
 * [requests](https://github.com/psf/requests)
@@ -94,7 +95,6 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 * [icmplib](https://github.com/ValentinBELYN/icmplib)
 * [certifi](https://github.com/certifi/python-certifi)
 * [psutil](https://github.com/giampaolo/psutil)
-* [dnspython](https://github.com/rthalley/dnspython)
 * [yarl](https://github.com/aio-libs/yarl)
 ---
 
@@ -116,7 +116,8 @@ git clone https://github.com/MHProDev/MHDDoS.git
 cd MHDDoS
 pip install -r requirements.txt
 ```
-
+[python3]: https://python.org 'Python3'
+[github]: https://github.com/MHProDev/MHDDoS/issues 'GitHub'
 
 ---
 
