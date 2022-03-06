@@ -95,7 +95,7 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 * [psutil](https://github.com/giampaolo/psutil)
 * [dnspython](https://github.com/rthalley/dnspython)
 * [yarl](https://github.com/aio-libs/yarl)
-* [bombardier](https://github.com/mariotrucco/bombardier@78-add-proxy-support) (Optional)
+* [bombardier](https://github.com/PXEiYyMH8F/bombardier/tree/78-add-proxy-support) (Optional, [installation](.github/BOMBARDIER.md))
 ---
 
 **Videos**
@@ -136,7 +136,7 @@ pip install -r requirements.txt
 python start.py bypass https://example.com 5 101 socks5.txt 100 3600
 # Running bomb attack from 50 threads (be careful must be < 300)
 # with all proxies (0), 100 requests per proxy (connection), for 3600 seconds
-python start.py bypass https://example.com 5 101 socks5.txt 100 3600
+python start.py bomb https://example.com 0 50 proxy.txt 100 3600
 ```
 
 * Layer4 (Server/Home):
