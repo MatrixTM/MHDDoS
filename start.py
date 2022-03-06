@@ -1201,7 +1201,7 @@ class ToolsConsole:
         return {"success": False}
 
 
-def handleProxyList(con, proxy_li, proxy_ty):
+def handleProxyList(con, proxy_li, proxy_ty, url=None):
     if proxy_ty not in {4, 5, 1, 0, 6}:
         exit("Socks Type Not Found [4, 5, 1, 0, 6]")
     if proxy_ty == 6:
@@ -1216,7 +1216,7 @@ def handleProxyList(con, proxy_li, proxy_ty):
             )
             Proxies = ProxyChecker.checkAll(
                 Proxies, timeout=1, threads=threads,
-                **({'url': url.human_repr()} if url else {"url:": "https://httpbin.org/get"})
+                **({'url': url.human_repr()} if url else {})
             )
             if not Proxies:
                 exit(
@@ -1316,7 +1316,7 @@ if __name__ == '__main__':
                         logger.warning(
                             "RPC (Request Pre Connection) is higher than 100")
 
-                    proxies = handleProxyList(con, proxy_li, proxy_ty)
+                    proxies = handleProxyList(con, proxy_li, proxy_ty, url)
                     for _ in range(threads):
                         HttpFlood(url, host, method, rpc, event, uagents,
                                   referers, proxies).start()
@@ -1370,7 +1370,7 @@ if __name__ == '__main__':
                                 if len(argv) == 8:
                                     logger.setLevel("DEBUG")
 
-                            elif len(argv) == 6:
+                            else:
                                 logger.setLevel("DEBUG")
 
                     for _ in range(threads):
