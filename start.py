@@ -1303,6 +1303,7 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
                 Proxies, timeout=1, threads=threads,
                 url=url.human_repr() if url else "https://google.com",
             )
+
             if not Proxies:
                 exit(
                     "Proxy Check failed, Your network may be the problem"
