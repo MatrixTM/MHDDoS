@@ -1341,6 +1341,7 @@ if __name__ == '__main__':
 
                     threads = int(argv[3])
                     timer = int(argv[4])
+                    proxies = None
                     ref = None
                     if not port:
                         logger.warning("Port Not Selected, Set To Default: 80")
@@ -1361,7 +1362,7 @@ if __name__ == '__main__':
                                     logger.setLevel("DEBUG")
 
                             elif argfive.isdigit() and len(argv) >= 7:
-                                proxy_ty = int(proxy_ty)
+                                proxy_ty = int(argfive)
                                 proxy_li = Path(__dir__ / "files/proxies/" / argv[6].strip())
                                 proxies = handleProxyList(con, proxy_li, proxy_ty)
                                 if method not in {"MINECRAFT", "TCP"}:
