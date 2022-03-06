@@ -14,4 +14,4 @@ go get github.com/codesenberg/bombardier
 cd ..
 rm -r bombardier_tmp
 ```
-3. The executable file location is in `$GOPATH/bin/bombardier` (Linux) or  `%GOPATH%\bin\bombardier.exe` (Windows)
+3. The executable file location is `$GOPATH/bin/bombardier` (Linux) or  `%GOPATH%\bin\bombardier.exe` (Windows)
