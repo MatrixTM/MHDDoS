@@ -380,11 +380,8 @@ class Layer4(Thread):
                 bytes_sent += (len(handshake + login))
                 REQUESTS_SENT += 1
 
-                c = 1000
-                while s.recv(1) and c:
-                    c -= 1
+                while s.recv(1):
                     s.send(Minecraft.keepalive(randint(1000, 1234567890)))
-                    sleep(0.05)
 
         except Exception:
             s.close()
