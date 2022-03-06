@@ -1370,7 +1370,7 @@ if __name__ == '__main__':
                                 if len(argv) == 8:
                                     logger.setLevel("DEBUG")
 
-                            elif len(argv) == 5:
+                            elif len(argv) == 6:
                                 logger.setLevel("DEBUG")
 
                     for _ in range(threads):
