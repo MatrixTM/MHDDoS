@@ -1349,10 +1349,10 @@ if __name__ == '__main__':
                     if len(argv) >= 6:
                         argfive = argv[5].strip()
                         if argfive:
-                            refl_li = Path(__dir__ / "files/proxies/" / argfive)
-                            if refl_li.exists():
-                                if method not in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
-                                    exit("this method cannot use for amplification")
+                            refl_li = Path(__dir__ / "files" / argfive)
+                            if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
+                                if not refl_li.exists():
+                                    exit("The reflector file doesn't exist")
                                 if len(argv) == 7:
                                     logger.setLevel("DEBUG")
                                 ref = set(a.strip()
@@ -1364,7 +1364,7 @@ if __name__ == '__main__':
                                 if len(argv) == 8:
                                     logger.setLevel("DEBUG")
                                 proxy_ty = int(argfive)
-                                proxy_li = Path(__dir__ / "files/proxies/" / argv[6].strip())
+                                proxy_li = Path(__dir__ / "files/proxies" / argv[6].strip())
                                 proxies = handleProxyList(con, proxy_li, proxy_ty)
                                 if method not in {"MINECRAFT", "TCP"}:
                                     exit("this method cannot use for layer4 proxy")
