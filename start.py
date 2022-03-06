@@ -1353,21 +1353,21 @@ if __name__ == '__main__':
                             if refl_li.exists():
                                 if method not in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
                                     exit("this method cannot use for amplification")
+                                if len(argv) == 7:
+                                    logger.setLevel("DEBUG")
                                 ref = set(a.strip()
                                           for a in ProxyTools.Patterns.IP.findall(
                                     refl_li.open("r+").read()))
                                 if not ref: exit("Empty Reflector File ")
-                                if len(argv) == 7:
-                                    logger.setLevel("DEBUG")
 
                             elif argfive.isdigit() and len(argv) >= 7:
+                                if len(argv) == 8:
+                                    logger.setLevel("DEBUG")
                                 proxy_ty = int(argfive)
                                 proxy_li = Path(__dir__ / "files/proxies/" / argv[6].strip())
                                 proxies = handleProxyList(con, proxy_li, proxy_ty)
                                 if method not in {"MINECRAFT", "TCP"}:
                                     exit("this method cannot use for layer4 proxy")
-                                if len(argv) == 8:
-                                    logger.setLevel("DEBUG")
 
                             else:
                                 logger.setLevel("DEBUG")
