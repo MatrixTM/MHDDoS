@@ -3,7 +3,7 @@ Adopted from [github.com/mariotrucco/bombardier/tree/78-add-proxy-support](https
 
 ## Installation
 
-1. Download and instal Golang [go.dev/dl/#stable](https://go.dev/dl/#stable)
+1. Download and install Golang [go.dev/dl/#stable](https://go.dev/dl/#stable)
 2. Run in bash/PowerShell:
 ```shell script
 mkdir bombardier_tmp
