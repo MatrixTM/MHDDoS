@@ -1,7 +1,10 @@
 # Bombardier with proxy
-Adopted from github.com/mariotrucco/bombardier@78-add-proxy-support
+Adopted from [github.com/mariotrucco/bombardier/tree/78-add-proxy-support](https://github.com/mariotrucco/bombardier/tree/78-add-proxy-support)
 
 ## Installation
+
+1. Download and instal Golang [go.dev/dl/#stable](https://go.dev/dl/#stable)
+2. Run in bash/PowerShell:
 ```shell script
 mkdir bombardier_tmp
 cd bombardier_tmp
@@ -11,3 +14,4 @@ go get github.com/codesenberg/bombardier
 cd ..
 rm -r bombardier_tmp
 ```
+3. The executable file location is in `$GOPATH/bin/bombardier` (Linux) or  `%GOPATH%\bin\bombardier.exe` (Windows)
