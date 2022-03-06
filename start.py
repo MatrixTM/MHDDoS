@@ -43,7 +43,7 @@ ctx: SSLContext = create_default_context(cafile=where())
 ctx.check_hostname = False
 ctx.verify_mode = CERT_NONE
 
-__version__ = "2.1 SNAPSHOT"
+__version__ = "2.3 SNAPSHOT"
 __dir__ = Path(__file__).parent
 __ip__ = get('https://api.my-ip.io/ip').text
 
@@ -153,7 +153,7 @@ class Layer4(Thread):
                  method: str = "TCP",
                  synevent: Event = None,
                  proxies: Set[Proxy] = None):
-        super().__init__(daemon=True)
+        Thread.__init__(self, daemon=True)
         self._amp_payload = None
         self._amp_payloads = cycle([])
         self._ref = ref
@@ -351,7 +351,7 @@ class HttpFlood(Thread):
                  useragents: Set[str] = None,
                  referers: Set[str] = None,
                  proxies: Set[Proxy] = None) -> None:
-        super().__init__(daemon=True)
+        Thread.__init__(self, daemon=True)
         self.SENT_FLOOD = None
         self._synevent = synevent
         self._rpc = rpc
