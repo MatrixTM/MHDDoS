@@ -1,5 +1,5 @@
 # Bombardier with proxy
-Adopted from github.com/mariotrucco/bombardier@78-add-proxy-support
+Adopted from [github.com/mariotrucco/bombardier@78-add-proxy-support](github.com/mariotrucco/bombardier@78-add-proxy-support)
 
 ## Installation
 ```shell script
