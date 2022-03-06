@@ -1290,7 +1290,7 @@ if __name__ == '__main__':
                             or bombardier_path.with_suffix('.exe').exists()
                         ), (
                             "Install bombardier: "
-                            "https://github.com/MHProDev/MHDDoS/wiki/BOMB-method-installation"
+                            "https://github.com/MHProDev/MHDDoS/wiki/BOMB-method"
                         )
 
                     if len(argv) == 9:
