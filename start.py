@@ -391,12 +391,14 @@ class Layer4(Thread):
                     s.send(keep)
                     bytes_sent += len(keep)
                     REQUESTS_SENT += 1
-                    while 1:
+                    c = 5
+                    while c:
                         chat = Minecraft.chat(ProxyTools.Random.rand_str(255))
                         s.send(chat)
                         REQUESTS_SENT += 1
                         bytes_sent += len(chat)
-                        sleep(.05)
+                        sleep(.1)
+                        c-=1
 
         except Exception:
             s.close()
