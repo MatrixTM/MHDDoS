@@ -387,12 +387,16 @@ class Layer4(Thread):
                 REQUESTS_SENT += 2
 
                 while s.recv(1):
-                    keep = Minecraft.keepalive(randint(1000, 1234567890))
-                    chat = Minecraft.chat(ProxyTools.Random.rand_str(255))
+                    keep = Minecraft.keepalive(randint(1000, 123456))
                     s.send(keep)
-                    s.send(chat)
-                    bytes_sent += len(keep + chat)
+                    bytes_sent += len(keep)
                     REQUESTS_SENT += 1
+                    while 1:
+                        chat = Minecraft.chat(ProxyTools.Random.rand_str(255))
+                        s.send(chat)
+                        REQUESTS_SENT += 1
+                        bytes_sent += len(chat)
+                        sleep(.05)
 
         except Exception:
             s.close()
