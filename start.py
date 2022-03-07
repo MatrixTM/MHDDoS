@@ -397,7 +397,7 @@ class Layer4(Thread):
                         s.send(chat)
                         REQUESTS_SENT += 1
                         bytes_sent += len(chat)
-                        sleep(.1)
+                        sleep(1.2)
                         c-=1
 
         except Exception:
