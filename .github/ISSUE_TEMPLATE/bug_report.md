@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help us improve
 title: BUG Report
 labels: bug
-assignees: MHProDev
+assignees: ["MHProDev", "SudoLite"]
 
 ---
 
