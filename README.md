@@ -47,6 +47,8 @@
   * <img src="https://raw.githubusercontent.com/kgretzky/pwndrop/master/media/pwndrop-logo-512.png" width="16" height="16" alt="tcp"> TCP | TCP Flood Bypass
   * <img src="https://styles.redditmedia.com/t5_2rxmiq/styles/profileIcon_snoob94cdb09-c26c-4c24-bd0c-66238623cc22-headshot.png" width="16" height="16" alt="udp"> UDP | UDP Flood Bypass
   * <img src="https://cdn-icons-png.flaticon.com/512/1918/1918576.png" width="16" height="16" alt="syn"> SYN | SYN Flood
+  * <img src="https://cdn-icons-png.flaticon.com/512/1017/1017466.png" width="16" height="16" alt="cps"> CPS | Open and close connections with proxy
+  * <img src="https://s6.uupload.ir/files/1059643_g8hp.png" width="16" height="16" alt="cps"> CONNECTION | Open connection alive with proxy
   * <img src="https://cdn.iconscout.com/icon/free/png-256/virus-2165355-1821015.png" width="16" height="16" alt="vse"> VSE | Send VSE Protocol
   * <img src="https://cdn.iconscout.com/icon/free/png-512/redis-4-1175103.png" width="16" height="16" alt="mem"> MEM | Memcached Amplification
   * <img src="https://lyrahosting.com/wp-content/uploads/2020/06/ddos-attack-icon.png" width="16" height="16" alt="ntp"> NTP | NTP Amplification
