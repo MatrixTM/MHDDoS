@@ -1286,6 +1286,47 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
     return proxies
 
 
+
+class AdditionalFeatures:
+    @staticmethod
+    def Extension(proxy_li, con, proxy_ty, url, threads) -> Set[Proxy]:
+        Proxies: Set[Proxy] = set()
+        addinput = ""
+        proxy_li_status = proxy_li.exists()
+        if proxy_li_status:
+            addinput = input(
+                "Exists file, whether to add a new agent?(y/n/w):")
+
+        proxy_li.parent.mkdir(parents=True, exist_ok=True)
+        if not proxy_li_status:
+            proxy_li.open('w', newline="\r\n")
+        if not proxy_li_status or addinput == "y" or addinput == "w":
+            Proxies = ProxyManager.DownloadFromConfig(
+                con, proxy_ty)
+        if len(Proxies) > 0:
+            Proxies = {item for item in list(
+                Proxies) + list(ProxyUtiles.readFromFile(proxy_li))}
+        else:
+            Proxies = ProxyUtiles.readFromFile(proxy_li)
+        with proxy_li.open('r+' if addinput == "w" else "w", newline="\r\n") as wr:
+            print(
+                f"{len(Proxies):,} Proxies are getting checked, this may take awhile !")
+            Proxies = ProxyChecker.checkAll(
+                Proxies, url.human_repr(), 1, threads)
+            if not Proxies:
+                exit(
+                    "Proxy Check failed, Your network may be the problem | The target may not be"
+                    " available.")
+            stringBuilder = ""
+            for proxy in Proxies:
+                stringBuilder += (proxy.__str__() + "\n")
+            wr.seek(0)
+            wr.write(stringBuilder)
+
+        return Proxies
+
+
+
 if __name__ == '__main__':
     with open(__dir__ / "config.json") as f:
         con = load(f)
@@ -1367,7 +1408,17 @@ if __name__ == '__main__':
                     for _ in range(threads):
                         HttpFlood(url, host, method, rpc, event, uagents,
                                   referers, proxies).start()
+                    #Proxies: Set[Proxy] = AdditionalFeatures.Extension(
+                    #    proxy_li, con, proxy_ty, url, threads)
 
+                    #AgNumber = input("Specify the number of agents?(number):")
+                    #if AgNumber == "" or int(AgNumber) == 0:
+                    #    AgNumber = len(Proxies)
+                    #if len(Proxies) != AgNumber:
+                    #    proxies = {item for item in list(ProxyUtiles.readFromFile(proxy_li))[
+                    #        :int(AgNumber)]}
+                    #else:
+                    #    proxies = ProxyUtiles.readFromFile(proxy_li)
                 if method in Methods.LAYER4_METHODS:
                     target = URL(urlraw)
 
