@@ -113,8 +113,12 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 **Toturial**
 
 * Aprat : https://aparat.com/v/XPn5Z
-* YouTube : https://youtu.be/mZilAOkLKK8
+* YouTube : Coming soon...
 ---
+
+## Documentation
+
+You can read it from [GitHub Wiki](https://github.com/MHProDev/MHDDoS/wiki)
 
 **Clone and Install Script**
 
@@ -123,6 +127,7 @@ git clone https://github.com/MHProDev/MHDDoS.git
 cd MHDDoS
 pip install -r requirements.txt
 ```
+
 [python3]: https://python.org 'Python3'
 [github]: https://github.com/MHProDev/MHDDoS/issues 'GitHub'
 
