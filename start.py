@@ -1078,15 +1078,13 @@ class ToolsConsole:
                                 (domain.upper() == "CLOSE"):
                             exit(-1)
                         if "/" not in domain: continue
-                        print('please wait ...', end="\r")
+                        logger.info("please wait ...")
 
                         with get(domain, timeout=20) as r:
-                            print(('status_code: %d\n'
-                                   'status: %s') %
-                                  (r.status_code, "ONLINE"
-                                  if r.status_code <= 500 else "OFFLINE"))
-                            return
-                    print("Error!")
+                            logger.info(('status_code: %d\n'
+                                      'status: %s') %
+                                      (r.status_code, "ONLINE"
+                                      if r.status_code <= 500 else "OFFLINE"))
 
             if cmd == "INFO":
                 while True:
@@ -1165,7 +1163,7 @@ class ToolsConsole:
                                             '').replace('http://', '')
                     if "/" in domain: domain = domain.split("/")[0]
 
-                    print('please wait ...', end="\r")
+                    logger.info("please wait ...")
                     r = ping(domain, count=5, interval=0.2)
                     logger.info(('Address: %s\n'
                                  'Ping: %d\n'
