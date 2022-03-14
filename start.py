@@ -284,6 +284,7 @@ class Layer4(Thread):
         else:
             s = socket(conn_type, sock_type, proto_type)
         s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
+        s.settimeout(60)
         s.connect(self._target)
         return s
 
