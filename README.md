@@ -110,7 +110,7 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 * Aparat: https://www.aparat.com/v/bHcP9
 * YouTube : Coming soon...
 
-**Toturial**
+**Tutorial**
 
 * Aprat : https://aparat.com/v/XPn5Z
 * YouTube : Coming soon...
