@@ -924,6 +924,8 @@ class HttpFlood(Thread):
             self.SENT_FLOOD = self.APACHE
         if name == "BYPASS":
             self.SENT_FLOOD = self.BYPASS
+        if name == "DGB":
+            self.SENT_FLOOD = self.DGB
         if name == "OVH":
             self.SENT_FLOOD = self.OVH
         if name == "AVB":
