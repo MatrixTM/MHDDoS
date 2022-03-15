@@ -1,0 +1,52 @@
+name: 💡 Feature request
+description: Suggest an idea for this project
+labels: ["enhancement"]
+assignees:
+  - SudoLite
+  - MHProDev
+body:
+  - type: markdown
+    attributes:
+      value: |
+        #### Thanks for taking the time to fill out this Feature request!
+  
+  - type: dropdown
+    id: parts
+    attributes:
+      label: Which section is this feature request for?
+      options:
+        - L7 (DDoS Attack Layer 7)
+        - L4 (DDoS Attack Layer 4)
+        - Script Base
+        - Tools
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the feature you are requesting. (https://github.com/MHProDev/MHDDoS/issues).
+      options:
+      - label: I have searched the existing issues
+        required: true
+  - type: textarea
+    attributes:
+      label: Is your feature request related to a problem? Please describe the problem.
+      description: A clear and concise description of what the problem is.
+      placeholder: I am trying to do [...] but [...]
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Describe the solution you'd like
+      description: |
+        A clear and concise description of what you want to happen. Include any alternative solutions you've considered.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: |
+        Add any other context or screenshots about the feature request here.
+    validations:
+      required: false
