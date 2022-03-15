@@ -1,0 +1,105 @@
+name: Bug report
+description: Create a report to help us improve
+title: "[BUG Report]:"
+labels: ["bug"]
+assignees:
+  - SudoLite
+  - MHProDev
+body:
+  - type: markdown
+    attributes:
+      value: |
+        #### Thanks for taking the time to fill out this bug report!
+  
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What version of our software are you running?
+      options:
+        - 2.4 (Default)
+        - 2.3
+        - 2.0
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: parts
+    attributes:
+      label: Which section is the problem?
+      options:
+        - L7 (DDoS Attack Layer 7)
+        - L4 (DDoS Attack Layer 4)
+        - Script Base
+        - Tools
+        - Other
+    validations:
+      required: true
+  
+  - type: textarea
+    id: environment
+    attributes:
+      label: Please complete the following information
+      render: true
+      placeholder: |
+         - OS: [e.g. Ubuntu]
+         - Installed Requirements Version [e.g. PySocks1.70]
+         - Python Version [e.g. 3.8.x]
+      value: |
+        - OS: [e.g. Ubuntu]
+        - Installed Requirements Version [e.g. PySocks1.70]
+        - Python Version [e.g. 3.8.x]
+    validations:
+      required: true
+  
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened (Describe the bug) ?
+      description: Also tell us, what did you expect to happen?
+      placeholder: A bug happened!
+      value: "A bug happened!"
+    validations:
+      required: true
+  
+  - type: input
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Just upload screenshots
+      placeholder: https://imgur.com/uWteNty
+    validations:
+      required: true
+
+  - type: input
+    id: reproduction
+    attributes:
+      label: Please provide a link to a minimal reproduction of the bug
+      placeholder: ex. https://docs.python.org
+  
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+  
+  - type: markdown
+    attributes:
+      value: |
+        # Recommended fix, suggestions
+  
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Tell us, what do you expect from us?
+      placeholder: Optional
+  
+  - type: textarea
+    id: code
+    attributes:
+      label: Your code
+      description: Please enter the suggested code to resolve the issue. This will be automatically formatted into code, so no need for backticks.
+      render: true
+ 
