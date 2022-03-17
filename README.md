@@ -4,11 +4,12 @@
 <em><h5 align="center">(Programming Language - Python 3)</h5></em>
 
 <p align="center">
-<a href="#"><img alt="MHDDoS forks" src="https://img.shields.io/github/forks/MHProDev/MHDDoS?style=for-the-badge"></a>
-<a href="#"><img alt="MHDDoS last commit (main)" src="https://img.shields.io/github/last-commit/MHProDev/MHDDoS/main?color=green&style=for-the-badge"></a>
-<a href="#"><img alt="MHDDoS Repo stars" src="https://img.shields.io/github/stars/MHProDev/MHDDoS?style=for-the-badge&color=yellow"></a>
-<a href="#"><img alt="MHDDoS License" src="https://img.shields.io/github/license/MHProDev/MHDDoS?color=orange&style=for-the-badge"></a>
-<a href="https://github.com/MHProDev/MHDDoS/issues"><img alt="MHDDoS issues" src="https://img.shields.io/github/issues/MHProDev/MHDDoS?color=purple&style=for-the-badge"></a>
+
+![MHDDoS forks](https://img.shields.io/github/forks/MHProDev/MHDDoS?style=for-the-badge)
+![MHDDoS last commit](https://img.shields.io/github/last-commit/MHProDev/MHDDoS/main?color=green&style=for-the-badge)
+![MHDDoS stars](https://img.shields.io/github/stars/MHProDev/MHDDoS?style=for-the-badge&color=yellow)
+![MHDDoS license](https://img.shields.io/github/license/MHProDev/MHDDoS?color=orange&style=for-the-badge)
+![MHDDoS issues](https://img.shields.io/github/issues/MHProDev/MHDDoS?color=purple&style=for-the-badge)
 
 <p align="center">Please Don't Attack websites without the owners consent.</p>
 
