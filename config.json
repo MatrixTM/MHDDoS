@@ -17,7 +17,7 @@
 		{"type":5, "url": "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/txt/proxies-socks5.txt",  "timeout": 5},
 		{"type":5, "url": "https://api.openproxylist.xyz/socks5.txt",  "timeout": 5},
 		{"type":5, "url": "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt",  "timeout": 5},
-	    {"type":5, "url":  "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=socks5", "timeout": 5},
+		{"type":5, "url":  "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=socks5", "timeout": 5},
 
 
 	  	{"type":1, "url": "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http",  "timeout": 5},
