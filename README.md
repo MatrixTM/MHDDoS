@@ -4,13 +4,12 @@
 <em><h5 align="center">(Programming Language - Python 3)</h5></em>
 
 <p align="center">
-
-![MHDDoS forks](https://img.shields.io/github/forks/MHProDev/MHDDoS?style=for-the-badge)
-![MHDDoS last commit](https://img.shields.io/github/last-commit/MHProDev/MHDDoS/main?color=green&style=for-the-badge)
-![MHDDoS stars](https://img.shields.io/github/stars/MHProDev/MHDDoS?style=for-the-badge&color=yellow)
-![MHDDoS license](https://img.shields.io/github/license/MHProDev/MHDDoS?color=orange&style=for-the-badge)
-![MHDDoS issues](https://img.shields.io/github/issues/MHProDev/MHDDoS?color=purple&style=for-the-badge)
-
+<a href="#"><img alt="MHDDoS forks" src="https://img.shields.io/github/forks/MHProDev/MHDDoS?style=for-the-badge"></a>
+<a href="#"><img alt="MHDDoS last commit (main)" src="https://img.shields.io/github/last-commit/MHProDev/MHDDoS/main?color=green&style=for-the-badge"></a>
+<a href="#"><img alt="MHDDoS Repo stars" src="https://img.shields.io/github/stars/MHProDev/MHDDoS?style=for-the-badge&color=yellow"></a>
+<a href="#"><img alt="MHDDoS License" src="https://img.shields.io/github/license/MHProDev/MHDDoS?color=orange&style=for-the-badge"></a>
+<a href="https://github.com/MHProDev/MHDDoS/issues"><img alt="MHDDoS issues" src="https://img.shields.io/github/issues/MHProDev/MHDDoS?color=purple&style=for-the-badge"></a>
+  
 <p align="center">Please Don't Attack websites without the owners consent.</p>
 
 <p align="center"><img src="https://i.imgur.com/aNrHJcA.png" width="1078" height="433" alt="POWER"></p>
@@ -24,13 +23,13 @@
    * <img src="https://cdn0.iconfinder.com/data/icons/database-storage-5/60/server__database__fire__burn__safety-512.png" width="16" height="16" alt="post"> POST | POST Flood
    * <img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/OVH_Logo.svg/1200px-OVH_Logo.svg.png" width="16" height="16" alt="ovh"> OVH | Bypass OVH
    * <img src="https://cdn.iconscout.com/icon/premium/png-256-thumb/cyber-bullying-2557797-2152371.png" width="16" height="16" alt="stress"> STRESS | Send HTTP Packet With High Byte 
-   * <img src="https://image.flaticon.com/icons/png/512/3132/3132142.png" width="16" height="16" alt="dyn"> DYN | A New Method With Random SubDomain
+   * <img src="https://pbs.twimg.com/profile_images/1351562987224641544/IKb4q_yd_400x400.jpg" width="16" height="16" alt="dyn"> DYN | A New Method With Random SubDomain
    * <img src="https://cdn-icons-png.flaticon.com/512/6991/6991643.png" width="16" height="16" alt="downloader"> DOWNLOADER | A New Method of Reading data slowly
    * <img src="https://cdn2.iconfinder.com/data/icons/poison-and-venom-fill/160/loris2-512.png" width="16" height="16" alt="slow"> SLOW | Slowloris Old Method of DDoS
    * <img src="https://lyrahosting.com/wp-content/uploads/2020/06/ddos-how-work-icon.png" width="16" height="16" alt="head"> HEAD | https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD
    * <img src="https://img.icons8.com/plasticine/2x/null-symbol.png" width="16" height="16" alt="null"> NULL | Null UserAgent and ...
    * <img src="https://i.pinimg.com/originals/03/2e/7d/032e7d0755cd511c753bcb6035d44f68.png" width="16" height="16" alt="cookie"> COOKIE | Random Cookie PHP 'if (isset($_COOKIE))'
-   * <img src="https://image.flaticon.com/icons/png/512/2100/2100795.png" width="16" height="16" alt="pps"> PPS |  Only 'GET / HTTP/1.1\r\n\r\n'
+   * <img src="https://cdn0.iconfinder.com/data/icons/dicticons-files-folders/32/office_pps-512.png" width="16" height="16" alt="pps"> PPS |  Only 'GET / HTTP/1.1\r\n\r\n'
    * <img src="https://cdn3.iconfinder.com/data/icons/internet-security-14/48/DDoS_website_webpage_bomb_virus_protection-512.png" width="16" height="16" alt="even"> EVEN | GET Method with more header
    * <img src="https://projectshield.withgoogle.com/static/icons/favicon.ico" width="16" height="16" alt="googleshield"> GSB | Google Project Shield Bypass
    * <img src="https://seeklogo.com/images/D/ddos-guard-logo-CFEFCA409C-seeklogo.com.png" width="16" height="16" alt="DDoSGuard"> DGB | DDoS Guard Bypass
