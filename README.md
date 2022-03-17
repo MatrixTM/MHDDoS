@@ -81,7 +81,7 @@ python3 start.py tools
 
 #### Issues ? 
  * Telegram : https://t.me/DD0SChat
- * Discord : MH_ProDev#2681
+ * Discord : https://discord.gg/ah7bfjSnhk
  * [GitHub][github]
 #### Like the project? Leave a star on the repository!
 
