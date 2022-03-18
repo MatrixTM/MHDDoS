@@ -32,6 +32,7 @@ body:
         - L4 (DDoS Attack Layer 4)
         - Script Base
         - Tools
+        - Wiki
         - Other
     validations:
       required: true
