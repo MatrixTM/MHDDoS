@@ -1294,7 +1294,7 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
     return proxies
 
 
-if __name__ == '__main__':
+def main(argv):
     with open(__dir__ / "config.json") as f:
         con = load(f)
         with suppress(KeyboardInterrupt):
@@ -1450,3 +1450,7 @@ if __name__ == '__main__':
                 exit()
 
             ToolsConsole.usage()
+
+
+if __name__ == '__main__':
+    main(argv)
