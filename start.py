@@ -978,7 +978,7 @@ class ProxyManager:
             provider for provider in cf["proxy-providers"]
             if provider["type"] == Proxy_type or Proxy_type == 0
         ]
-        logger.info("Downloading Proxies form %d Providers" % len(providrs))
+        logger.info("Downloading Proxies from %d Providers" % len(providrs))
         proxes: Set[Proxy] = set()
 
         with ThreadPoolExecutor(len(providrs)) as executor:
@@ -996,7 +996,7 @@ class ProxyManager:
     @staticmethod
     def download(provider, proxy_type: ProxyType) -> Set[Proxy]:
         logger.debug(
-            "Downloading Proxies form (URL: %s, Type: %s, Timeout: %d)" %
+            "Downloading Proxies from (URL: %s, Type: %s, Timeout: %d)" %
             (provider["url"], proxy_type.name, provider["timeout"]))
         proxes: Set[Proxy] = set()
         with suppress(TimeoutError, exceptions.ConnectionError,
