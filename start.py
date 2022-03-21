@@ -283,7 +283,7 @@ class Layer4(Thread):
         else:
             s = socket(conn_type, sock_type, proto_type)
         s.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
-        s.settimeout(60)
+        s.settimeout(.9)
         s.connect(self._target)
         return s
 
@@ -590,7 +590,7 @@ class HttpFlood(Thread):
             sock = socket(AF_INET, SOCK_STREAM)
 
         sock.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
-        sock.settimeout(60)
+        sock.settimeout(.9)
         sock.connect(self._raw_target)
 
         if self._target.scheme.lower() == "https":
