@@ -997,7 +997,7 @@ class ProxyManager:
             provider for provider in cf["proxy-providers"]
             if provider["type"] == Proxy_type or Proxy_type == 0
         ]
-        logger.info("Downloading Proxies from %d Providers" % len(providrs))
+        logger.info(f"{bcolors.WARNING}Downloading Proxies from {bcolors.OKBLUE}%d{bcolors.WARNING} Providers{bcolors.RESET}" % len(providrs))
         proxes: Set[Proxy] = set()
 
         with ThreadPoolExecutor(len(providrs)) as executor:
@@ -1015,7 +1015,7 @@ class ProxyManager:
     @staticmethod
     def download(provider, proxy_type: ProxyType) -> Set[Proxy]:
         logger.debug(
-            f"{bcolors.WARNING}Downloading Proxies from (URL: {bcolors.OKBLUE}%s{bcolors.WARNING}, Type: {bcolors.OKBLUE}%s{bcolors.WARNING}, Timeout: {bcolors.OKBLUE}%d{bcolors.WARNING}){bcolors.RESET}" %
+            f"{bcolors.WARNING}c Proxies from (URL: {bcolors.OKBLUE}%s{bcolors.WARNING}, Type: {bcolors.OKBLUE}%s{bcolors.WARNING}, Timeout: {bcolors.OKBLUE}%d{bcolors.WARNING}){bcolors.RESET}" %
             (provider["url"], proxy_type.name, provider["timeout"]))
         proxes: Set[Proxy] = set()
         with suppress(TimeoutError, exceptions.ConnectionError,
@@ -1293,12 +1293,12 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
     if proxy_ty == 6:
         proxy_ty = randchoice([4, 5, 1])
     if not proxy_li.exists():
-        logger.warning("The file doesn't exist, creating files and downloading proxies.")
+        logger.warning(f"{bcolors.WARNING}The file doesn't exist, creating files and downloading proxies.{bcolors.RESET}")
         proxy_li.parent.mkdir(parents=True, exist_ok=True)
         with proxy_li.open("w") as wr:
             Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
             logger.info(
-                f"{bcolors.WARNING}{len(Proxies):,}{bcolors.OKBLUE} Proxies are getting checked, this may take awhile{bcolors.RESET}!"
+                f"{bcolors.OKBLUE}{len(Proxies):,}{bcolors.WARNING} Proxies are getting checked, this may take awhile{bcolors.RESET}!"
             )
             Proxies = ProxyChecker.checkAll(
                 Proxies, timeout=1, threads=threads,
@@ -1320,7 +1320,7 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
         logger.info(f"{bcolors.WARNING}Proxy Count: {bcolors.OKBLUE}{len(proxies):,}{bcolors.RESET}")
     else:
         logger.info(
-            "Empty Proxy File, running flood witout proxy")
+            f"{bcolors.WARNING}Empty Proxy File, running flood witout proxy{bcolors.RESET}")
         proxies = None
 
     return proxies
