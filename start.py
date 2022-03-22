@@ -1015,7 +1015,7 @@ class ProxyManager:
     @staticmethod
     def download(provider, proxy_type: ProxyType) -> Set[Proxy]:
         logger.debug(
-            f"{bcolors.WARMING}Downloading Proxies from (URL: {bcolors.OKBLUE}%s{bcolors.WARNING}, Type: {bcolors.OKBLUE}%s{bcolors.WARNING}, Timeout: {bcolors.OKBLUE}%d{bcolors.WARNING}){bcolors.RESET}" %
+            f"{bcolors.WARNING}Downloading Proxies from (URL: {bcolors.OKBLUE}%s{bcolors.WARNING}, Type: {bcolors.OKBLUE}%s{bcolors.WARNING}, Timeout: {bcolors.OKBLUE}%d{bcolors.WARNING}){bcolors.RESET}" %
             (provider["url"], proxy_type.name, provider["timeout"]))
         proxes: Set[Proxy] = set()
         with suppress(TimeoutError, exceptions.ConnectionError,
