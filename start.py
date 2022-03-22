@@ -1472,7 +1472,7 @@ if __name__ == '__main__':
                 ts = time()
                 while time() < ts + timer:
                     logger.debug(f'{bcolors.WARNING}Target:{bcolors.OKBLUE} %s,{bcolors.WARNING} Port:{bcolors.OKBLUE} %s,{bcolors.WARNING} Method:{bcolors.OKBLUE} %s{bcolors.WARNING} PPS:{bcolors.OKBLUE} %s,{bcolors.WARNING} BPS:{bcolors.OKBLUE} %s / %d%%{bcolors.RESET}' %
-                                 (target or url.host),
+                                 (target or url.host,
                                   port or (url.port or 80),
                                   method,
                                   Tools.humanformat(int(REQUESTS_SENT)),
