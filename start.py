@@ -1340,6 +1340,7 @@ if __name__ == '__main__':
 
                 method = one
                 host = None
+                port= None
                 url = None
                 event = Event()
                 event.clear()
@@ -1470,7 +1471,7 @@ if __name__ == '__main__':
                 while time() < ts + timer:
                     logger.debug(f'{bcolors.WARNING}Target:{bcolors.OKBLUE} %s,{bcolors.WARNING} Port:{bcolors.OKBLUE} %s,{bcolors.WARNING} Method:{bcolors.OKBLUE} %s{bcolors.WARNING} PPS:{bcolors.OKBLUE} %s,{bcolors.WARNING} BPS:{bcolors.OKBLUE} %s / %d%%' %
                                  (target or url.human_repr(),
-                                  port,
+                                  port or (url.port or 80),
                                   method,
                                   Tools.humanformat(int(REQUESTS_SENT)),
                                   Tools.humanbytes(int(BYTES_SEND)),
