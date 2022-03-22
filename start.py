@@ -119,6 +119,18 @@ REQUESTS_SENT = Counter()
 BYTES_SEND = Counter()
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 class Tools:
 
     @staticmethod
@@ -1456,10 +1468,13 @@ if __name__ == '__main__':
                 event.set()
                 ts = time()
                 while time() < ts + timer:
-                    logger.debug('PPS: %s, BPS: %s / %d%%' %
-                                 (Tools.humanformat(int(REQUESTS_SENT)),
+                    logger.debug(f'{bcolors.WARNING}Target:{bcolors.OKBLUE} %s,{bcolors.WARNING} Port:{bcolors.OKBLUE} %s,{bcolors.WARNING} Method:{bcolors.OKBLUE} %s{bcolors.WARNING} PPS:{bcolors.OKBLUE} %s,{bcolors.WARNING} BPS:{bcolors.OKBLUE} %s / %d%%' %
+                                 (target or url.human_repr(),
+                                  port,
+                                  method,
+                                  Tools.humanformat(int(REQUESTS_SENT)),
                                   Tools.humanbytes(int(BYTES_SEND)),
-                                  round((time() - ts) / timer * 100, 2)))
+                                  round((time() - ts) / timer * 100, 2)))  
                     REQUESTS_SENT.set(0)
                     BYTES_SEND.set(0)
                     sleep(1)
