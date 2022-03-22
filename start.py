@@ -1015,7 +1015,7 @@ class ProxyManager:
     @staticmethod
     def download(provider, proxy_type: ProxyType) -> Set[Proxy]:
         logger.debug(
-            "Downloading Proxies from (URL: %s, Type: %s, Timeout: %d)" %
+            f"{bcolors.WARMING}Downloading Proxies from (URL: {bcolors.OKBLUE}%s{bcolors.WARNING}, Type: {bcolors.OKBLUE}%s{bcolors.WARNING}, Timeout: {bcolors.OKBLUE}%d{bcolors.WARNING}){bcolors.RESET}" %
             (provider["url"], proxy_type.name, provider["timeout"]))
         proxes: Set[Proxy] = set()
         with suppress(TimeoutError, exceptions.ConnectionError,
@@ -1298,7 +1298,7 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
         with proxy_li.open("w") as wr:
             Proxies: Set[Proxy] = ProxyManager.DownloadFromConfig(con, proxy_ty)
             logger.info(
-                f"{len(Proxies):,} Proxies are getting checked, this may take awhile!"
+                f"{bcolors.WARNING}{len(Proxies):,}{bcolors.OKBLUE} Proxies are getting checked, this may take awhile{bcolors.RESET}!"
             )
             Proxies = ProxyChecker.checkAll(
                 Proxies, timeout=1, threads=threads,
@@ -1317,7 +1317,7 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
 
     proxies = ProxyUtiles.readFromFile(proxy_li)
     if proxies:
-        logger.info(f"Proxy Count: {len(proxies):,}")
+        logger.info(f"{bcolors.WARNING}Proxy Count: {bcolors.OKBLUE}{len(proxies):,}{bcolors.RESET}")
     else:
         logger.info(
             "Empty Proxy File, running flood witout proxy")
@@ -1467,7 +1467,7 @@ if __name__ == '__main__':
 
                 logger.info(
                     f"{bcolors.WARNING}Attack Started to{bcolors.OKBLUE} %s{bcolors.WARNING} with{bcolors.OKBLUE} %s{bcolors.WARNING} method for{bcolors.OKBLUE} %s{bcolors.WARNING} seconds, threads:{bcolors.OKBLUE} %d{bcolors.WARNING}!{bcolors.RESET}"
-                    % (target or url.human_repr(), method, timer, threads))
+                    % (target or url.host, method, timer, threads))
                 event.set()
                 ts = time()
                 while time() < ts + timer:
