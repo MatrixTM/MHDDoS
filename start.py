@@ -66,10 +66,24 @@ def getMyIPAddress():
         __ip__ = get('https://ip.42.pl/raw', timeout=.1).text
     return getMyIPAddress()
 
+  
+  
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 
 def exit(*message):
     if message:
-        logger.error(" ".join(message))
+        logger.error(bcolors.FAIL +" ".join(message) + bcolors.RESET)
     shutdown()
     _exit(1)
 
@@ -117,18 +131,6 @@ class Counter:
 
 REQUESTS_SENT = Counter()
 BYTES_SEND = Counter()
-
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    RESET = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 
 class Tools:
@@ -1464,7 +1466,7 @@ if __name__ == '__main__':
                                proxies).start()
 
                 logger.info(
-                    "Attack Started to %s with %s method for %s seconds, threads: %d!"
+                    f"{bcolors.WARNING}Attack Started to{bcolors.OKBLUE} %s{bcolors.WARNING} with{bcolors.OKBLUE} %s{bcolors.WARNING} method for{bcolors.OKBLUE} %s{bcolors.WARNING} seconds, threads:{bcolors.OKBLUE} %d{bcolors.WARNING}!{bcolors.RESET}"
                     % (target or url.human_repr(), method, timer, threads))
                 event.set()
                 ts = time()
