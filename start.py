@@ -1085,9 +1085,9 @@ class ToolsConsole:
                         t = [(last - now) for now, last in zip(od, ld)]
 
                         logger.info(
-                            ("Bytes Sended %s\n"
+                            ("Bytes Sent %s\n"
                              "Bytes Recived %s\n"
-                             "Packets Sended %s\n"
+                             "Packets Sent %s\n"
                              "Packets Recived %s\n"
                              "ErrIn %s\n"
                              "ErrOut %s\n"
