@@ -238,12 +238,12 @@ class Tools:
                 "Sec-Fetch-Mode": "no-cors",
                 "Sec-Fetch-Site": "cross-site"
                 }
-            with s.get(f"http://{host}/.well-known/ddos-guard/id/{idss}", headers=hdrs) as ss:
+            with s.get(f"{url}.well-known/ddos-guard/id/{idss}", headers=hdrs) as ss:
                 for key, value in ss.cookies.items():
                     s.cookies.set_cookie(cookies.create_cookie(key, value))
-                    return s
+                return s
             
-            return False
+        return False
     
     @staticmethod
     def safe_close(sock=None):
