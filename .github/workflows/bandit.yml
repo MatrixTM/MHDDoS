@@ -1,24 +1,29 @@
-name: Bandit
-on:
-  pull_request:
-  push:
-    branches:
-      - master #dev, release, etc.
-  release:
-    types:
-      - created
+name: Security check - Bandit
+
+on: [ pull_request , push ]
 
 jobs:
-  bandit:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+        python-version: [ '3.8.12', '3.10' ]
+    name: Python ${{ matrix.python-version }} ${{ matrix.os }} 
+
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0 #get fuller history
-      - name: Run Bandit Report
-        uses: libertyy/py3-bandit-check@v2
-      - name: Save Bandit txt Report
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v2
-        with:
-          path: ${{ RUNNER.temp }}/_github_home/bandit_report.out
+    - uses: actions/checkout@v2
+
+    - name: Security check - Bandit
+      uses: ././
+      with:
+        python_version: ${{ matrix.python-version }}
+        project_path: .
+        ignore_failure: true
+
+    - name: Security check report artifacts
+      uses: actions/upload-artifact@v1
+      # if: failure()
+      with:
+        name: Security report
+        path: output/security_report.txt
