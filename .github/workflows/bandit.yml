@@ -1,6 +1,6 @@
 name: Security check - Bandit
 
-on: [ pull_request , push ]
+on: push
 
 jobs:
   build:
