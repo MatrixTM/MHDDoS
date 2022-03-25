@@ -868,6 +868,7 @@ class HttpFlood(Thread):
                                     proxies=pro.asRequest()) as res:
                             REQUESTS_SENT += 1
                             BYTES_SEND += Tools.sizeOfRequest(res)
+                            continue
                                 
                 Tools.safe_close(ss)
 
