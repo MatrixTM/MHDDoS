@@ -38,7 +38,7 @@ from yarl import URL
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s',
             datefmt="%H:%M:%S")
 logger = getLogger("MHDDoS")
-logger.setLevel("INFO")
+logger.setLevel("DEBUG")
 ctx: SSLContext = create_default_context(cafile=where())
 ctx.check_hostname = False
 ctx.verify_mode = CERT_NONE
@@ -1008,6 +1008,7 @@ class ProxyManager:
                     proxes.add(proxy)
             except Exception as e:
                 logger.error(f'Download Proxy Error: {(e.__str__() or e.__repr__())}')
+
         return proxes
 
 
