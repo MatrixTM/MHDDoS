@@ -621,7 +621,7 @@ class HttpFlood(Thread):
                          'Accept-Encoding: gzip, deflate, br\r\n'
                          'Accept-Language: en-US,en;q=0.9\r\n'
                          'Cache-Control: max-age=0\r\n'
-                         'Connection: Keep-Alive\r\n'
+                         'Connection: close\r\n'
                          'Sec-Fetch-Dest: document\r\n'
                          'Sec-Fetch-Mode: navigate\r\n'
                          'Sec-Fetch-Site: none\r\n'
