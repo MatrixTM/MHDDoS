@@ -21,6 +21,7 @@
 		{"type":5, "url": "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/socks5.txt",  "timeout": 5},
 		{"type":5, "url": "https://www.my-proxy.com/free-socks-5-proxy.html",  "timeout": 5},
 		{"type":5, "url": "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/txt/proxies-socks5.txt",  "timeout": 5},
+		{"type":5, "url": "https://github.com/roosterkid/openproxylist/blob/main/SOCKS5_RAW.txt",  "timeout": 5},
 		{"type":5, "url": "https://api.openproxylist.xyz/socks5.txt",  "timeout": 5},
 		{"type":5, "url": "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt",  "timeout": 5},
 		{"type":5, "url": "https://www.freeproxychecker.com/result/socks4_proxies.txt",  "timeout": 5},
