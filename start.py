@@ -27,7 +27,7 @@ from uuid import UUID, uuid4
 from PyRoxy import Proxy, ProxyChecker, ProxyType, ProxyUtiles
 from PyRoxy import Tools as ProxyTools
 from certifi import where
-from cfscrape import create_scraper
+from cloudscraper import create_scraper
 from dns import resolver
 from icmplib import ping
 from impacket.ImpactPacket import IP, TCP, UDP, Data
