@@ -45,14 +45,13 @@ ctx: SSLContext = create_default_context(cafile=where())
 ctx.check_hostname = False
 ctx.verify_mode = CERT_NONE
 
-with open(__dir__ / "config.json") as f:
-  con = load(f)
-
-
 __version__: str = "2.4 SNAPSHOT"
 __dir__: Path = Path(__file__).parent
 __ip__: Any = None
 
+
+with open(__dir__ / "config.json") as f:
+  con = load(f)
 
 def getMyIPAddress():
     global __ip__
