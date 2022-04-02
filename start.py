@@ -660,7 +660,7 @@ class HttpFlood(Thread):
 
     def generate_payload(self, other: str = None) -> bytes:
         return str.encode((self._payload +
-                           f"Host: {self._target.authority}\r\n" + +
+                           f"Host: {self._target.authority}\r\n" +
                            self.randHeadercontent +
                            (other if other else "") +
                            "\r\n"))
