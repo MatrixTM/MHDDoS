@@ -4,11 +4,11 @@
 <em><h5 align="center">(Programming Language - Python 3)</h5></em>
 
 <p align="center">
-<a href="#"><img alt="MHDDoS forks" src="https://img.shields.io/github/forks/MHProDev/MHDDoS?style=for-the-badge"></a>
-<a href="#"><img alt="MHDDoS last commit (main)" src="https://img.shields.io/github/last-commit/MHProDev/MHDDoS/main?color=green&style=for-the-badge"></a>
-<a href="#"><img alt="MHDDoS Repo stars" src="https://img.shields.io/github/stars/MHProDev/MHDDoS?style=for-the-badge&color=yellow"></a>
-<a href="#"><img alt="MHDDoS License" src="https://img.shields.io/github/license/MHProDev/MHDDoS?color=orange&style=for-the-badge"></a>
-<a href="https://github.com/MHProDev/MHDDoS/issues"><img alt="MHDDoS issues" src="https://img.shields.io/github/issues/MHProDev/MHDDoS?color=purple&style=for-the-badge"></a>
+<a href="#"><img alt="MHDDoS forks" src="https://img.shields.io/github/forks/MatrixTM/MHDDoS?style=for-the-badge"></a>
+<a href="#"><img alt="MHDDoS last commit (main)" src="https://img.shields.io/github/last-commit/MatrixTM/MHDDoS/main?color=green&style=for-the-badge"></a>
+<a href="#"><img alt="MHDDoS Repo stars" src="https://img.shields.io/github/stars/MatrixTM/MHDDoS?style=for-the-badge&color=yellow"></a>
+<a href="#"><img alt="MHDDoS License" src="https://img.shields.io/github/license/MatrixTM/MHDDoS?color=orange&style=for-the-badge"></a>
+<a href="https://github.com/MatrixTM/MHDDoS/issues"><img alt="MatrixTM issues" src="https://img.shields.io/github/issues/MatrixTM/MHDDoS?color=purple&style=for-the-badge"></a>
   
 <p align="center">Please Don't Attack websites without the owners consent.</p>
 
@@ -88,7 +88,7 @@ python3 start.py tools
 
 ## Downloads
 
-You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/releases)
+You can download it from [GitHub Releases](https://github.com/MatrixTM/MHDDoS/releases)
 
 ### Getting Started
 
@@ -99,7 +99,7 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 * [impacket](https://github.com/SecureAuthCorp/impacket)
 * [requests](https://github.com/psf/requests)
 * [Python3][python3]
-* [PyRoxy](https://github.com/MHProDev/PyRoxy)
+* [PyRoxy](https://github.com/MatrixTM/PyRoxy)
 * [icmplib](https://github.com/ValentinBELYN/icmplib)
 * [certifi](https://github.com/certifi/python-certifi)
 * [psutil](https://github.com/giampaolo/psutil)
@@ -119,7 +119,7 @@ You can download it from [GitHub Releases](https://github.com/MHProDev/MHDDoS/re
 
 ## Documentation
 
-You can read it from [GitHub Wiki](https://github.com/MHProDev/MHDDoS/wiki)
+You can read it from [GitHub Wiki](https://github.com/MatrixTM/MHDDoS/wiki)
 
 **Clone and Install Script**
 
@@ -130,7 +130,7 @@ pip install -r requirements.txt
 ```
 
 [python3]: https://python.org 'Python3'
-[github]: https://github.com/MHProDev/MHDDoS/issues 'GitHub'
+[github]: https://github.com/MatrixTM/MHDDoS/issues 'GitHub'
 
 ---
 
