@@ -44,11 +44,11 @@ body:
       render: true
       placeholder: |
          - OS: [e.g. Ubuntu]
-         - Installed Requirements Version [e.g. PySocks1.70]
+         - Installed Requirements Version [e.g. PyRoxy1.0b5]
          - Python Version [e.g. 3.8.x]
       value: |
         - OS: [e.g. Ubuntu]
-        - Installed Requirements Version [e.g. PySocks1.70]
+        - Installed Requirements Version [e.g. PyRoxy1.0b5]
         - Python Version [e.g. 3.8.x]
     validations:
       required: true

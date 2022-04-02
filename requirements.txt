@@ -1,4 +1,4 @@
-cfscrape<=2.1.1
+cloudscraper==1.2.60
 certifi<=2021.10.8
 dnspython>=2.2.0
 requests==2.27.1

