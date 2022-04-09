@@ -82,7 +82,7 @@ python3 start.py tools
 
 #### Issues ? 
  * Telegram : https://t.me/DD0SChat
- * Discord : https://discord.gg/ah7bfjSnhk
+ * Discord : Soon as soon ... :)
  * [GitHub][github]
 #### Like the project? Leave a star on the repository!
 
