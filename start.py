@@ -54,23 +54,9 @@ tor2webs = ['onion.ly', 'tor2web.to', 'onion.org', 'onion.pet', 'onion.ws', 'oni
 with open(__dir__ / "config.json") as f:
   con = load(f)
 
-def getMyIPAddress():
-    global __ip__
-    if __ip__:
-        return __ip__
-    with suppress(Exception):
-        return get('https://api.my-ip.io/ip', timeout=.1).text
-    with suppress(Exception):
-        return get('https://ipwhois.app/json/', timeout=.1).json()["ip"]
-    with suppress(Exception):
-        return get('https://ipinfo.io/json', timeout=.1).json()["ip"]
-    with suppress(Exception):
-        return ProxyTools.Patterns.IP.search(get('http://checkip.dyndns.org/', timeout=.1).text)
-    with suppress(Exception):
-        return ProxyTools.Patterns.IP.search(get('https://spaceiran.com/myip/', timeout=.1).text)
-    with suppress(Exception):
-        return get('https://ip.42.pl/raw', timeout=.1).text
-    return getMyIPAddress()
+with socket(AF_INET, SOCK_DGRAM) as s:
+    s.connect(("8.8.8.8", 80))
+    __ip__ = s.getsockname()[0]
 
   
 class bcolors:
