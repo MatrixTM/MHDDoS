@@ -1,6 +1,6 @@
 <p align="center"><img src="https://cdn.discordapp.com/attachments/938175699326484490/948263435412598864/unknown_2.png" width="400px" height="150px" alt="ddos"></p>
 
-<h1 align="center">MHDDoS - DDoS Attack Script With 51 Methods</h1>
+<h1 align="center">MHDDoS - DDoS Attack Script With 55 Methods</h1>
 <em><h5 align="center">(Programming Language - Python 3)</h5></em>
 
 <p align="center">
@@ -22,6 +22,8 @@
    * <img src="https://img.icons8.com/cotton/344/domain.png" width="16" height="16" alt="get"> GET | GET Flood
    * <img src="https://cdn0.iconfinder.com/data/icons/database-storage-5/60/server__database__fire__burn__safety-512.png" width="16" height="16" alt="post"> POST | POST Flood
    * <img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/OVH_Logo.svg/1200px-OVH_Logo.svg.png" width="16" height="16" alt="ovh"> OVH | Bypass OVH
+   * <img src="https://cdn-icons-png.flaticon.com/512/1691/1691948.png" width="16" height="16" alt="ovh"> RHEX | Random HEX
+   * <img src="https://cdn-icons-png.flaticon.com/512/4337/4337972.png" width="16" height="16" alt="ovh"> STOMP | Bypass chk_captcha
    * <img src="https://cdn.iconscout.com/icon/premium/png-256-thumb/cyber-bullying-2557797-2152371.png" width="16" height="16" alt="stress"> STRESS | Send HTTP Packet With High Byte 
    * <img src="https://pbs.twimg.com/profile_images/1351562987224641544/IKb4q_yd_400x400.jpg" width="16" height="16" alt="dyn"> DYN | A New Method With Random SubDomain
    * <img src="https://cdn-icons-png.flaticon.com/512/6991/6991643.png" width="16" height="16" alt="downloader"> DOWNLOADER | A New Method of Reading data slowly
@@ -82,7 +84,7 @@ python3 start.py tools
 
 #### Issues ? 
  * Telegram : https://t.me/DD0SChat
- * Discord : https://discord.gg/ah7bfjSnhk
+ * Discord : Soon as soon ... :)
  * [GitHub][github]
 #### Like the project? Leave a star on the repository!
 
