@@ -1,5 +1,6 @@
 {
   "MCBOT": "MHDDoS_",
+  "MINECRAFT_DEFAULT_PROTOCOL": 47,
   "proxy-providers": [
 		{"type":4, "url": "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=socks4",  "timeout": 5},
 		{"type":4, "url": "https://api.proxyscrape.com/?request=displayproxies&proxytype=socks4",  "timeout": 5},

