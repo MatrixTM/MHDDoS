@@ -165,10 +165,6 @@ class Tools:
         return size
 
     @staticmethod
-    def randchr(lengh: int) -> str:
-        return str(ProxyTools.Random.rand_char(lengh)).strip()
-
-    @staticmethod
     def send(sock: socket, packet: bytes):
         global BYTES_SEND, REQUESTS_SENT
         if not sock.send(packet):
@@ -524,13 +520,10 @@ class Layer4(Thread):
             Tools.send(s, Minecraft.chat(self.protocolid, "/register %s %s" % (password, password)))
             Tools.send(s, Minecraft.chat(self.protocolid, "/login %s" % password))
 
-            c = 360
             while Tools.send(s, Minecraft.keepalive(self.protocolid, ProxyTools.Random.rand_int(1111111, 9999999))):
-                c -= 1
-                if c:
-                    continue
-                c = 360
-                Tools.send(s, Minecraft.chat(self.protocolid, Tools.randchr(100)))
+                Tools.send(s, Minecraft.chat(self.protocolid, str(ProxyTools.Random.rand_str(100))))
+                sleep(.05)
+
         Tools.safe_close(s)
 
     def VSE(self) -> None:
