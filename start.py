@@ -515,7 +515,7 @@ class Layer4(Thread):
                                                         ProxyTools.Random.rand_ipv4(),
                                                         uuid4()))
             username = f"{con['MCBOT']}{ProxyTools.Random.rand_str(5)}"
-            password = md5(username)[:8].title()
+            password = md5(username)[:8].title().encode()).hexdigest()
 
             Tools.send(s, Minecraft.login(self.protocolid, username))
             sleep(1.5)
