@@ -44,7 +44,7 @@
    * <img src="http://iclouddnsbypass.com/wp-content/uploads/2015/02/iCloudDNSBypassServer.ico" width="16" height="16" alt="bypass"> BYPASS |  Bypass Normal AntiDDoS
    * <img src="https://cdn-icons-png.flaticon.com/512/905/905568.png" width="16" height="16" alt="bypass"> BOMB |  Bypass with codesenberg/bombardier
    * 🔪 KILLER | run many threads to kill a target
-   * 🧅 TOR | attack on onion website
+   * 🧅 TOR | Bypass onion website
 
 
 * 🧨 Layer4: 
