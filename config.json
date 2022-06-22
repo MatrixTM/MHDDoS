@@ -18,6 +18,7 @@
 		{"type":4, "url": "https://www.freeproxychecker.com/result/socks4_proxies.txt",  "timeout": 5},
 		{"type":4, "url": "http://worm.rip/socks4.txt",  "timeout": 5},
 		{"type":4, "url": "https://www.freeproxychecker.com/result/socks4_proxies.txt",  "timeout": 5},
+	  	{"type":4, "url": "https://proxyspace.pro/socks4.txt",  "timeout": 5},
 
 		{"type":5, "url": "https://api.proxyscrape.com/?request=displayproxies&proxytype=socks5",  "timeout": 5},
 		{"type":5, "url": "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=socks5",  "timeout": 5},
@@ -34,6 +35,7 @@
 		{"type":5, "url": "https://www.freeproxychecker.com/result/socks5_proxies.txt",  "timeout": 5},
 		{"type":5, "url": "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt",  "timeout": 5},
 		{"type":5, "url": "http://worm.rip/socks5.txt",  "timeout": 5},
+	  	{"type":5, "url": "https://proxyspace.pro/socks5.txt",  "timeout": 5},
 		{"type":5, "url": "https://raw.githubusercontent.com/hookzof/socks5_list/master/proxy.txt",  "timeout": 5},
 
 
@@ -75,6 +77,8 @@
 		{"type":1, "url": "https://multiproxy.org/txt_all/proxy.txt",  "timeout": 5},
 		{"type":1, "url": "http://rootjazz.com/proxies/proxies.txt",  "timeout": 5},
 		{"type":1, "url": "https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt",  "timeout": 5},
+	  	{"type":1, "url": "https://proxyspace.pro/http.txt",  "timeout": 5},
+	  	{"type":1, "url": "https://proxyspace.pro/https.txt",  "timeout": 5},
 		{"type":1, "url": "http://worm.rip/http.txt",  "timeout": 5}
 	]
 }
