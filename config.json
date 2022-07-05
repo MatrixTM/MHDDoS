@@ -45,6 +45,7 @@
 		{"type":1, "url": "https://raw.githubusercontent.com/shiftytr/proxy-list/master/proxy.txt",  "timeout": 5},
 		{"type":1, "url": "https://www.my-proxy.com/free-anonymous-proxy.html",  "timeout": 5},
 		{"type":1, "url": "https://www.my-proxy.com/free-transparent-proxy.html",  "timeout": 5},
+		{"type":1, "url": "https://sheesh.rip/http.txt",  "timeout": 5},
 		{"type":1, "url": "https://www.my-proxy.com/free-proxy-list-2.html",  "timeout": 5},
 		{"type":1, "url": "https://www.my-proxy.com/free-proxy-list-3.html",  "timeout": 5},
 		{"type":1, "url": "https://www.my-proxy.com/free-proxy-list-4.html",  "timeout": 5},
