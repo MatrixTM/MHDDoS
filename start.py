@@ -1311,9 +1311,9 @@ class ToolsConsole:
 
                         logger.info(
                             ("Bytes Sent %s\n"
-                             "Bytes Recived %s\n"
+                             "Bytes Received %s\n"
                              "Packets Sent %s\n"
-                             "Packets Recived %s\n"
+                             "Packets Received %s\n"
                              "ErrIn %s\n"
                              "ErrOut %s\n"
                              "DropIn %s\n"
@@ -1546,7 +1546,7 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
         logger.info(f"{bcolors.WARNING}Proxy Count: {bcolors.OKBLUE}{len(proxies):,}{bcolors.RESET}")
     else:
         logger.info(
-            f"{bcolors.WARNING}Empty Proxy File, running flood witout proxy{bcolors.RESET}")
+            f"{bcolors.WARNING}Empty Proxy File, running flood without proxy{bcolors.RESET}")
         proxies = None
 
     return proxies
