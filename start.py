@@ -1527,7 +1527,7 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
                 f"{bcolors.OKBLUE}{len(Proxies):,}{bcolors.WARNING} Proxies are getting checked, this may take awhile{bcolors.RESET}!"
             )
             Proxies = ProxyChecker.checkAll(
-                Proxies, timeout=15, threads=threads,
+                Proxies, timeout=5, threads=threads,
                 url=url.human_repr() if url else "http://httpbin.org/get",
             )
 
