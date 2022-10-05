@@ -135,6 +135,8 @@ You can download it from [GitHub Releases](https://github.com/MatrixTM/MHDDoS/re
 
 You can read it from [GitHub Wiki](https://github.com/MatrixTM/MHDDoS/wiki)
 
+NOTE: For the full functionality of the tool, only Ubuntu 18.04 and 20.04 are supported. Functionality is not guaranteed on distributions that are not mentioned here. (Bypasses don't work on Ubuntu 22.04)
+
 **Clone and Install Script**
 
 ```shell script
