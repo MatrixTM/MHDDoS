@@ -776,7 +776,7 @@ class HttpFlood(Thread):
         self.SENT_FLOOD = self.GET
         for key, value in self.methods.items():
             if name == key:
-                self.SENT_FLOOD = value
+                self.SENT_FLOOD()
                 
     def run(self) -> None:
         if self._synevent: self._synevent.wait()

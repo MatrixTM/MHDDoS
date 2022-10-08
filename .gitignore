@@ -2,3 +2,4 @@ venv
 /.idea/
 files/proxies/*
 .DS_Store
+/backup/
