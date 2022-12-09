@@ -1,5 +1,5 @@
 cloudscraper==1.2.64
-certifi==2022.9.24
+certifi==2022.12.7
 dnspython==2.2.1
 requests==2.27.1
 impacket==0.10.0
