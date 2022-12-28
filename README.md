@@ -128,7 +128,7 @@ You can download it from [GitHub Releases](https://github.com/MatrixTM/MHDDoS/re
 **Tutorial**
 
 * Aprat : https://aparat.com/v/XPn5Z
-* YouTube : Coming soon...ㅤ
+* YouTube : Coming soon...
 ---
 
 ## Documentation
