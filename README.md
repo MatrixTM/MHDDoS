@@ -109,7 +109,7 @@ You can download it from [GitHub Releases](https://github.com/MatrixTM/MHDDoS/re
 **Requirements**
 
 * [dnspython](https://github.com/rthalley/dnspython)
-* [cfscrape](https://github.com/Anorov/cloudflare-scrape)
+* [cloudscraper](https://github.com/VeNoMouS/cloudscraper)~~[cfscrape](https://github.com/Anorov/cloudflare-scrape)~~
 * [impacket](https://github.com/SecureAuthCorp/impacket)
 * [requests](https://github.com/psf/requests)
 * [Python3][python3]
