@@ -98,7 +98,7 @@ Our social's💻
  * [Matrix Team Telegram group](https://t.me/DD0SChat)
  * [Matrix community Telegram channel](https://t.me/MatrixORG)
  * [GitHub] : [github]
-### If u Like the project Leave a star on the repository!
+### If u Like the project, leave a star on the repository!
 
 ## Downloads
 
