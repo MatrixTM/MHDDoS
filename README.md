@@ -142,6 +142,10 @@ git clone https://github.com/MatrixTM/MHDDoS.git
 cd MHDDoS
 pip install -r requirements.txt
 ```
+> **Warning**
+> If you're using a Windows system, you may have to breifly disable Windows Defender (or whatever AntiVirus solution you use) because it will interfere with installing impacket, which is a library needed by MHDDoS
+> [How to disable Windows Defender](https://support.microsoft.com/en-us/windows/turn-off-defender-antivirus-protection-in-windows-security-99e6004f-c54c-8509-773c-a4d776b77960)
+> [See issue](https://github.com/fortra/impacket/issues/1266)
 
 **One-Line Installing on Fresh VPS**
 
