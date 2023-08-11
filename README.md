@@ -68,7 +68,7 @@
   * <img src="https://help.apple.com/assets/6171BD2C588E52621824409D/6171BD2D588E5262182440A4/en_US/8b631353e070420f47530bf95f1a7fae.png" width="16" height="16" alt="ard"> ARD | Apple Remote Desktop Amplification
   * <img src="https://www.tenforums.com/geek/gars/images/2/types/thumb__emote__esktop__onnection.png" width="16" height="16" alt="rdp"> RDP |  Remote Desktop Protocol Amplification
 
-* ⚙️ Tools - Run With 
+* ⚙️ Tools - Runs With 
 `
 python3 start.py tools
 `
