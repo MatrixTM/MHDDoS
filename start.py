@@ -108,7 +108,7 @@ class bcolors:
 
 def exit(*message):
     if message:
-        logger.error(bcolors.FAIL + " ".join(message) + bcolors.RESET)
+        logger.error(bcolors.FAIL + " ".join(map(str, message)) + bcolors.RESET)
     shutdown()
     _exit(1)
 
