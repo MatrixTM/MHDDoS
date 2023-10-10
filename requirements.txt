@@ -7,4 +7,4 @@ psutil>=5.9.3
 icmplib>=2.1.1
 pyasn1==0.4.8
 pyroxy @ git+https://github.com/MatrixTM/PyRoxy.git
-yarl~=1.7.2
+yarl>=1.7.2 
