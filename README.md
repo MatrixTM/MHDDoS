@@ -120,17 +120,6 @@ You can download it from [GitHub Releases](https://github.com/MatrixTM/MHDDoS/re
 * [yarl](https://github.com/aio-libs/yarl)
 ---
 
-**Videos**
-
-* Aparat: https://www.aparat.com/v/bHcP9
-* YouTube : Coming soon...
-
-**Tutorial**
-
-* Aparat : https://aparat.com/v/XPn5Z
-* YouTube : Coming soon...
----
-
 ## Documentation
 
 You can read it from [GitHub Wiki](https://github.com/MatrixTM/MHDDoS/wiki)
@@ -153,12 +142,4 @@ apt -y update && apt -y install curl wget libcurl4 libssl-dev python3 python3-pi
 [github issues]: https://github.com/MatrixTM/MHDDoS/issues 'enter'
 
 ---
-
-**💰 Donation Links:**
-#### Donate Links
-
-<b>BTC</b>: <code>bc1q7dhut0fp3sqmz95kth0munte6exzlrne23jtjh</code></br>
-<b>ETH</b>: <code>0xff2fAF77705de1b842fCbA29c95E5C9e7dc266Dc</code></br>
-<b>USDT TRC20</b>: <code>TNeZtxhaYYseJoUS2LWmao6cDbYciprhKz</code></br></br>
-<b>Toman</b>: https://idpay.ir/mh-prodev</br>
 
