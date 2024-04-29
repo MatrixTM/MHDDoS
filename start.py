@@ -1444,7 +1444,7 @@ class ToolsConsole:
     def usage():
         print((
                   '* MHDDoS - DDoS Attack Script With %d Methods\n'
-                  'Note: If the Proxy list is empty, the attack will run without proxies\n'
+                  'Note: If the Proxy list is empty, The attack will run without proxies\n'
                   '      If the Proxy file doesn\'t exist, the script will download proxies and check them.\n'
                   '      Proxy Type 0 = All in config.json\n'
                   '      SocksTypes:\n'
