@@ -95,8 +95,8 @@ Our social's💻
    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png" width="96" height="96" alt="telegram" />
 </div>
 
+ * [Matrix community Telegram channel](https://t.me/Matrix_Development)
  * Matrix Team Telegram group (on going)
- * Matrix community Telegram channel (on going)
  * [GitHub](https://github.com/MatrixTM)
 ### If u Like the project, leave a star on the repository!
 
