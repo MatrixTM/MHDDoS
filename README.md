@@ -90,13 +90,13 @@ Our social's💻
 </h2> 
 
 <div align="center">
-   <img src="https://icon-library.com/images/github-icon-vector/github-icon-vector-27.jpg" width="96" height="96"/>
-   <img src="https://brandlogos.net/wp-content/uploads/2021/11/discord-logo.png"  width="96" height="96" alt="discord" />
-   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png" width="96" height="96" alt="telegram" />
+   <img src="https://icon-library.com/images/github-icon-vector/github-icon-vector-27.jpg" width="64" height="64"/>
+   <img src="https://brandlogos.net/wp-content/uploads/2021/11/discord-logo.png"  width="64" height="64" alt="discord" />
+   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png" width="64" height="64" alt="telegram" />
 </div>
 
  * [Matrix community Telegram channel](https://t.me/Matrix_Development)
- * Matrix Team Telegram group (on going)
+ * [Matrix team Telegram Group](https://t.me/MatrixTMChat)
  * [GitHub](https://github.com/MatrixTM)
 ### If u Like the project, leave a star on the repository!
 
