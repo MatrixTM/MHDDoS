@@ -90,7 +90,7 @@ Our social's💻
   
 </h2> 
 
-  ## $${\color{red}Please \space do \space not \space use \space the \space "Issues" \space section \space to \space ask \space your \space questions!}$$
+<h1 style="color:red;text-align: center;" style="text-align: center;" align="center">Please do not use the "Issues" section to ask your questions!</h1>
 <div align="center">
    <img src="https://icon-library.com/images/github-icon-vector/github-icon-vector-27.jpg" width="64" height="64"/>
    <img src="https://brandlogos.net/wp-content/uploads/2021/11/discord-logo.png"  width="64" height="64" alt="discord" />
