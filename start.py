@@ -93,7 +93,6 @@ with socket(AF_INET, SOCK_DGRAM) as s:
     s.connect(("8.8.8.8", 80))
     __ip__ = s.getsockname()[0]
 
-
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -105,13 +104,11 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-
 def exit(*message):
     if message:
         logger.error(bcolors.FAIL + " ".join(message) + bcolors.RESET)
     shutdown()
     _exit(1)
-
 
 class Methods:
     LAYER7_METHODS: Set[str] = {
@@ -132,7 +129,6 @@ class Methods:
                                 }
 
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
-
 
 google_agents = [
     "Mozila/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
@@ -162,7 +158,6 @@ class Counter:
 
 REQUESTS_SENT = Counter()
 BYTES_SEND = Counter()
-
 
 class Tools:
     IP = compile("(?:\d{1,3}\.){3}\d{1,3}")
@@ -278,7 +273,6 @@ class Tools:
     def safe_close(sock=None):
         if sock:
             sock.close()
-
 
 class Minecraft:
     @staticmethod
