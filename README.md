@@ -150,3 +150,4 @@ apt -y update && apt -y install curl wget libcurl4 libssl-dev python3 python3-pi
 <a href="https://aeza.net/?ref=375036"><img src="https://i.ibb.co/wgq9Ly8/aezabanner.png" width="728" height="90" alt="aeza"></a>
 
 #### You can buy an hourly 10Gbps server from [Aeza Hosting](https://aeza.net/?ref=375036) with crypto (100% anonymous).
+1878015274345771712#4697602ТЫСТАН
