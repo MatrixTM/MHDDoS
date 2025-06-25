@@ -626,7 +626,6 @@ class Layer4(Thread):
 
         return packets
 
-
     def _generate_discord(self) -> bytes:
         ip: IP = IP()
         ip.set_ip_src(__ip__)
