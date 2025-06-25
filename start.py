@@ -530,7 +530,7 @@ class Layer4(Thread):
         Tools.safe_close(s)
 
     def DISCORD(self) -> None:
-        payload = self._generate_discord()  # pacote único bytes
+        payload = self._generate_discord()
         with socket(AF_INET, SOCK_RAW, IPPROTO_UDP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
             while Tools.sendto(s, payload, self._target):
