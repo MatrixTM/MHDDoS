@@ -1,8 +1,7 @@
 cloudscraper==1.2.71
 certifi==2022.12.7
 dnspython==2.2.1
-requests>=2.27.1
-urllib3>=2.5.0
+requests==2.27.1
 impacket==0.10.0
 psutil>=5.9.3
 icmplib>=2.1.1
