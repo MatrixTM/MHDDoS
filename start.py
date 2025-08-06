@@ -69,6 +69,13 @@ tor2webs = [
             'onion.foundation',
             'onion.rodeo',
             'onion.lat',
+            'onion.dog',
+            'onion.nu',
+            'onion.life',
+            'onion.best',
+            'onion.guide',
+            'onion.to',
+            'torgateway.com',
             'tor2web.org',
             'tor2web.fi',
             'tor2web.blutmagie.de',
@@ -83,7 +90,8 @@ tor2webs = [
             's2.tor-gateways.de',
             's3.tor-gateways.de',
             's4.tor-gateways.de',
-            's5.tor-gateways.de'
+            's5.tor-gateways.de',
+            'hiddenservice.net'
         ]
 
 with open(__dir__ / "config.json") as f:
