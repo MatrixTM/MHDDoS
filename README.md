@@ -150,5 +150,5 @@ apt -y update && apt -y install curl wget libcurl4 libssl-dev python3 python3-pi
 
 
 <a href="https://zomro.com/vps?from=428115"><img src="https://i.postimg.cc/KcH7CG8b/vps.png" width="728" height="90" alt="zomro"></a>
-#### [Zomro Hosting](https://zomro.com/vps?from=428115) allows you to purchase a server using crypto and anonymously.
+#### [Zomro Hosting](https://zomro.com/vps?from=428115) allows you to purchase an hourly server using crypto and completely anonymously.
 
