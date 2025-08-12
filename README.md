@@ -146,10 +146,9 @@ apt -y update && apt -y install curl wget libcurl4 libssl-dev python3 python3-pi
 ## Need a Cheap Hourly Server? No Problem
 
 <a href="https://aeza.net/?ref=375036"><img src="https://github.com/user-attachments/assets/f875428b-cb35-442d-8dce-cdc5ead4ffbd" width="728" height="90" alt="aeza"></a>
-
 #### You can buy an hourly 10Gbps server from [Aeza Hosting](https://aeza.net/?ref=375036) with crypto (100% anonymous).
 
-<a href="https://zomro.com/vps?from=428115"><img src="https://i.postimg.cc/KcH7CG8b/vps.png" width="728" height="90" alt="zomro"></a>
 
+<a href="https://zomro.com/vps?from=428115"><img src="https://i.postimg.cc/KcH7CG8b/vps.png" width="728" height="90" alt="zomro"></a>
 #### [Zomro Hosting](https://zomro.com/vps?from=428115) allows you to purchase a server using crypto and anonymously.
 
