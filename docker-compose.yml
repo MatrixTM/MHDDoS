@@ -1,12 +1,13 @@
+version: "3.9"
+
 services:
   mhddos:
     build: .
     container_name: mhddos
-    restart: always
+    restart: unless-stopped
     volumes:
       - ./config.json:/app/config.json
       - ./files:/app/files
-    # open shell directly
-    entrypoint: ["/bin/bash"]
-    # or pass the args dirctly
-    #command: ["TCP", "0.0.0.0:80", "10", "100"]
+     
+    
+    

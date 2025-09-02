@@ -138,6 +138,18 @@ pip install -r requirements.txt
 apt -y update && apt -y install curl wget libcurl4 libssl-dev python3 python3-pip make cmake automake autoconf m4 build-essential git && git clone https://github.com/MatrixTM/MHDDoS.git && cd MH* && pip3 install -r requirements.txt
 ```
 
+**Docker**
+
+```shell script
+git clone https://github.com/MatrixTM/MHDDoS.git
+cd MHDDoS
+docker compose build
+# you can use the built image directly by uncommenting one line in the dockercompose
+docker compose run -it --entrypoint /bin/bash mhddos
+
+```
+
+
 [python3]: https://python.org 'Python3'
 [github issues]: https://github.com/MatrixTM/MHDDoS/issues 'enter'
 
