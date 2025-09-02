@@ -1,0 +1,12 @@
+services:
+  mhddos:
+    build: .
+    container_name: mhddos
+    restart: always
+    volumes:
+      - ./config.json:/app/config.json
+      - ./files:/app/files
+    # open shell directly
+    entrypoint: ["/bin/bash"]
+    # or pass the args dirctly
+    #command: ["TCP", "0.0.0.0:80", "10", "100"]
