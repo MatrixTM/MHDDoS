@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  mhddos:
+    # image: ghcr.io/mhprodev/mhddos:latest
+    build: .
+    container_name: mhddos
+    restart: unless-stopped
+    volumes:
+      - ./config.json:/app/config.json
+      - ./files:/app/files
+     
+    
+    
