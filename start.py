@@ -44,6 +44,7 @@ logger.setLevel("INFO")
 ctx: SSLContext = create_default_context(cafile=where())
 ctx.check_hostname = False
 ctx.verify_mode = CERT_NONE
+ctx.minimum_version = ctx.TLSVersion.TLSv1_2
 
 __version__: str = "2.4 SNAPSHOT"
 __dir__: Path = Path(__file__).parent
