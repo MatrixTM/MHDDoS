@@ -15,6 +15,7 @@ from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, S
                     SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
                     gethostname, socket)
 from ssl import CERT_NONE, SSLContext, create_default_context
+import ssl
 from struct import pack as data_pack
 from subprocess import run, PIPE
 from sys import argv
@@ -44,7 +45,14 @@ logger.setLevel("INFO")
 ctx: SSLContext = create_default_context(cafile=where())
 ctx.check_hostname = False
 ctx.verify_mode = CERT_NONE
-ctx.minimum_version = ctx.TLSVersion.TLSv1_2
+# Enforce only TLSv1.2+ (defense-in-depth: also disable older protocols explicitly)
+if hasattr(ctx, "minimum_version") and hasattr(ssl, "TLSVersion"):
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+# Disable insecure TLS versions for additional safety
+if hasattr(ssl, "OP_NO_TLSv1"):
+    ctx.options |= ssl.OP_NO_TLSv1
+if hasattr(ssl, "OP_NO_TLSv1_1"):
+    ctx.options |= ssl.OP_NO_TLSv1_1
 
 __version__: str = "2.4 SNAPSHOT"
 __dir__: Path = Path(__file__).parent
