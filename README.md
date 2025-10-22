@@ -19,7 +19,7 @@
 
    * <img src="https://img.icons8.com/cotton/344/domain.png" width="16" height="16" alt="get"> GET | GET Flood
    * <img src="https://cdn0.iconfinder.com/data/icons/database-storage-5/60/server__database__fire__burn__safety-512.png" width="16" height="16" alt="post"> POST | POST Flood
-   * <img src="https://static-00.iconduck.com/assets.00/ovh-icon-2048x2048-l4c3izvg.png" width="16" height="16" alt="ovh"> OVH | Bypass OVH
+   * <img src="https://ovh.github.io/manager/ovhcloud-logo.webp" width="16" height="16" alt="ovh"> OVH | Bypass OVH
    * <img src="https://cdn-icons-png.flaticon.com/512/1691/1691948.png" width="16" height="16" alt="ovh"> RHEX | Random HEX
    * <img src="https://cdn-icons-png.flaticon.com/512/4337/4337972.png" width="16" height="16" alt="ovh"> STOMP | Bypass chk_captcha
    * <img src="https://cdn.iconscout.com/icon/premium/png-256-thumb/cyber-bullying-2557797-2152371.png" width="16" height="16" alt="stress"> STRESS | Send HTTP Packet With High Byte 
@@ -140,6 +140,18 @@ pip install -r requirements.txt
 apt -y update && apt -y install curl wget libcurl4 libssl-dev python3 python3-pip make cmake automake autoconf m4 build-essential git && git clone https://github.com/MatrixTM/MHDDoS.git && cd MH* && pip3 install -r requirements.txt
 ```
 
+**Docker**
+
+```shell script
+git clone https://github.com/MatrixTM/MHDDoS.git
+cd MHDDoS
+docker compose build
+# you can use the built image directly by uncommenting one line in the dockercompose
+docker compose run -it --entrypoint /bin/bash mhddos
+
+```
+
+
 [python3]: https://python.org 'Python3'
 [github issues]: https://github.com/MatrixTM/MHDDoS/issues 'enter'
 
@@ -148,5 +160,9 @@ apt -y update && apt -y install curl wget libcurl4 libssl-dev python3 python3-pi
 ## Need a Cheap Hourly Server? No Problem
 
 <a href="https://aeza.net/?ref=375036"><img src="https://github.com/user-attachments/assets/f875428b-cb35-442d-8dce-cdc5ead4ffbd" width="728" height="90" alt="aeza"></a>
-
 #### You can buy an hourly 10Gbps server from [Aeza Hosting](https://aeza.net/?ref=375036) with crypto (100% anonymous).
+
+
+<a href="https://zomro.com/vps?from=428115"><img src="https://i.postimg.cc/KcH7CG8b/vps.png" width="728" height="90" alt="zomro"></a>
+#### [Zomro Hosting](https://zomro.com/vps?from=428115) allows you to purchase an hourly server using crypto and completely anonymously.
+
