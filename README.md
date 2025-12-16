@@ -157,7 +157,13 @@ docker compose run -it --entrypoint /bin/bash mhddos
 
 ---
 
-## Need a Cheap Hourly Server? No Problem
+## Need a Cheap Server? 
+
+<a href="https://pfcloud.io/aff.php?aff=80"><img src="https://github.com/user-attachments/assets/172b3543-982b-450e-937d-3c4f84764a4f" width="728" alt="pfcloud"></a>
+#### You can buy an 10Gbps cheap server from [PFcloud Hosting](https://pfcloud.io/aff.php?aff=80) with crypto (100% anonymous).
+
+
+
 
 <a href="https://zomro.com/vps?from=428115"><img src="https://i.postimg.cc/KcH7CG8b/vps.png" width="728" height="90" alt="zomro"></a>
 #### [Zomro Hosting](https://zomro.com/vps?from=428115) allows you to purchase an hourly server using crypto and completely anonymously.
