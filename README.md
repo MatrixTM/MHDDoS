@@ -160,7 +160,7 @@ docker compose run -it --entrypoint /bin/bash mhddos
 ## Need a Cheap Server? 
 
 <a href="https://pfcloud.io/aff.php?aff=80"><img src="https://github.com/user-attachments/assets/172b3543-982b-450e-937d-3c4f84764a4f" width="728" alt="pfcloud"></a>
-#### You can buy an 10Gbps cheap server from [PFcloud Hosting](https://pfcloud.io/aff.php?aff=80) with crypto (100% anonymous).
+#### You can buy an 10Gbps cheap server from [PFcloud Hosting](https://pfcloud.io/aff.php?aff=80) with crypto (Scan Allowed).
 
 
 
