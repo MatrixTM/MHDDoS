@@ -1,4 +1,1 @@
-```
-__pycache__/
-*.pyc
-```
+Nothing should be ignored since the changes only include source files (.py) and a markdown file (.md).

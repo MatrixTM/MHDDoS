@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-MHDDoS - Modern Web UI
-A beautiful web interface for MHDDoS
+KTStress - Modern Web UI
+A beautiful web interface for KTStress
 """
 
 import os
@@ -59,7 +59,7 @@ HTML_TEMPLATE = '''
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MHDDoS - Advanced DDoS Tool</title>
+    <title>KTStress - Advanced DDoS Tool</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -516,7 +516,7 @@ HTML_TEMPLATE = '''
         <header>
             <div class="logo">
                 <div class="logo-icon">M</div>
-                <h1>MHDDoS</h1>
+                <h1>KTStress</h1>
             </div>
             <p class="subtitle">Advanced DDoS Attack Tool with Modern Interface</p>
             <span class="version-badge">Version {{ version }}</span>
@@ -661,14 +661,14 @@ HTML_TEMPLATE = '''
                     <div class="log-entry">
                         <span class="log-time">[00:00:00]</span>
                         <span class="log-level-info">[INFO]</span>
-                        <span>MHDDoS UI initialized. Ready to start attacks.</span>
+                        <span>KTStress UI initialized. Ready to start attacks.</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <footer>
-            <p>MHDDoS v{{ version }} | Modern Web Interface</p>
+            <p>KTStress v{{ version }} | Modern Web Interface</p>
             <p style="margin-top: 0.5rem;">Use responsibly and only on targets you have permission to test.</p>
         </footer>
     </div>
@@ -976,7 +976,7 @@ def api_status():
 def run_ui(host='0.0.0.0', port=5000, debug=False):
     """Run the UI server"""
     print(f"{bcolors.OKCYAN}╔════════════════════════════════════════╗{bcolors.RESET}")
-    print(f"{bcolors.OKCYAN}║  MHDDoS Web UI Starting...             ║{bcolors.RESET}")
+    print(f"{bcolors.OKCYAN}║  KTStress Web UI Starting...             ║{bcolors.RESET}")
     print(f"{bcolors.OKCYAN}╠════════════════════════════════════════╣{bcolors.RESET}")
     print(f"{bcolors.OKCYAN}║  Access the UI at:                     ║{bcolors.RESET}")
     print(f"{bcolors.OKGREEN}║  http://localhost:{port}                  ║{bcolors.RESET}")

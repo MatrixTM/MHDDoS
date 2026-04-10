@@ -1,5 +1,5 @@
 <h1 align="center">KTStress</h1>
-<em><h5 align="center">MHDDoS but with active support and updates!</h5></em>
+<em><h5 align="center">KTStress but with active support and updates!</h5></em>
 
 <p align="center">Please Don't Attack websites without the owner's consent.</p>
 
@@ -44,7 +44,7 @@ The web interface provides:
 All dependencies are listed in `requirements.txt`:
 - flask>=2.3.0 (Web framework)
 - flask-socketio>=5.3.0 (Real-time communication)
-- All original MHDDoS dependencies
+- All original KTStress dependencies
 
 Install with: `pip install -r requirements.txt`
 
