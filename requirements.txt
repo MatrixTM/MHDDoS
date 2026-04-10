@@ -8,3 +8,5 @@ icmplib>=2.1.1
 pyasn1==0.4.8
 pyroxy @ git+https://github.com/MatrixTM/PyRoxy.git
 yarl>=1.7.2
+flask>=2.3.0
+flask-socketio>=5.3.0
