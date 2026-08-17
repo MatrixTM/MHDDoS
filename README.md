@@ -13,7 +13,7 @@
 <p align="center"><img src="https://i.imgur.com/aNrHJcA.png" width="1078" height="433" alt="POWER"></p>
 <p align="center"><img src="https://i.imgur.com/4Q7v2wn.png" width="1078" height="296" alt="SCRIPT"></p>
 
-# Warnining
+# Warning
 ⚠️ MHDDoS IS 100% FREE. Do NOT send money to anyone claiming to sell this project. This is a SCAM. If someone contacts you asking for payment, report them to local authorities immediately.
 
 ## Features And Methods
