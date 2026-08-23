@@ -1,8 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import path from 'path';
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import { execSync } from 'child_process';
+import { spawn, ChildProcessWithoutNullStreams, exec, execSync } from 'child_process';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as net from 'net';
@@ -255,33 +254,48 @@ app.post('/api/tools/ping', async (req: Request, res: Response) => {
   const { target } = req.body as { target: string };
   if (!target) { res.status(400).json({ success: false, error: 'Target required.' }); return; }
 
-  const host = target.replace(/https?:\/\//, '').split('/')[0];
+  const host = target.replace(/https?:\/\//, '').split('/')[0].split(':')[0];
 
   try {
-    const results = await Promise.all(
-      Array.from({ length: 4 }, () =>
-        new Promise<number | null>(resolve => {
-          const start = Date.now();
-          const sock = new net.Socket();
-          sock.setTimeout(2000);
-          sock.connect(80, host, () => { sock.destroy(); resolve(Date.now() - start); });
-          sock.on('error', () => resolve(null));
-          sock.on('timeout', () => { sock.destroy(); resolve(null); });
-        })
-      )
-    );
+    const isWin = process.platform === 'win32';
+    const cmd = isWin ? `ping -n 4 ${host}` : `ping -c 4 -W 2 ${host}`;
 
-    const valid = results.filter((r): r is number => r !== null);
+    const output = await new Promise<string>(resolve => {
+      exec(cmd, { timeout: 15000 }, (_err, stdout) => resolve(stdout ?? ''));
+    });
+
+    let avgRtt = 0, minRtt = 0, maxRtt = 0, received = 0;
+
+    if (isWin) {
+      const recvMatch = output.match(/Received\s*=\s*(\d+)/i);
+      const minMatch  = output.match(/Minimum\s*=\s*(\d+)ms/i);
+      const maxMatch  = output.match(/Maximum\s*=\s*(\d+)ms/i);
+      const avgMatch  = output.match(/Average\s*=\s*(\d+)ms/i);
+      received = recvMatch ? parseInt(recvMatch[1]) : 0;
+      minRtt   = minMatch  ? parseInt(minMatch[1])  : 0;
+      maxRtt   = maxMatch  ? parseInt(maxMatch[1])  : 0;
+      avgRtt   = avgMatch  ? parseInt(avgMatch[1])  : 0;
+    } else {
+      const recvMatch = output.match(/(\d+) received/);
+      const rttMatch  = output.match(/min\/avg\/max.*?=\s*([\d.]+)\/([\d.]+)\/([\d.]+)/);
+      received = recvMatch ? parseInt(recvMatch[1]) : 0;
+      if (rttMatch) {
+        minRtt = parseFloat(rttMatch[1]);
+        avgRtt = parseFloat(rttMatch[2]);
+        maxRtt = parseFloat(rttMatch[3]);
+      }
+    }
+
     res.json({
       success: true,
       target: host,
-      alive: valid.length > 0,
-      avg_rtt: valid.length ? +(valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(1) : 0,
-      min_rtt: valid.length ? Math.min(...valid) : 0,
-      max_rtt: valid.length ? Math.max(...valid) : 0,
+      alive: received > 0,
+      avg_rtt: avgRtt,
+      min_rtt: minRtt,
+      max_rtt: maxRtt,
       packets_sent: 4,
-      packets_received: valid.length,
-      packet_loss: +((1 - valid.length / 4) * 100).toFixed(1),
+      packets_received: received,
+      packet_loss: +((1 - received / 4) * 100).toFixed(1),
     });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
