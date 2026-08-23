@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MHDDoS Control Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-icon">M</div>
+        <div class="brand-info">
+          <h1>MHDDoS Panel</h1>
+          <span>v2.4.4 Pro</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          Dashboard
+        </button>
+
+        <button class="nav-item" data-tab="launcher">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Execução & Métodos
+        </button>
+
+        <button class="nav-item" data-tab="active-attacks">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          Tarefas Ativas
+        </button>
+
+        <button class="nav-item" data-tab="tools">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          Ferramentas de Rede
+        </button>
+
+        <button class="nav-item" data-tab="console">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 17 10 11 4 5"></polyline>
+            <line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+          Terminal & Logs
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="themeToggleBtn" class="theme-toggle-btn">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <span id="themeLabel">Tema Claro</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-bar">
+        <div class="page-title-area">
+          <h2 id="pageTitle">Painel Geral</h2>
+          <p id="pageSubtitle">Métricas do sistema e visão integrada do MHDDoS</p>
+        </div>
+        <div class="top-actions">
+          <button id="stopAllBtn" class="btn-emergency">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            </svg>
+            Parar Todos
+          </button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        <section class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <span>Uso de Processador</span>
+              <div class="stat-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+              </div>
+            </div>
+            <div class="stat-value" id="cpuStat">0%</div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="cpuBar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span>Memória RAM</span>
+              <div class="stat-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+              </div>
+            </div>
+            <div class="stat-value" id="ramStat">0%</div>
+            <div class="stat-footer" id="ramDetail">0 GB / 0 GB</div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="ramBar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span>Tráfego Enviado</span>
+              <div class="stat-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+              </div>
+            </div>
+            <div class="stat-value" id="netSentStat">0 MB</div>
+            <div class="stat-footer" id="packetsSentStat">0 pacotes</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span>Processos Ativos</span>
+              <div class="stat-icon-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+            </div>
+            <div class="stat-value" id="activeAttacksStat">0</div>
+            <div class="stat-footer">Instâncias em execução</div>
+          </div>
+        </section>
+
+        <section id="tab-dashboard" class="tab-pane active">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Resumo de Arquivos e Recursos</h3>
+            </div>
+            <div class="form-grid">
+              <div class="stat-card">
+                <div class="stat-header"><span>User-Agents Carregados</span></div>
+                <div class="stat-value" id="uaCount">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header"><span>Referers Carregados</span></div>
+                <div class="stat-value" id="refCount">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header"><span>Listas de Proxies</span></div>
+                <div class="stat-value" id="proxyFilesCount">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Atividade Recente do Terminal</h3>
+              <button class="btn btn-secondary" onclick="switchTab('console')">Abrir Terminal Completo</button>
+            </div>
+            <div class="terminal-box" style="height: 250px;">
+              <div class="terminal-body" id="dashboardQuickLog"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="tab-launcher" class="tab-pane">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Configurar e Iniciar Método</h3>
+            </div>
+            <form id="attackForm">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Camada de Rede (Layer)</label>
+                  <select id="layerSelect" class="form-control">
+                    <option value="L7">Layer 7 (Aplicação / HTTP / HTTPS)</option>
+                    <option value="L4">Layer 4 (Transporte / TCP / UDP)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Método</label>
+                  <select id="methodSelect" class="form-control"></select>
+                </div>
+
+                <div class="form-group full-width">
+                  <label class="form-label" id="targetLabel">Alvo (URL completa com http/https)</label>
+                  <input type="text" id="targetInput" class="form-control" placeholder="https://example.com" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Threads (Tarefas Paralelas)</label>
+                  <input type="number" id="threadsInput" class="form-control" value="100" min="1" max="5000">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Duração (Segundos)</label>
+                  <input type="number" id="durationInput" class="form-control" value="60" min="1" max="86400">
+                </div>
+
+                <div class="form-group" id="socksGroup">
+                  <label class="form-label">Tipo de Proxy (Socks Type)</label>
+                  <select id="socksTypeSelect" class="form-control"></select>
+                </div>
+
+                <div class="form-group" id="proxyFileGroup">
+                  <label class="form-label">Arquivo de Proxy</label>
+                  <input type="text" id="proxyFileInput" class="form-control" value="http.txt">
+                </div>
+
+                <div class="form-group" id="rpcGroup">
+                  <label class="form-label">RPC (Requisições por Conexão)</label>
+                  <input type="number" id="rpcInput" class="form-control" value="10" min="1" max="1000">
+                </div>
+
+                <div class="form-group" id="reflectorGroup" style="display: none;">
+                  <label class="form-label">Arquivo Refletor (Apenas Amplificação)</label>
+                  <input type="text" id="reflectorInput" class="form-control" placeholder="ntp.txt">
+                </div>
+              </div>
+
+              <div style="margin-top: 24px; display: flex; gap: 12px;">
+                <button type="submit" class="btn btn-primary" id="startAttackBtn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  Iniciar Operação
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section id="tab-active-attacks" class="tab-pane">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Instâncias e Tarefas em Execução</h3>
+              <button class="btn btn-secondary" id="refreshAttacksBtn">Atualizar Lista</button>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>PID</th>
+                    <th>Camada</th>
+                    <th>Método</th>
+                    <th>Alvo</th>
+                    <th>Threads</th>
+                    <th>Início</th>
+                    <th>Duração</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="activeAttacksTableBody">
+                  <tr>
+                    <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 24px;">Nenhuma tarefa ativa no momento.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="tab-tools" class="tab-pane">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Central de Ferramentas de Rede</h3>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Selecione a Ferramenta</label>
+                <select id="toolSelect" class="form-control">
+                  <option value="ping">PING (Teste de Conectividade e Latência)</option>
+                  <option value="check">CHECK (Verificador de Resposta HTTP)</option>
+                  <option value="info">INFO (Geolocalização, ISP e WHOIS)</option>
+                  <option value="dns">DNS (Resolução de Registros A, AAAA, MX, NS, TXT)</option>
+                </select>
+              </div>
+
+              <div class="form-group full-width">
+                <label class="form-label">Endereço Alvo (IP, Hostname ou URL)</label>
+                <div style="display: flex; gap: 10px;">
+                  <input type="text" id="toolTargetInput" class="form-control" placeholder="8.8.8.8 ou google.com">
+                  <button id="runToolBtn" class="btn btn-primary" style="flex-shrink: 0;">Executar</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="toolResultCard" class="tool-output-card"></div>
+          </div>
+        </section>
+
+        <section id="tab-console" class="tab-pane">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Terminal de Logs em Tempo Real</h3>
+              <div class="terminal-actions">
+                <button class="terminal-btn" id="clearConsoleBtn">Limpar</button>
+                <button class="terminal-btn" id="toggleAutoScrollBtn">Autoscroll: Ativado</button>
+              </div>
+            </div>
+            <div class="terminal-box">
+              <div class="terminal-header">
+                <div class="terminal-dots">
+                  <div class="terminal-dot red"></div>
+                  <div class="terminal-dot yellow"></div>
+                  <div class="terminal-dot green"></div>
+                </div>
+                <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">stdout / stderr stream</span>
+              </div>
+              <div class="terminal-body" id="fullTerminalBody"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

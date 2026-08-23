@@ -1,0 +1,8 @@
+{
+  "languages": [
+    { "code": "en", "name": "English" },
+    { "code": "es", "name": "Español" },
+    { "code": "pt", "name": "Português" }
+  ],
+  "note": "To add a new language: copy en.xml, rename to <code>.xml, translate all values, add an entry to this array."
+}

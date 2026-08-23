@@ -1,0 +1,27 @@
+{
+  "name": "mhddos-panel",
+  "version": "2.4.4",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon --watch src --ext ts --exec \"npx tsx\" src/server.ts",
+    "start": "npx tsx src/server.ts",
+    "build": "tsc",
+    "serve": "node dist/server.js"
+  },
+  "dependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.9",
+    "@types/node-fetch": "^2.6.11",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "node-fetch": "^2.7.0",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.23.12",
+    "typescript": "^5.5.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}

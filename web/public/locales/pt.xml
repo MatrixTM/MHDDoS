@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<translations lang="pt" name="Português">
+
+  <!-- ── Navegação ── -->
+  <t id="nav.dashboard">Dashboard</t>
+  <t id="nav.launch">Lançamento</t>
+  <t id="nav.tasks">Tarefas</t>
+  <t id="nav.tools">Ferramentas</t>
+  <t id="nav.terminal">Terminal</t>
+
+  <!-- ── Legendas das views ── -->
+  <t id="sub.dashboard">Métricas do sistema em tempo real</t>
+  <t id="sub.launch">Configure e inicie operações</t>
+  <t id="sub.tasks">Gerenciar processos em execução</t>
+  <t id="sub.tools">Diagnóstico de rede e alvo</t>
+  <t id="sub.terminal">Saída em tempo real dos processos</t>
+
+  <!-- ── Topbar ── -->
+  <t id="topbar.stop_all">Parar tudo</t>
+
+  <!-- ── Estatísticas ── -->
+  <t id="stat.cpu">CPU</t>
+  <t id="stat.ram">RAM</t>
+  <t id="stat.sent">ENVIADO</t>
+  <t id="stat.active">ATIVO</t>
+
+  <!-- ── Dashboard ── -->
+  <t id="card.resources">Recursos</t>
+  <t id="card.useragents">User-Agents</t>
+  <t id="card.referers">Referers</t>
+  <t id="card.proxy_files">Listas de proxy</t>
+  <t id="card.recent">Atividade recente</t>
+  <t id="card.view_terminal">Ver terminal →</t>
+
+  <!-- ── Formulário de lançamento ── -->
+  <t id="form.title">Configurar operação</t>
+  <t id="form.layer">Camada</t>
+  <t id="form.layer.l7">Camada 7 — Aplicação (HTTP/HTTPS)</t>
+  <t id="form.layer.l4">Camada 4 — Transporte (TCP/UDP)</t>
+  <t id="form.layer.amp">Amplificação</t>
+  <t id="form.method">Método</t>
+  <t id="form.target.l7">Alvo (URL)</t>
+  <t id="form.target.l4">Alvo (IP:Porta)</t>
+  <t id="form.target.ph.l7">https://alvo.com</t>
+  <t id="form.target.ph.l4">1.2.3.4:80</t>
+  <t id="form.threads">Threads</t>
+  <t id="form.duration">Duração (s)</t>
+  <t id="form.proxy_type">Tipo de proxy</t>
+  <t id="form.proxy_file">Caminho do proxy</t>
+  <t id="form.proxy_file.ph">proxies/socks5.txt</t>
+  <t id="form.rpc">RPC</t>
+  <t id="form.reflector">Arquivo de refletores (AMP)</t>
+  <t id="form.reflector.ph">reflectors/ntp.txt</t>
+  <t id="form.start">Iniciar</t>
+  <t id="form.starting">Iniciando…</t>
+
+  <!-- ── Tarefas ── -->
+  <t id="task.title">Tarefas ativas</t>
+  <t id="task.refresh">Atualizar</t>
+  <t id="task.empty">Nenhuma tarefa ativa.</t>
+  <t id="task.stop">Parar</t>
+  <t id="col.id">ID</t>
+  <t id="col.pid">PID</t>
+  <t id="col.layer">Camada</t>
+  <t id="col.method">Método</t>
+  <t id="col.target">Alvo</t>
+  <t id="col.threads">Threads</t>
+  <t id="col.start">Início</t>
+  <t id="col.elapsed">Tempo</t>
+  <t id="col.status">Status</t>
+
+  <!-- ── Ferramentas ── -->
+  <t id="tools.title">Ferramentas de diagnóstico</t>
+  <t id="tools.tool">Ferramenta</t>
+  <t id="tool.ping">PING — Conectividade TCP</t>
+  <t id="tool.check">CHECK — Resposta HTTP</t>
+  <t id="tool.info">INFO — Geolocalização e ASN</t>
+  <t id="tool.dns">DNS — Registros A/AAAA/MX/NS/TXT</t>
+  <t id="tools.address">Endereço</t>
+  <t id="tools.address.ph">host ou IP</t>
+  <t id="tools.execute">Executar</t>
+
+  <!-- ── Terminal ── -->
+  <t id="term.title">stdout / stderr</t>
+  <t id="term.clear">Limpar</t>
+  <t id="term.autoscroll.on">Autoscroll: ON</t>
+  <t id="term.autoscroll.off">Autoscroll: OFF</t>
+
+  <!-- ── Diálogos ── -->
+  <t id="dlg.stop_task.title">Parar processo</t>
+  <t id="dlg.stop_task.msg">Encerrar a tarefa &lt;code&gt;{0}&lt;/code&gt;?</t>
+  <t id="dlg.stop_all.title">Parar todos</t>
+  <t id="dlg.stop_all.msg">Encerrar &lt;strong&gt;todos&lt;/strong&gt; os processos ativos?</t>
+  <t id="dlg.confirm">Confirmar</t>
+  <t id="dlg.cancel">Cancelar</t>
+  <t id="dlg.ok">OK</t>
+  <t id="dlg.error.title">Erro</t>
+  <t id="dlg.warn.title">Aviso</t>
+
+  <!-- ── Toasts ── -->
+  <t id="toast.task_started">Tarefa {0} iniciada (PID {1})</t>
+  <t id="toast.task_stopped">Processo encerrado.</t>
+  <t id="toast.none_stopped">Nenhum processo parado.</t>
+  <t id="toast.all_stopped">{0} processo(s) encerrado(s).</t>
+  <t id="toast.tool_done">Ferramenta executada.</t>
+  <t id="toast.target_required">Informe o endereço alvo.</t>
+  <t id="toast.exec_failed">Falha na execução.</t>
+  <t id="toast.net_error">Erro de rede: {0}</t>
+  <t id="toast.launch_fail">Falha ao iniciar: {0}</t>
+  <t id="toast.stop_error">Erro ao parar: {0}</t>
+
+  <!-- ── Tema / Idioma ── -->
+  <t id="theme.to_light">Tema claro</t>
+  <t id="theme.to_dark">Tema escuro</t>
+  <t id="lang.label">Idioma</t>
+
+</translations>
