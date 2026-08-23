@@ -227,6 +227,18 @@ def start_attack():
     if not target:
         return jsonify({"success": False, "error": "Target is required."}), 400
 
+    if layer == "L7":
+        validated_target = _validate_public_url(target)
+        if not validated_target:
+            return jsonify({"success": False, "error": "Invalid or non-public target URL."}), 400
+        target = validated_target
+    else:
+        raw_host = target.replace("https://", "").replace("http://", "").split("/")[0].split(":")[0]
+        validated_host = _validate_hostname(raw_host)
+        if not validated_host:
+            return jsonify({"success": False, "error": "Invalid target hostname or IP."}), 400
+        target = validated_host
+
     threads = _safe_int(data.get("threads", 100), 100, 1, 2000)
     duration = _safe_int(data.get("duration", 60), 60, 1, 86400)
 
