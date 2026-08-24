@@ -382,6 +382,28 @@ def tool_ping():
         return jsonify({"success": False, "error": "Ping failed."}), 500
 
 
+WEB_HOST = os.getenv("WEB_HOST", "127.0.0.1")
+WEB_PORT = int(os.getenv("WEB_PORT", "5000"))
+WEB_PASSWORD = os.getenv("WEB_PASSWORD") or os.getenv("WEB_SECRET_KEY")
+
+@app.before_request
+def check_auth():
+    if not WEB_PASSWORD:
+        return None
+    if request.path.startswith("/web/static") or request.path == "/favicon.ico":
+        return None
+    token = request.headers.get("X-API-Key") or request.args.get("token") or request.headers.get("Authorization", "").replace("Bearer ", "")
+    if request.is_json:
+        data = request.get_json(silent=True) or {}
+        if isinstance(data, dict) and not token:
+            token = data.get("token")
+    if token != WEB_PASSWORD:
+        if request.path == "/" or not request.path.startswith("/api/"):
+            return Response("Unauthorized: Invalid WEB_PASSWORD", 401, {"WWW-Authenticate": 'Basic realm="Login Required"'})
+        return jsonify({"success": False, "error": "Unauthorized: Invalid API Token/Password."}), 401
+    return None
+
+
 @app.route("/api/tools/check", methods=["POST"])
 def tool_check():
     data = request.get_json() or {}
@@ -396,7 +418,12 @@ def tool_check():
     try:
         import requests as req_lib
         start_t = time.time()
-        resp = req_lib.get(target, timeout=10, headers={"User-Agent": "MHDDoS-WebClient/2.4.4"}, allow_redirects=True)
+        resp = req_lib.get(
+            target,
+            timeout=10,
+            headers={"User-Agent": "MHDDoS-WebClient/2.4.4"},
+            allow_redirects=False
+        )
         duration_ms = round((time.time() - start_t) * 1000, 2)
 
         return jsonify({
@@ -505,4 +532,10 @@ def stream_logs():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
+    import argparse
+    parser = argparse.ArgumentParser(description="MHDDoS Web Control Panel")
+    parser.add_argument("--host", default=WEB_HOST, help="Host to listen on (default: 127.0.0.1)")
+    parser.add_argument("--port", type=int, default=WEB_PORT, help="Port to listen on (default: 5000)")
+    args = parser.parse_args()
+
+    app.run(host=args.host, port=args.port, debug=False, threaded=True)

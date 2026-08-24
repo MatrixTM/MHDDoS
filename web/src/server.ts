@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import path from 'path';
 import { spawn, ChildProcessWithoutNullStreams, exec, execSync } from 'child_process';
@@ -8,7 +8,16 @@ import * as net from 'net';
 import { randomBytes } from 'crypto';
 
 const app = express();
-const PORT = 5000;
+
+const args = process.argv.slice(2);
+const getArg = (flag: string) => {
+  const idx = args.indexOf(flag);
+  return idx !== -1 && args[idx + 1] ? args[idx + 1] : null;
+};
+
+const HOST = getArg('--host') || process.env.WEB_HOST || process.env.HOST || '127.0.0.1';
+const PORT = parseInt(getArg('--port') || process.env.WEB_PORT || process.env.PORT || '5000', 10);
+const WEB_PASSWORD = getArg('--password') || getArg('--secret') || process.env.WEB_PASSWORD || process.env.WEB_SECRET_KEY || '';
 
 const BASE_DIR = path.resolve(__dirname, '..', '..');
 const PYTHON_EXE = fs.existsSync(path.join(BASE_DIR, '.venv', 'Scripts', 'python.exe'))
@@ -17,6 +26,24 @@ const PYTHON_EXE = fs.existsSync(path.join(BASE_DIR, '.venv', 'Scripts', 'python
 
 app.use(cors());
 app.use(express.json());
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (!WEB_PASSWORD) return next();
+  if (req.path.startsWith('/public/') || req.path === '/favicon.ico') return next();
+  
+  const token = (req.headers['x-api-key'] as string) || (req.query.token as string) || (req.headers.authorization || '').replace('Bearer ', '');
+  if (token !== WEB_PASSWORD) {
+    if (req.path === '/' || !req.path.startsWith('/api/')) {
+      res.setHeader('WWW-Authenticate', 'Basic realm="Login Required"');
+      res.status(401).send('Unauthorized: Invalid WEB_PASSWORD');
+      return;
+    }
+    res.status(401).json({ success: false, error: 'Unauthorized: Invalid API Token/Password.' });
+    return;
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 interface TaskEntry {
@@ -413,6 +440,6 @@ app.get('*', (_req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`[MHDDoS Panel] Running → http://127.0.0.1:${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`[MHDDoS Panel] Running → http://${HOST}:${PORT}`);
 });
