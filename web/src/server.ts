@@ -329,11 +329,37 @@ app.post('/api/tools/ping', async (req: Request, res: Response) => {
   }
 });
 
+function validatePublicUrl(raw: string): string | null {
+  try {
+    const rawUrl = raw.startsWith('http://') || raw.startsWith('https://') ? raw : `http://${raw}`;
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    const hostname = parsed.hostname.toLowerCase();
+    if (!hostname) return null;
+
+    if (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '::1' ||
+      hostname.startsWith('10.') ||
+      hostname.startsWith('192.168.') ||
+      (/^172\.(1[6-9]|2[0-9]|3[01])\./.test(hostname)) ||
+      hostname.endsWith('.local')
+    ) {
+      return null;
+    }
+    return `${parsed.protocol}//${parsed.host}${parsed.pathname}${parsed.search}`;
+  } catch {
+    return null;
+  }
+}
+
 app.post('/api/tools/check', async (req: Request, res: Response) => {
   const { target } = req.body as { target: string };
   if (!target) { res.status(400).json({ success: false, error: 'Target required.' }); return; }
 
-  const url = target.startsWith('http') ? target : `http://${target}`;
+  const url = validatePublicUrl(target);
+  if (!url) { res.status(400).json({ success: false, error: 'Invalid or non-public target URL.' }); return; }
 
   try {
     const start = Date.now();
@@ -341,7 +367,7 @@ app.post('/api/tools/check', async (req: Request, res: Response) => {
     const r = await (fetch as any)(url, {
       method: 'GET',
       headers: { 'User-Agent': 'MHDDoS-Panel/2.4.4' },
-      redirect: 'follow',
+      redirect: 'manual',
       timeout: 10000,
     }) as any;
     const elapsed = Date.now() - start;

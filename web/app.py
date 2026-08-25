@@ -85,16 +85,23 @@ def _validate_hostname(host: str) -> str | None:
 
 
 def _validate_public_url(raw: str) -> str | None:
+    raw = raw.strip()
     if not raw.startswith("http://") and not raw.startswith("https://"):
         raw = "http://" + raw
     try:
         parsed = urlparse(raw)
-        if parsed.scheme not in ("http", "https"):
+        scheme = parsed.scheme.lower()
+        if scheme not in ("http", "https"):
             return None
-        hostname = parsed.hostname or ""
+        hostname = (parsed.hostname or "").lower()
+        if not hostname or not _SAFE_HOSTNAME_RE.match(hostname):
+            return None
         if _is_private_or_loopback(hostname):
             return None
-        return raw
+        port_part = f":{parsed.port}" if parsed.port else ""
+        path_part = parsed.path if parsed.path else "/"
+        query_part = f"?{parsed.query}" if parsed.query else ""
+        return f"{scheme}://{hostname}{port_part}{path_part}{query_part}"
     except Exception:
         return None
 
@@ -363,20 +370,33 @@ def tool_ping():
         return jsonify({"success": False, "error": "Invalid hostname."}), 400
 
     try:
-        from icmplib import ping
-        result = ping(host, count=4, interval=0.2, timeout=2)
-        return jsonify({
-            "success": True,
-            "target": host,
-            "address": result.address,
-            "alive": result.is_alive,
-            "avg_rtt": round(result.avg_rtt, 2) if result.is_alive else 0,
-            "min_rtt": round(result.min_rtt, 2) if result.is_alive else 0,
-            "max_rtt": round(result.max_rtt, 2) if result.is_alive else 0,
-            "packets_sent": result.packets_sent,
-            "packets_received": result.packets_received,
-            "packet_loss": result.packet_loss
-        })
+        try:
+            import importlib
+            icmplib = importlib.import_module("icmplib")
+            result = icmplib.ping(host, count=4, interval=0.2, timeout=2)
+            return jsonify({
+                "success": True,
+                "target": host,
+                "address": result.address,
+                "alive": result.is_alive,
+                "avg_rtt": round(result.avg_rtt, 2) if result.is_alive else 0,
+                "min_rtt": round(result.min_rtt, 2) if result.is_alive else 0,
+                "max_rtt": round(result.max_rtt, 2) if result.is_alive else 0,
+                "packets_sent": result.packets_sent,
+                "packets_received": result.packets_received,
+                "packet_loss": result.packet_loss
+            })
+        except Exception:
+            flag = "-n" if sys.platform.startswith("win") else "-c"
+            res = subprocess.run(["ping", flag, "4", host], capture_output=True, text=True, timeout=10)
+            alive = res.returncode == 0
+            return jsonify({
+                "success": True,
+                "target": host,
+                "address": host,
+                "alive": alive,
+                "output": res.stdout.strip()
+            })
     except Exception:
         logger.exception("Ping failed for host %s", host)
         return jsonify({"success": False, "error": "Ping failed."}), 500
