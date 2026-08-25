@@ -4,30 +4,34 @@ const API = '';
 let autoScroll = true;
 let jwtToken = localStorage.getItem('jwt_token') || '';
 
+async function ensureJwtToken() {
+  if (jwtToken) return jwtToken;
+  try {
+    const res = await fetch(API + '/api/auth/token', { method: 'POST' }).then(r => r.json());
+    if (res.success && res.token) {
+      jwtToken = res.token;
+      localStorage.setItem('jwt_token', jwtToken);
+    }
+  } catch {}
+  return jwtToken;
+}
+
 async function apiFetch(url, options = {}) {
   options.headers = options.headers || {};
+  await ensureJwtToken();
   if (jwtToken) {
     options.headers['Authorization'] = 'Bearer ' + jwtToken;
     options.headers['X-API-Key'] = jwtToken;
   }
-  const r = await fetch(API + url, options);
+  let r = await fetch(API + url, options);
   if (r.status === 401 && !url.includes('/api/auth/')) {
-    const pass = prompt('JWT Authentication Required. Enter Password:');
-    if (pass) {
-      try {
-        const auth = await fetch(API + '/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: pass })
-        }).then(res => res.json());
-        if (auth.success && auth.token) {
-          jwtToken = auth.token;
-          localStorage.setItem('jwt_token', jwtToken);
-          options.headers['Authorization'] = 'Bearer ' + jwtToken;
-          options.headers['X-API-Key'] = jwtToken;
-          return await fetch(API + url, options);
-        }
-      } catch {}
+    jwtToken = '';
+    localStorage.removeItem('jwt_token');
+    await ensureJwtToken();
+    if (jwtToken) {
+      options.headers['Authorization'] = 'Bearer ' + jwtToken;
+      options.headers['X-API-Key'] = jwtToken;
+      r = await fetch(API + url, options);
     }
   }
   return r;

@@ -17,7 +17,6 @@ const getArg = (flag: string) => {
 
 const HOST = getArg('--host') || process.env.WEB_HOST || process.env.HOST || '127.0.0.1';
 const PORT = parseInt(getArg('--port') || process.env.WEB_PORT || process.env.PORT || '5000', 10);
-const WEB_PASSWORD = getArg('--password') || getArg('--secret') || process.env.WEB_PASSWORD || process.env.WEB_SECRET_KEY || '';
 
 const BASE_DIR = path.resolve(__dirname, '..', '..');
 const PYTHON_EXE = fs.existsSync(path.join(BASE_DIR, '.venv', 'Scripts', 'python.exe'))
@@ -26,44 +25,33 @@ const PYTHON_EXE = fs.existsSync(path.join(BASE_DIR, '.venv', 'Scripts', 'python
 
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.WEB_PASSWORD || 'mhddos_panel_jwt_secret_key_2.4.4';
+const JWT_SECRET = process.env.JWT_SECRET || getArg('--jwt-secret') || 'mhddos_panel_jwt_secret_key_2.4.4';
 
 app.use(cors());
 app.use(express.json());
 
 // ── Auth Endpoints ──
-app.post('/api/auth/login', (req: Request, res: Response) => {
-  const { password } = req.body as { password?: string };
-  if (!WEB_PASSWORD || password === WEB_PASSWORD) {
-    const token = jwt.sign(
-      { sub: 'admin', role: 'admin' },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-    res.json({ success: true, token, expires_in: 86400 });
-    return;
-  }
-  res.status(401).json({ success: false, error: 'Invalid password' });
+app.post('/api/auth/token', (_req: Request, res: Response) => {
+  const token = jwt.sign(
+    { sub: 'admin', role: 'admin' },
+    JWT_SECRET,
+    { expiresIn: '24h' }
+  );
+  res.json({ success: true, token, expires_in: 86400 });
 });
 
 app.get('/api/auth/verify', (req: Request, res: Response) => {
   const token = (req.headers['x-api-key'] as string) || (req.query.token as string) || (req.headers.authorization || '').replace('Bearer ', '');
-  if (!WEB_PASSWORD) {
-    res.json({ valid: true, auth_required: false });
-    return;
-  }
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    res.json({ valid: true, user: decoded, auth_required: true });
+    res.json({ valid: true, user: decoded });
   } catch {
-    res.status(401).json({ valid: false, auth_required: true });
+    res.status(401).json({ valid: false, error: 'Invalid or expired JWT token' });
   }
 });
 
 // ── Auth Middleware ──
 app.use((req: Request, res: Response, next: NextFunction) => {
-  if (!WEB_PASSWORD) return next();
-  
   const p = req.path;
   if (p === '/' || p === '/index.html' || p.startsWith('/api/auth/') || p.startsWith('/public/') || p.startsWith('/static/') || p.startsWith('/locales/') || p === '/favicon.ico' || p.endsWith('.css') || p.endsWith('.js') || p.endsWith('.png') || p.endsWith('.svg')) {
     return next();
@@ -76,7 +64,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     jwt.verify(token, JWT_SECRET);
     next();
   } catch {
-    res.status(401).json({ success: false, error: 'Unauthorized: Invalid or expired JWT token', auth_required: true });
+    res.status(401).json({ success: false, error: 'Unauthorized: Invalid or expired JWT token' });
   }
 });
 

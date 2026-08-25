@@ -408,8 +408,7 @@ import base64
 
 WEB_HOST = os.getenv("WEB_HOST", "127.0.0.1")
 WEB_PORT = int(os.getenv("WEB_PORT", "5000"))
-WEB_PASSWORD = os.getenv("WEB_PASSWORD") or os.getenv("WEB_SECRET_KEY")
-JWT_SECRET = os.getenv("JWT_SECRET") or WEB_PASSWORD or "mhddos_panel_jwt_secret_key_2.4.4"
+JWT_SECRET = os.getenv("JWT_SECRET") or "mhddos_panel_jwt_secret_key_2.4.4"
 
 def _b64url_encode(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).rstrip(b'=').decode('utf-8')
@@ -446,35 +445,27 @@ def verify_jwt_token(token: str) -> dict | None:
     except Exception:
         return None
 
-@app.route("/api/auth/login", methods=["POST"])
-def auth_login():
-    data = request.get_json(silent=True) or {}
-    password = (data.get("password") or "").strip()
-    if not WEB_PASSWORD or password == WEB_PASSWORD:
-        payload = {
-            "sub": "admin",
-            "role": "admin",
-            "iat": int(time.time()),
-            "exp": int(time.time()) + 86400
-        }
-        token = create_jwt_token(payload)
-        return jsonify({"success": True, "token": token, "expires_in": 86400})
-    return jsonify({"success": False, "error": "Invalid password."}), 401
+@app.route("/api/auth/token", methods=["POST", "GET"])
+def auth_token():
+    payload = {
+        "sub": "admin",
+        "role": "admin",
+        "iat": int(time.time()),
+        "exp": int(time.time()) + 86400
+    }
+    token = create_jwt_token(payload)
+    return jsonify({"success": True, "token": token, "expires_in": 86400})
 
 @app.route("/api/auth/verify", methods=["GET"])
 def auth_verify():
     token = request.headers.get("X-API-Key") or request.args.get("token") or request.headers.get("Authorization", "").replace("Bearer ", "")
-    if not WEB_PASSWORD:
-        return jsonify({"valid": True, "auth_required": False})
     payload = verify_jwt_token(token)
     if payload:
-        return jsonify({"valid": True, "user": payload, "auth_required": True})
-    return jsonify({"valid": False, "auth_required": True}), 401
+        return jsonify({"valid": True, "user": payload})
+    return jsonify({"valid": False, "error": "Invalid or expired JWT token"}), 401
 
 @app.before_request
 def check_auth():
-    if not WEB_PASSWORD:
-        return None
     path = request.path
     if path in ("/", "/index.html") or path.startswith("/api/auth/") or path.startswith("/public/") or path.startswith("/static/") or path.startswith("/web/static/") or path.startswith("/locales/") or path == "/favicon.ico" or path.endswith(".css") or path.endswith(".js") or path.endswith(".png") or path.endswith(".svg"):
         return None
@@ -484,7 +475,7 @@ def check_auth():
     token = request.headers.get("X-API-Key") or request.args.get("token") or request.headers.get("Authorization", "").replace("Bearer ", "")
     if verify_jwt_token(token):
         return None
-    return jsonify({"success": False, "error": "Unauthorized: Invalid or expired JWT token.", "auth_required": True}), 401
+    return jsonify({"success": False, "error": "Unauthorized: Invalid or expired JWT token."}), 401
 
 
 @app.route("/api/tools/check", methods=["POST"])
