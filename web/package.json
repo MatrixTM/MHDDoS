@@ -11,10 +11,12 @@
   "dependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.14.9",
     "@types/node-fetch": "^2.6.11",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
     "node-fetch": "^2.7.0",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",

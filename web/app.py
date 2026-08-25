@@ -402,26 +402,89 @@ def tool_ping():
         return jsonify({"success": False, "error": "Ping failed."}), 500
 
 
+import hmac
+import hashlib
+import base64
+
 WEB_HOST = os.getenv("WEB_HOST", "127.0.0.1")
 WEB_PORT = int(os.getenv("WEB_PORT", "5000"))
 WEB_PASSWORD = os.getenv("WEB_PASSWORD") or os.getenv("WEB_SECRET_KEY")
+JWT_SECRET = os.getenv("JWT_SECRET") or WEB_PASSWORD or "mhddos_panel_jwt_secret_key_2.4.4"
+
+def _b64url_encode(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b'=').decode('utf-8')
+
+def _b64url_decode(s: str) -> bytes:
+    padding = '=' * (4 - len(s) % 4) if len(s) % 4 != 0 else ''
+    return base64.urlsafe_b64decode(s + padding)
+
+def create_jwt_token(payload: dict) -> str:
+    header = {"alg": "HS256", "typ": "JWT"}
+    h_b64 = _b64url_encode(json.dumps(header, separators=(',', ':')).encode('utf-8'))
+    p_b64 = _b64url_encode(json.dumps(payload, separators=(',', ':')).encode('utf-8'))
+    signing_input = f"{h_b64}.{p_b64}".encode('utf-8')
+    sig = hmac.new(JWT_SECRET.encode('utf-8'), signing_input, hashlib.sha256).digest()
+    sig_b64 = _b64url_encode(sig)
+    return f"{h_b64}.{p_b64}.{sig_b64}"
+
+def verify_jwt_token(token: str) -> dict | None:
+    try:
+        parts = token.split('.')
+        if len(parts) != 3:
+            return None
+        h_b64, p_b64, sig_b64 = parts
+        signing_input = f"{h_b64}.{p_b64}".encode('utf-8')
+        expected_sig = hmac.new(JWT_SECRET.encode('utf-8'), signing_input, hashlib.sha256).digest()
+        actual_sig = _b64url_decode(sig_b64)
+        if not hmac.compare_digest(expected_sig, actual_sig):
+            return None
+        payload = json.loads(_b64url_decode(p_b64).decode('utf-8'))
+        exp = payload.get("exp")
+        if exp and time.time() > exp:
+            return None
+        return payload
+    except Exception:
+        return None
+
+@app.route("/api/auth/login", methods=["POST"])
+def auth_login():
+    data = request.get_json(silent=True) or {}
+    password = (data.get("password") or "").strip()
+    if not WEB_PASSWORD or password == WEB_PASSWORD:
+        payload = {
+            "sub": "admin",
+            "role": "admin",
+            "iat": int(time.time()),
+            "exp": int(time.time()) + 86400
+        }
+        token = create_jwt_token(payload)
+        return jsonify({"success": True, "token": token, "expires_in": 86400})
+    return jsonify({"success": False, "error": "Invalid password."}), 401
+
+@app.route("/api/auth/verify", methods=["GET"])
+def auth_verify():
+    token = request.headers.get("X-API-Key") or request.args.get("token") or request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not WEB_PASSWORD:
+        return jsonify({"valid": True, "auth_required": False})
+    payload = verify_jwt_token(token)
+    if payload:
+        return jsonify({"valid": True, "user": payload, "auth_required": True})
+    return jsonify({"valid": False, "auth_required": True}), 401
 
 @app.before_request
 def check_auth():
     if not WEB_PASSWORD:
         return None
-    if request.path.startswith("/web/static") or request.path == "/favicon.ico":
+    path = request.path
+    if path in ("/", "/index.html") or path.startswith("/api/auth/") or path.startswith("/public/") or path.startswith("/static/") or path.startswith("/web/static/") or path.startswith("/locales/") or path == "/favicon.ico" or path.endswith(".css") or path.endswith(".js") or path.endswith(".png") or path.endswith(".svg"):
         return None
+    if not path.startswith("/api/"):
+        return None
+
     token = request.headers.get("X-API-Key") or request.args.get("token") or request.headers.get("Authorization", "").replace("Bearer ", "")
-    if request.is_json:
-        data = request.get_json(silent=True) or {}
-        if isinstance(data, dict) and not token:
-            token = data.get("token")
-    if token != WEB_PASSWORD:
-        if request.path == "/" or not request.path.startswith("/api/"):
-            return Response("Unauthorized: Invalid WEB_PASSWORD", 401, {"WWW-Authenticate": 'Basic realm="Login Required"'})
-        return jsonify({"success": False, "error": "Unauthorized: Invalid API Token/Password."}), 401
-    return None
+    if verify_jwt_token(token):
+        return None
+    return jsonify({"success": False, "error": "Unauthorized: Invalid or expired JWT token.", "auth_required": True}), 401
 
 
 @app.route("/api/tools/check", methods=["POST"])

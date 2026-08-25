@@ -2,6 +2,36 @@
 
 const API = '';
 let autoScroll = true;
+let jwtToken = localStorage.getItem('jwt_token') || '';
+
+async function apiFetch(url, options = {}) {
+  options.headers = options.headers || {};
+  if (jwtToken) {
+    options.headers['Authorization'] = 'Bearer ' + jwtToken;
+    options.headers['X-API-Key'] = jwtToken;
+  }
+  const r = await fetch(API + url, options);
+  if (r.status === 401 && !url.includes('/api/auth/')) {
+    const pass = prompt('JWT Authentication Required. Enter Password:');
+    if (pass) {
+      try {
+        const auth = await fetch(API + '/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pass })
+        }).then(res => res.json());
+        if (auth.success && auth.token) {
+          jwtToken = auth.token;
+          localStorage.setItem('jwt_token', jwtToken);
+          options.headers['Authorization'] = 'Bearer ' + jwtToken;
+          options.headers['X-API-Key'] = jwtToken;
+          return await fetch(API + url, options);
+        }
+      } catch {}
+    }
+  }
+  return r;
+}
 
 function fmt(n, unit) {
   if (n >= 1e9) return (n / 1e9).toFixed(1) + ' G' + unit;
@@ -258,7 +288,7 @@ $('viewTermBtn').addEventListener('click', () => switchView('terminal'));
 
 async function pollStats() {
   try {
-    const d = await fetch(API + '/api/system/stats').then(r => r.json());
+    const d = await apiFetch('/api/system/stats').then(r => r.json());
     $('cpuVal').textContent = d.cpu_percent + '%';
     $('cpuBar').style.width = clamp(d.cpu_percent) + '%';
     $('ramVal').textContent = d.ram_percent + '%';
@@ -272,7 +302,7 @@ async function pollStats() {
 
 async function pollResources() {
   try {
-    const d = await fetch(API + '/api/files/info').then(r => r.json());
+    const d = await apiFetch('/api/files/info').then(r => r.json());
     $('uaCount').textContent = d.useragents_count.toLocaleString();
     $('refCount').textContent = d.referers_count.toLocaleString();
     $('proxyCount').textContent = d.proxy_files.length;
@@ -299,7 +329,7 @@ function updateToolOptions() {
 
 async function loadMethods() {
   try {
-    methods = await fetch(API + '/api/methods').then(r => r.json());
+    methods = await apiFetch('/api/methods').then(r => r.json());
     populateMethodSel();
     populateSocksSel();
     if (!methodCS) methodCS = new CustomSelect($('methodSel'));
@@ -346,7 +376,7 @@ $('launchForm').addEventListener('submit', async e => {
   btn.disabled = true;
   btn.querySelector('span').textContent = t('form.starting');
   try {
-    const r = await fetch(API + '/api/attacks/start', {
+    const r = await apiFetch('/api/attacks/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -378,7 +408,7 @@ $('launchForm').addEventListener('submit', async e => {
 
 async function loadTasks() {
   try {
-    const tasks = await fetch(API + '/api/attacks/active').then(r => r.json());
+    const tasks = await apiFetch('/api/attacks/active').then(r => r.json());
     const tbody = $('tasksTbody');
     if (!tasks.length) {
       tbody.innerHTML = `<tr class="empty-row"><td colspan="10">${t('task.empty')}</td></tr>`;
@@ -407,7 +437,7 @@ $('tasksTbody').addEventListener('click', async e => {
   const ok = await Dialog.confirm(t('dlg.stop_task.msg', id), t('dlg.stop_task.title'), true);
   if (!ok) return;
   try {
-    const d = await fetch(API + '/api/attacks/stop', {
+    const d = await apiFetch('/api/attacks/stop', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
@@ -426,7 +456,7 @@ $('killAllBtn').addEventListener('click', async () => {
   const ok = await Dialog.confirm(t('dlg.stop_all.msg'), t('dlg.stop_all.title'), true);
   if (!ok) return;
   try {
-    const d = await fetch(API + '/api/attacks/stop', {
+    const d = await apiFetch('/api/attacks/stop', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: 'all' }),
@@ -458,7 +488,8 @@ function addTermLine(time, text) {
 }
 
 function connectSSE() {
-  const es = new EventSource(API + '/api/logs/stream');
+  const tokenParam = jwtToken ? '?token=' + encodeURIComponent(jwtToken) : '';
+  const es = new EventSource(API + '/api/logs/stream' + tokenParam);
   es.onmessage = e => { try { const d = JSON.parse(e.data); addTermLine(d.time, d.text); } catch { } };
   es.onerror = () => {
     $('connDot').style.background = 'var(--danger)';
@@ -486,7 +517,7 @@ $('runToolBtn').addEventListener('click', async () => {
   out.classList.add('active');
   out.textContent = '…';
   try {
-    const d = await fetch(API + '/api/tools/' + tool, {
+    const d = await apiFetch('/api/tools/' + tool, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ target }),
