@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<translations lang="es" name="Español">
+
+  <!-- ── Navigation ── -->
+  <t id="nav.dashboard">Panel de control</t>
+  <t id="nav.launch">Iniciar</t>
+  <t id="nav.tasks">Tareas</t>
+  <t id="nav.tools">Herramientas</t>
+  <t id="nav.terminal">Terminal</t>
+
+  <!-- ── View subtitles ── -->
+  <t id="sub.dashboard">Métricas del sistema en tiempo real</t>
+  <t id="sub.launch">Configurar e iniciar operaciones</t>
+  <t id="sub.tasks">Gestionar procesos en ejecución</t>
+  <t id="sub.tools">Diagnóstico de red y objetivos</t>
+  <t id="sub.terminal">Salida del proceso en tiempo real</t>
+
+  <!-- ── Topbar ── -->
+  <t id="topbar.stop_all">Detener todo</t>
+
+  <!-- ── Stats ── -->
+  <t id="stat.cpu">CPU</t>
+  <t id="stat.ram">RAM</t>
+  <t id="stat.sent">ENVIADO</t>
+  <t id="stat.active">ACTIVO</t>
+
+  <!-- ── Dashboard ── -->
+  <t id="card.resources">Recursos</t>
+  <t id="card.useragents">User-Agents</t>
+  <t id="card.referers">Referers</t>
+  <t id="card.proxy_files">Listas de proxy</t>
+  <t id="card.recent">Actividad reciente</t>
+  <t id="card.view_terminal">Ver terminal →</t>
+
+  <!-- ── Launch form ── -->
+  <t id="form.title">Configurar operación</t>
+  <t id="form.layer">Capa</t>
+  <t id="form.layer.l7">Capa 7 — Aplicación (HTTP/HTTPS)</t>
+  <t id="form.layer.l4">Capa 4 — Transporte (TCP/UDP)</t>
+  <t id="form.layer.amp">Amplificación</t>
+  <t id="form.method">Método</t>
+  <t id="form.target.l7">Objetivo (URL)</t>
+  <t id="form.target.l4">Objetivo (IP:Puerto)</t>
+  <t id="form.target.ph.l7">https://target.com</t>
+  <t id="form.target.ph.l4">1.2.3.4:80</t>
+  <t id="form.threads">Hilos</t>
+  <t id="form.duration">Duración (s)</t>
+  <t id="form.proxy_type">Tipo de proxy</t>
+  <t id="form.proxy_file">Ruta del archivo proxy</t>
+  <t id="form.proxy_file.ph">proxies/socks5.txt</t>
+  <t id="form.rpc">RPC</t>
+  <t id="form.reflector">Archivo reflector (AMP)</t>
+  <t id="form.reflector.ph">reflectors/ntp.txt</t>
+  <t id="form.start">Iniciar</t>
+  <t id="form.starting">Iniciando…</t>
+
+  <!-- ── Tasks ── -->
+  <t id="task.title">Tareas activas</t>
+  <t id="task.refresh">Actualizar</t>
+  <t id="task.empty">No hay tareas activas.</t>
+  <t id="task.stop">Detener</t>
+  <t id="col.id">ID</t>
+  <t id="col.pid">PID</t>
+  <t id="col.layer">Capa</t>
+  <t id="col.method">Método</t>
+  <t id="col.target">Objetivo</t>
+  <t id="col.threads">Hilos</t>
+  <t id="col.start">Inicio</t>
+  <t id="col.elapsed">Transcurrido</t>
+  <t id="col.status">Estado</t>
+
+  <!-- ── Tools ── -->
+  <t id="tools.title">Herramientas de diagnóstico</t>
+  <t id="tools.tool">Herramienta</t>
+  <t id="tool.ping">PING — Conectividad TCP</t>
+  <t id="tool.check">CHECK — Respuesta HTTP</t>
+  <t id="tool.info">INFO — Geolocalización y ASN</t>
+  <t id="tool.dns">DNS — Registros A/AAAA/MX/NS/TXT</t>
+  <t id="tools.address">Dirección</t>
+  <t id="tools.address.ph">host o IP</t>
+  <t id="tools.execute">Ejecutar</t>
+
+  <!-- ── Terminal ── -->
+  <t id="term.title">stdout / stderr</t>
+  <t id="term.clear">Limpiar</t>
+  <t id="term.autoscroll.on">Desplazamiento automático: ACTIVADO</t>
+  <t id="term.autoscroll.off">Desplazamiento automático: DESACTIVADO</t>
+
+  <!-- ── Dialogs ── -->
+  <t id="dlg.stop_task.title">Detener proceso</t>
+  <t id="dlg.stop_task.msg">¿Terminar la tarea &lt;code&gt;{0}&lt;/code&gt;?</t>
+  <t id="dlg.stop_all.title">Detener todo</t>
+  <t id="dlg.stop_all.msg">¿Terminar &lt;strong&gt;todos&lt;/strong&gt; los procesos activos?</t>
+  <t id="dlg.confirm">Confirmar</t>
+  <t id="dlg.cancel">Cancelar</t>
+  <t id="dlg.ok">Aceptar</t>
+  <t id="dlg.error.title">Error</t>
+  <t id="dlg.warn.title">Advertencia</t>
+
+  <!-- ── Toasts ── -->
+  <t id="toast.task_started">Tarea {0} iniciada (PID {1})</t>
+  <t id="toast.task_stopped">Proceso terminado.</t>
+  <t id="toast.none_stopped">No se detuvo ningún proceso.</t>
+  <t id="toast.all_stopped">Se terminaron {0} proceso(s).</t>
+  <t id="toast.tool_done">Herramienta ejecutada.</t>
+  <t id="toast.target_required">Ingrese una dirección de objetivo.</t>
+  <t id="toast.exec_failed">Error de ejecución.</t>
+  <t id="toast.net_error">Error de red: {0}</t>
+  <t id="toast.launch_fail">Error al iniciar: {0}</t>
+  <t id="toast.stop_error">Error de detención: {0}</t>
+
+  <!-- ── Theme / Language ── -->
+  <t id="theme.to_light">Tema claro</t>
+  <t id="theme.to_dark">Tema oscuro</t>
+  <t id="lang.label">Idioma</t>
+
+</translations>

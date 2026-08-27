@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MHDDoS — Control Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <img src="/MHDDoS.png" alt="MHDDoS" class="logo" width="36" height="36">
+        <div class="brand-text">
+          <span class="brand-name">MHDDoS</span>
+          <span class="brand-version">v2.4.4 Panel</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-btn active" data-view="dashboard">
+          <span class="nav-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span data-i18n="nav.dashboard">Dashboard</span>
+        </button>
+        <button class="nav-btn" data-view="launch">
+          <span class="nav-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polygon points="3,2 14,8 3,14" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </span>
+          <span data-i18n="nav.launch">Launch</span>
+        </button>
+        <button class="nav-btn" data-view="tasks">
+          <span class="nav-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polyline points="1,8 5,8 7,14 9,2 11,8 15,8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span data-i18n="nav.tasks">Tasks</span>
+        </button>
+        <button class="nav-btn" data-view="tools">
+          <span class="nav-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="1" x2="8" y2="5.5" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="10.5" x2="8" y2="15" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="8" x2="5.5" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="10.5" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span data-i18n="nav.tools">Tools</span>
+        </button>
+        <button class="nav-btn" data-view="terminal">
+          <span class="nav-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polyline points="2,10 6,6 2,2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="7" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+          <span data-i18n="nav.terminal">Terminal</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <button id="themeBtn" class="theme-btn">
+          <svg id="themeIco" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41M11 8a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span id="themeLbl" data-i18n="theme.to_light">Light theme</span>
+        </button>
+        <div class="lang-row">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 1C6.5 1 4.5 3.5 4.5 6.5s2 5.5 2 5.5" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 1C6.5 1 8.5 3.5 8.5 6.5s-2 5.5-2 5.5" stroke="currentColor" stroke-width="1.2"/><line x1="1" y1="6.5" x2="12" y2="6.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          <select id="langSel" class="lang-sel"></select>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h2 id="viewTitle">Dashboard</h2>
+          <span id="viewSub" class="view-sub"></span>
+        </div>
+        <div class="topbar-actions">
+          <div class="pulse-dot" id="connDot"></div>
+          <button id="killAllBtn" class="btn-kill">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span data-i18n="topbar.stop_all">Stop all</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="stat-bar">
+          <div class="stat">
+            <span class="stat-label" data-i18n="stat.cpu">CPU</span>
+            <span class="stat-val" id="cpuVal">—</span>
+            <div class="stat-bar-track"><div class="stat-bar-fill" id="cpuBar"></div></div>
+          </div>
+          <div class="stat">
+            <span class="stat-label" data-i18n="stat.ram">RAM</span>
+            <span class="stat-val" id="ramVal">—</span>
+            <div class="stat-bar-track"><div class="stat-bar-fill" id="ramBar"></div></div>
+            <span class="stat-detail" id="ramDetail"></span>
+          </div>
+          <div class="stat">
+            <span class="stat-label" data-i18n="stat.sent">SENT</span>
+            <span class="stat-val mono" id="netSentVal">—</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label" data-i18n="stat.active">ACTIVE</span>
+            <span class="stat-val accent" id="activeVal">0</span>
+          </div>
+        </div>
+
+        <section class="view active" id="view-dashboard">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-hd">
+                <span class="card-title" data-i18n="card.resources">Resources</span>
+              </div>
+              <div class="res-grid">
+                <div class="res-item"><span class="res-k" data-i18n="card.useragents">User-Agents</span><span class="res-v mono" id="uaCount">—</span></div>
+                <div class="res-item"><span class="res-k" data-i18n="card.referers">Referers</span><span class="res-v mono" id="refCount">—</span></div>
+                <div class="res-item"><span class="res-k" data-i18n="card.proxy_files">Proxy lists</span><span class="res-v mono" id="proxyCount">—</span></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hd">
+                <span class="card-title" data-i18n="card.recent">Recent activity</span>
+                <button class="link-btn" id="viewTermBtn" data-i18n="card.view_terminal">View terminal →</button>
+              </div>
+              <div class="mini-term" id="dashLog"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-launch">
+          <div class="card">
+            <div class="card-hd"><span class="card-title" data-i18n="form.title">Configure operation</span></div>
+            <form id="launchForm" class="form-grid">
+              <div class="field">
+                <label class="label" data-i18n="form.layer">Layer</label>
+                <select id="layerSel" class="input">
+                  <option value="L7" data-i18n-opt="form.layer.l7">Layer 7 — Application (HTTP/HTTPS)</option>
+                  <option value="L4" data-i18n-opt="form.layer.l4">Layer 4 — Transport (TCP/UDP)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" data-i18n="form.method">Method</label>
+                <select id="methodSel" class="input"></select>
+              </div>
+              <div class="field span2">
+                <label class="label" id="targetLabel" data-i18n="form.target.l7">Target (URL)</label>
+                <input type="text" id="targetInp" class="input" data-i18n-ph="form.target.ph.l7" placeholder="https://target.com" required>
+              </div>
+              <div class="field">
+                <label class="label" data-i18n="form.threads">Threads</label>
+                <input type="number" id="threadsInp" class="input" value="100" min="1" max="5000">
+              </div>
+              <div class="field">
+                <label class="label" data-i18n="form.duration">Duration (s)</label>
+                <input type="number" id="durationInp" class="input" value="60" min="1">
+              </div>
+              <div class="field" id="socksField">
+                <label class="label" data-i18n="form.proxy_type">Proxy type</label>
+                <select id="socksSel" class="input"></select>
+              </div>
+              <div class="field" id="proxyField">
+                <label class="label" data-i18n="form.proxy_file">Proxy file path</label>
+                <input type="text" id="proxyInp" class="input" data-i18n-ph="form.proxy_file.ph" value="http.txt">
+              </div>
+              <div class="field" id="rpcField">
+                <label class="label" data-i18n="form.rpc">RPC</label>
+                <input type="number" id="rpcInp" class="input" value="10" min="1">
+              </div>
+              <div class="field" id="reflField" style="display:none">
+                <label class="label" data-i18n="form.reflector">Reflector file (AMP)</label>
+                <input type="text" id="reflInp" class="input" data-i18n-ph="form.reflector.ph" placeholder="ntp.txt">
+              </div>
+              <div class="form-actions span2">
+                <button type="submit" class="btn-primary" id="launchBtn">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polygon points="2,1 13,7 2,13" fill="currentColor"/></svg>
+                  <span data-i18n="form.start">Start</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="view" id="view-tasks">
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-title" data-i18n="task.title">Active tasks</span>
+              <button class="link-btn" id="refreshTasksBtn" data-i18n="task.refresh">Refresh</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table" id="tasksTable">
+                <thead>
+                  <tr>
+                    <th data-i18n="col.id">ID</th>
+                    <th data-i18n="col.pid">PID</th>
+                    <th data-i18n="col.layer">Layer</th>
+                    <th data-i18n="col.method">Method</th>
+                    <th data-i18n="col.target">Target</th>
+                    <th data-i18n="col.threads">Threads</th>
+                    <th data-i18n="col.start">Start</th>
+                    <th data-i18n="col.elapsed">Elapsed</th>
+                    <th data-i18n="col.status">Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tasksTbody">
+                  <tr class="empty-row"><td colspan="10" data-i18n="task.empty">No active tasks.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-tools">
+          <div class="card">
+            <div class="card-hd"><span class="card-title" data-i18n="tools.title">Diagnostic tools</span></div>
+            <div class="tools-row">
+              <div class="field">
+                <label class="label" data-i18n="tools.tool">Tool</label>
+                <select id="toolSel" class="input">
+                  <option value="ping" data-i18n-opt="tool.ping">PING — TCP connectivity</option>
+                  <option value="check" data-i18n-opt="tool.check">CHECK — HTTP response</option>
+                  <option value="info" data-i18n-opt="tool.info">INFO — Geolocation and ASN</option>
+                  <option value="dns" data-i18n-opt="tool.dns">DNS — A/AAAA/MX/NS/TXT records</option>
+                </select>
+              </div>
+              <div class="field grow">
+                <label class="label" data-i18n="tools.address">Address</label>
+                <input type="text" id="toolInp" class="input" data-i18n-ph="tools.address.ph" placeholder="host or IP">
+              </div>
+              <div class="field align-end">
+                <button id="runToolBtn" class="btn-primary" data-i18n="tools.execute">Execute</button>
+              </div>
+            </div>
+            <pre id="toolOutput" class="tool-output"></pre>
+          </div>
+        </section>
+
+        <section class="view" id="view-terminal">
+          <div class="card full-h">
+            <div class="card-hd">
+              <span class="card-title">
+                <span class="term-dots">
+                  <span class="td red"></span>
+                  <span class="td yellow"></span>
+                  <span class="td green"></span>
+                </span>
+                <span data-i18n="term.title">stdout / stderr</span>
+              </span>
+              <div class="term-actions">
+                <button class="link-btn" id="clearTermBtn" data-i18n="term.clear">Clear</button>
+                <button class="link-btn" id="scrollBtn" data-i18n="term.autoscroll.on">Autoscroll: ON</button>
+              </div>
+            </div>
+            <div class="terminal" id="terminal"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="/i18n.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
