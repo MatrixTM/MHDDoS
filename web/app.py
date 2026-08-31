@@ -405,11 +405,12 @@ def tool_ping():
 import hmac
 import hashlib
 import base64
+import secrets
 
 WEB_HOST = os.getenv("WEB_HOST", "127.0.0.1")
 WEB_PORT = int(os.getenv("WEB_PORT", "5000"))
-_RAW_SECRET = os.getenv("JWT_SECRET") or "mhddos_panel_jwt_signing_key_2.4.4"
-JWT_SIGNING_KEY = _RAW_SECRET.encode("utf-8")
+_raw_key = (os.getenv("PANEL_KEY") or secrets.token_hex(32)).encode("utf-8")
+JWT_SIGNING_KEY = hashlib.pbkdf2_hmac("sha256", _raw_key, b"mhddos_panel_salt_v2", 100000)
 
 def _b64url_encode(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).rstrip(b'=').decode('utf-8')
