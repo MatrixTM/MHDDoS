@@ -402,48 +402,24 @@ def tool_ping():
         return jsonify({"success": False, "error": "Ping failed."}), 500
 
 
-import hmac
-import hashlib
-import base64
-import secrets
+try:
+    import jwt
+except ImportError:
+    import importlib
+    jwt = importlib.import_module("jwt")
 
 WEB_HOST = os.getenv("WEB_HOST", "127.0.0.1")
 WEB_PORT = int(os.getenv("WEB_PORT", "5000"))
-_raw_key = (os.getenv("PANEL_KEY") or secrets.token_hex(32)).encode("utf-8")
-JWT_SIGNING_KEY = hashlib.pbkdf2_hmac("sha256", _raw_key, b"mhddos_panel_salt_v2", 100000)
-
-def _b64url_encode(data: bytes) -> str:
-    return base64.urlsafe_b64encode(data).rstrip(b'=').decode('utf-8')
-
-def _b64url_decode(s: str) -> bytes:
-    padding = '=' * (4 - len(s) % 4) if len(s) % 4 != 0 else ''
-    return base64.urlsafe_b64decode(s + padding)
+JWT_SECRET_KEY = os.getenv("JWT_SECRET") or os.getenv("PANEL_SECRET") or "mhddos_panel_jwt_secret_key_v2.4.4"
 
 def create_jwt_token(payload: dict) -> str:
-    header = {"alg": "HS512", "typ": "JWT"}
-    h_b64 = _b64url_encode(json.dumps(header, separators=(',', ':')).encode('utf-8'))
-    p_b64 = _b64url_encode(json.dumps(payload, separators=(',', ':')).encode('utf-8'))
-    signing_input = f"{h_b64}.{p_b64}".encode('utf-8')
-    sig = hmac.new(JWT_SIGNING_KEY, signing_input, hashlib.sha512).digest()
-    sig_b64 = _b64url_encode(sig)
-    return f"{h_b64}.{p_b64}.{sig_b64}"
+    return jwt.encode(payload, JWT_SECRET_KEY, algorithm="HS512")
 
 def verify_jwt_token(token: str) -> dict | None:
+    if not token:
+        return None
     try:
-        parts = token.split('.')
-        if len(parts) != 3:
-            return None
-        h_b64, p_b64, sig_b64 = parts
-        signing_input = f"{h_b64}.{p_b64}".encode('utf-8')
-        expected_sig = hmac.new(JWT_SIGNING_KEY, signing_input, hashlib.sha512).digest()
-        actual_sig = _b64url_decode(sig_b64)
-        if not hmac.compare_digest(expected_sig, actual_sig):
-            return None
-        payload = json.loads(_b64url_decode(p_b64).decode('utf-8'))
-        exp = payload.get("exp")
-        if exp and time.time() > exp:
-            return None
-        return payload
+        return jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS512"])
     except Exception:
         return None
 
