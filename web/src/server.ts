@@ -35,7 +35,7 @@ app.post('/api/auth/token', (_req: Request, res: Response) => {
   const token = jwt.sign(
     { sub: 'admin', role: 'admin' },
     JWT_SECRET,
-    { expiresIn: '24h' }
+    { algorithm: 'HS512', expiresIn: '24h' }
   );
   res.json({ success: true, token, expires_in: 86400 });
 });
@@ -43,7 +43,7 @@ app.post('/api/auth/token', (_req: Request, res: Response) => {
 app.get('/api/auth/verify', (req: Request, res: Response) => {
   const token = (req.headers['x-api-key'] as string) || (req.query.token as string) || (req.headers.authorization || '').replace('Bearer ', '');
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS512'] });
     res.json({ valid: true, user: decoded });
   } catch {
     res.status(401).json({ valid: false, error: 'Invalid or expired JWT token' });
@@ -61,7 +61,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
   const token = (req.headers['x-api-key'] as string) || (req.query.token as string) || (req.headers.authorization || '').replace('Bearer ', '');
   try {
-    jwt.verify(token, JWT_SECRET);
+    jwt.verify(token, JWT_SECRET, { algorithms: ['HS512'] });
     next();
   } catch {
     res.status(401).json({ success: false, error: 'Unauthorized: Invalid or expired JWT token' });

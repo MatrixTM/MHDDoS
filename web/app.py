@@ -419,11 +419,11 @@ def _b64url_decode(s: str) -> bytes:
     return base64.urlsafe_b64decode(s + padding)
 
 def create_jwt_token(payload: dict) -> str:
-    header = {"alg": "HS256", "typ": "JWT"}
+    header = {"alg": "HS512", "typ": "JWT"}
     h_b64 = _b64url_encode(json.dumps(header, separators=(',', ':')).encode('utf-8'))
     p_b64 = _b64url_encode(json.dumps(payload, separators=(',', ':')).encode('utf-8'))
     signing_input = f"{h_b64}.{p_b64}".encode('utf-8')
-    sig = hmac.new(JWT_SIGNING_KEY, signing_input, hashlib.sha256).digest()
+    sig = hmac.new(JWT_SIGNING_KEY, signing_input, hashlib.sha512).digest()
     sig_b64 = _b64url_encode(sig)
     return f"{h_b64}.{p_b64}.{sig_b64}"
 
@@ -434,7 +434,7 @@ def verify_jwt_token(token: str) -> dict | None:
             return None
         h_b64, p_b64, sig_b64 = parts
         signing_input = f"{h_b64}.{p_b64}".encode('utf-8')
-        expected_sig = hmac.new(JWT_SIGNING_KEY, signing_input, hashlib.sha256).digest()
+        expected_sig = hmac.new(JWT_SIGNING_KEY, signing_input, hashlib.sha512).digest()
         actual_sig = _b64url_decode(sig_b64)
         if not hmac.compare_digest(expected_sig, actual_sig):
             return None
