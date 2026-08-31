@@ -408,7 +408,8 @@ import base64
 
 WEB_HOST = os.getenv("WEB_HOST", "127.0.0.1")
 WEB_PORT = int(os.getenv("WEB_PORT", "5000"))
-JWT_SECRET = os.getenv("JWT_SECRET") or "mhddos_panel_jwt_secret_key_2.4.4"
+_RAW_SECRET = os.getenv("JWT_SECRET") or "mhddos_panel_jwt_signing_key_2.4.4"
+JWT_SIGNING_KEY = _RAW_SECRET.encode("utf-8")
 
 def _b64url_encode(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).rstrip(b'=').decode('utf-8')
@@ -422,7 +423,7 @@ def create_jwt_token(payload: dict) -> str:
     h_b64 = _b64url_encode(json.dumps(header, separators=(',', ':')).encode('utf-8'))
     p_b64 = _b64url_encode(json.dumps(payload, separators=(',', ':')).encode('utf-8'))
     signing_input = f"{h_b64}.{p_b64}".encode('utf-8')
-    sig = hmac.new(JWT_SECRET.encode('utf-8'), signing_input, hashlib.sha256).digest()
+    sig = hmac.new(JWT_SIGNING_KEY, signing_input, hashlib.sha256).digest()
     sig_b64 = _b64url_encode(sig)
     return f"{h_b64}.{p_b64}.{sig_b64}"
 
@@ -433,7 +434,7 @@ def verify_jwt_token(token: str) -> dict | None:
             return None
         h_b64, p_b64, sig_b64 = parts
         signing_input = f"{h_b64}.{p_b64}".encode('utf-8')
-        expected_sig = hmac.new(JWT_SECRET.encode('utf-8'), signing_input, hashlib.sha256).digest()
+        expected_sig = hmac.new(JWT_SIGNING_KEY, signing_input, hashlib.sha256).digest()
         actual_sig = _b64url_decode(sig_b64)
         if not hmac.compare_digest(expected_sig, actual_sig):
             return None
