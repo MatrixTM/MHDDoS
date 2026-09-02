@@ -23,6 +23,14 @@ PYTHON_EXE = str(BASE_DIR / ".venv" / "Scripts" / "python.exe")
 if not os.path.exists(PYTHON_EXE):
     PYTHON_EXE = sys.executable
 
+ALLOWED_LIST_FILES = {
+    "http.txt",
+    "socks4.txt",
+    "socks5.txt",
+    "proxies.txt",
+    "reflectors.txt",
+}
+
 app = Flask(
     __name__,
     template_folder=str(BASE_DIR / "web" / "templates"),
@@ -257,22 +265,22 @@ def start_attack():
         if socks_type not in VALID_SOCKS_TYPES:
             socks_type = 0
         rpc = _safe_int(data.get("rpc", 10), 10, 1, 10000)
-        proxylist = data.get("proxylist", "http.txt").strip() or "http.txt"
-        if not re.match(r'^[\w\-. ]+\.txt$', proxylist):
+        proxylist = Path(data.get("proxylist", "http.txt").strip() or "http.txt").name
+        if proxylist not in ALLOWED_LIST_FILES:
             proxylist = "http.txt"
         cmd.extend([str(socks_type), str(threads), proxylist, str(rpc), str(duration)])
     else:
         cmd.extend([str(threads), str(duration)])
         if method in METHODS_AMP:
-            amp_file = data.get("reflector", "").strip()
-            if amp_file and re.match(r'^[\w\-. ]+\.txt$', amp_file):
+            amp_file = Path(data.get("reflector", "").strip()).name
+            if amp_file in ALLOWED_LIST_FILES:
                 cmd.append(amp_file)
         else:
             proxy_type = _safe_int(data.get("socks_type", 0), 0, 0, 6)
             if proxy_type not in VALID_SOCKS_TYPES:
                 proxy_type = 0
-            proxy_file = data.get("proxylist", "").strip()
-            if proxy_file and re.match(r'^[\w\-. ]+\.txt$', proxy_file):
+            proxy_file = Path(data.get("proxylist", "").strip()).name
+            if proxy_file in ALLOWED_LIST_FILES:
                 cmd.extend([str(proxy_type), proxy_file])
 
     task_id = str(uuid.uuid4())[:8]
