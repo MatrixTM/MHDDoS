@@ -1,173 +1,253 @@
-<h1 align="center">MHDDoS - DDoS Attack Script With 57 Methods</h1>
-<em><h5 align="center">(Programming Language - Python 3)</h5></em>
-
-<p align="center">
-<a href="#"><img alt="MH-DDoS forks" src="https://img.shields.io/github/forks/MatrixTM/MHDDoS?style=for-the-badge"></a>
-<a href="#"><img alt="MH-DDoS last commit (main)" src="https://img.shields.io/github/last-commit/MatrixTM/MHDDoS/main?color=green&style=for-the-badge"></a>
-<a href="#"><img alt="MH-DDoS Repo stars" src="https://img.shields.io/github/stars/MatrixTM/MHDDoS?style=for-the-badge&color=yellow"></a>
-<a href="#"><img alt="MH-DDoS License" src="https://img.shields.io/github/license/MatrixTM/MHDDoS?color=orange&style=for-the-badge"></a>
-<a href="https://github.com/MatrixTM/MHDDoS/issues"><img alt="MatrixTM issues" src="https://img.shields.io/github/issues/MatrixTM/MHDDoS?color=purple&style=for-the-badge"></a>
-  
-<p align="center">Please Don't Attack websites without the owner's consent.</p>
-
-<p align="center"><img src="https://i.imgur.com/aNrHJcA.png" width="1078" height="433" alt="POWER"></p>
-<p align="center"><img src="https://i.imgur.com/4Q7v2wn.png" width="1078" height="296" alt="SCRIPT"></p>
-
-# Warning
-⚠️ MHDDoS IS 100% FREE. Do NOT send money to anyone claiming to sell this project. This is a SCAM. If someone contacts you asking for payment, report them to local authorities immediately.
-
-## Features And Methods
-
- * 💣 Layer7
-
-   * <img src="https://img.icons8.com/cotton/344/domain.png" width="16" height="16" alt="get"> GET | GET Flood
-   * <img src="https://cdn0.iconfinder.com/data/icons/database-storage-5/60/server__database__fire__burn__safety-512.png" width="16" height="16" alt="post"> POST | POST Flood
-   * <img src="https://ovh.github.io/manager/ovhcloud-logo.webp" width="16" height="16" alt="ovh"> OVH | Bypass OVH
-   * <img src="https://cdn-icons-png.flaticon.com/512/1691/1691948.png" width="16" height="16" alt="ovh"> RHEX | Random HEX
-   * <img src="https://cdn-icons-png.flaticon.com/512/4337/4337972.png" width="16" height="16" alt="ovh"> STOMP | Bypass chk_captcha
-   * <img src="https://cdn.iconscout.com/icon/premium/png-256-thumb/cyber-bullying-2557797-2152371.png" width="16" height="16" alt="stress"> STRESS | Send HTTP Packet With High Byte 
-   * <img src="https://cdn.worldvectorlogo.com/logos/dyndns.svg" width="16" height="16" alt="dyn"> DYN | A New Method With Random SubDomain
-   * <img src="https://cdn-icons-png.flaticon.com/512/6991/6991643.png" width="16" height="16" alt="downloader"> DOWNLOADER | A New Method of Reading data slowly
-   * <img src="https://cdn2.iconfinder.com/data/icons/poison-and-venom-fill/160/loris2-512.png" width="16" height="16" alt="slow"> SLOW | Slowloris Old Method of DDoS
-   * <img src="https://lyrahosting.com/wp-content/uploads/2020/06/ddos-how-work-icon.png" width="16" height="16" alt="head"> HEAD | https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD
-   * <img src="https://img.icons8.com/plasticine/2x/null-symbol.png" width="16" height="16" alt="null"> NULL | Null UserAgent and ...
-   * <img src="https://i.pinimg.com/originals/03/2e/7d/032e7d0755cd511c753bcb6035d44f68.png" width="16" height="16" alt="cookie"> COOKIE | Random Cookie PHP 'if (isset($_COOKIE))'
-   * <img src="https://cdn0.iconfinder.com/data/icons/dicticons-files-folders/32/office_pps-512.png" width="16" height="16" alt="pps"> PPS |  Only 'GET / HTTP/1.1\r\n\r\n'
-   * <img src="https://cdn3.iconfinder.com/data/icons/internet-security-14/48/DDoS_website_webpage_bomb_virus_protection-512.png" width="16" height="16" alt="even"> EVEN | GET Method with more header
-   * <img src="https://iili.io/HU9BC74.png" width="16" height="16" alt="googleshield"> GSB | Google Project Shield Bypass
-   * <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/DDoS-Guard_logo.svg/1200px-DDoS-Guard_logo.svg.png" width="16" height="16" alt="DDoSGuard"> DGB | DDoS Guard Bypass
-   * <img src="https://i.imgur.com/bGL8qfw.png" width="16" height="16" alt="ArvanCloud"> AVB | Arvan Cloud Bypass
-   * <img src="https://iili.io/HU9BC74.png" width="16" height="16" alt="Google bot"> BOT | Like Google bot
-   * <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Apache_HTTP_Server_Logo_%282016%29.svg/1000px-Apache_HTTP_Server_Logo_%282016%29.svg.png" width="16" height="16" alt="Apache Webserver"> APACHE | Apache Expliot
-   * <img src="https://icon-library.com/images/icon-for-wordpress/icon-for-wordpress-16.jpg" width="16" height="16" alt="wordpress expliot"> XMLRPC | WP XMLRPC exploit (add /xmlrpc.php)
-   * <img src="https://techcrunch.com/wp-content/uploads/2019/06/J2LlHqT3qJl0bG9Alpgc-1-730x438.png?w=730" width="16" height="16" alt="CloudFlare"> CFB | CloudFlare Bypass
-   * <img src="https://techcrunch.com/wp-content/uploads/2019/06/J2LlHqT3qJl0bG9Alpgc-1-730x438.png?w=730" width="16" height="16" alt="CloudFlare UnderAttack Mode"> CFBUAM | CloudFlare Under Attack Mode Bypass
-   * <img src="http://iclouddnsbypass.com/wp-content/uploads/2015/02/iCloudDNSBypassServer.ico" width="16" height="16" alt="bypass"> BYPASS |  Bypass Normal AntiDDoS
-   * <img src="https://cdn-icons-png.flaticon.com/512/905/905568.png" width="16" height="16" alt="bypass"> BOMB |  Bypass with codesenberg/bombardier
-   * 🔪 KILLER | Run many threads to kill a target
-   * 🧅 TOR | Bypass onion website
-
-
-* 🧨 Layer4: 
-  * <img src="https://raw.githubusercontent.com/kgretzky/pwndrop/master/media/pwndrop-logo-512.png" width="16" height="16" alt="tcp"> TCP | TCP Flood Bypass
-  * <img src="https://styles.redditmedia.com/t5_2rxmiq/styles/profileIcon_snoob94cdb09-c26c-4c24-bd0c-66238623cc22-headshot.png" width="16" height="16" alt="udp"> UDP | UDP Flood Bypass
-  * <img src="https://cdn-icons-png.flaticon.com/512/1918/1918576.png" width="16" height="16" alt="syn"> SYN | SYN Flood
-  * <img src="https://images.icon-icons.com/2407/PNG/512/ovh_icon_146131.png" width="16" height="16" alt="ovh"> OVH-UDP | UDP flood with random HTTP headers and binary payload to bypass OVH and WAFs.
-  * <img src="https://cdn-icons-png.flaticon.com/512/1017/1017466.png" width="16" height="16" alt="cps"> CPS | Open and close connections with proxy
-  * <img src="https://icon-library.com/images/icon-ping/icon-ping-28.jpg" width="16" height="16" alt="icmp"> ICMP | Icmp echo request flood (Layer3)
-  * <img src="https://s6.uupload.ir/files/1059643_g8hp.png" width="16" height="16" alt="connection"> CONNECTION | Open connection alive with proxy
-  * <img src="https://ia803109.us.archive.org/27/items/source-engine-video-projects/source-engine-video-projects_itemimage.png" width="16" height="16" alt="vse"> VSE | Send Valve Source Engine Protocol
-  * <img src="https://mycrackfree.com/wp-content/uploads/2018/08/TeamSpeak-Server-9.png" width="16" height="16" alt="teamspeak 3"> TS3 | Send Teamspeak 3 Status Ping Protocol
-  * <img src="https://cdn2.downdetector.com/static/uploads/logo/75ef9fcabc1abea8fce0ebd0236a4132710fcb2e.png" width="16" height="16" alt="fivem"> FIVEM | Send FiveM Status Ping Protocol
-  * <img src="https://github.com/user-attachments/assets/f40748bf-dd28-4294-b862-cb0acbc74eea" width="16" height="16" alt="fivem-token"> FIVEM-TOKEN | Send FiveM confirmation token flood
-  * <img src="https://cdn.iconscout.com/icon/free/png-512/redis-4-1175103.png" width="16" height="16" alt="mem"> MEM | Memcached Amplification
-  * <img src="https://lyrahosting.com/wp-content/uploads/2020/06/ddos-attack-icon.png" width="16" height="16" alt="ntp"> NTP | NTP Amplification
-  * <img src="https://cdn-icons-png.flaticon.com/512/4712/4712139.png" width="16" height="16" alt="mcbot"> MCBOT | Minecraft Bot Attack
-  * <img src="https://cdn.worldvectorlogo.com/logos/minecraft-1.svg" width="16" height="16" alt="minecraft"> MINECRAFT | Minecraft Status Ping Protocol
-  * <img src="https://cdn.worldvectorlogo.com/logos/minecraft-1.svg" width="16" height="16" alt="minecraft pe"> MCPE | Minecraft PE Status Ping Protocol
-  * <img src="https://cdn-icons-png.flaticon.com/512/2653/2653461.png" width="16" height="16" alt="dns"> DNS | DNS Amplification
-  * <img src="https://lyrahosting.com/wp-content/uploads/2020/06/ddos-attack-icon.png" width="16" height="16" alt="chargen"> CHAR | Chargen Amplification
-  * <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRct5OvjSCpUftyRMm3evgdPOa-f8LbwJFO-A&usqp=CAU" width="16" height="16" alt="cldap"> CLDAP | Cldap Amplification
-  * <img src="https://help.apple.com/assets/6171BD2C588E52621824409D/6171BD2D588E5262182440A4/en_US/8b631353e070420f47530bf95f1a7fae.png" width="16" height="16" alt="ard"> ARD | Apple Remote Desktop Amplification
-  * <img src="https://www.tenforums.com/geek/gars/images/2/types/thumb__emote__esktop__onnection.png" width="16" height="16" alt="rdp"> RDP |  Remote Desktop Protocol Amplification
-
-* ⚙️ Tools - Runs With 
-`
-python3 start.py tools
-`
-  * 🌟 CFIP | Find Real IP Address Of Websites Powered By Cloudflare
-  * 🔪 DNS | Show DNS Records Of Sites
-  * 📍  TSSRV | TeamSpeak SRV Resolver
-  * ⚠  PING | PING Servers
-  * 📌 CHECK | Check If Websites Status
-  * 😎 DSTAT | That Shows Bytes Received, bytes Sent and their amount
-
-* 🎩 Other
-  * ❌ STOP | STOP All Attacks
-  * 🌠 TOOLS | Console Tools
-  * 👑 HELP | Show Usage Script
-
-  
-<h1 align="center">
-Our social's💻
-  
-</h2> 
-
-<h1 style="color:red;text-align: center;" style="text-align: center;" align="center">Please do not use the "Issues" section to ask your questions!</h1>
 <div align="center">
-   <img src="https://icon-library.com/images/github-icon-vector/github-icon-vector-27.jpg" width="64" height="64"/>
-   <img src="https://brandlogos.net/wp-content/uploads/2021/11/discord-logo.png"  width="64" height="64" alt="discord" />
-   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/2048px-Telegram_logo.svg.png" width="64" height="64" alt="telegram" />
+
+# MHDDoS
+
+### DDoS Testing Toolkit · 57 Methods · Python 3
+
+<p>
+  <a href="https://github.com/MatrixTM/MHDDoS/network/members"><img src="https://img.shields.io/github/forks/MatrixTM/MHDDoS?style=for-the-badge" alt="Forks"></a>
+  <a href="https://github.com/MatrixTM/MHDDoS/commits/main"><img src="https://img.shields.io/github/last-commit/MatrixTM/MHDDoS/main?color=green&style=for-the-badge" alt="Last commit"></a>
+  <a href="https://github.com/MatrixTM/MHDDoS/stargazers"><img src="https://img.shields.io/github/stars/MatrixTM/MHDDoS?style=for-the-badge&color=yellow" alt="Stars"></a>
+  <a href="https://github.com/MatrixTM/MHDDoS/blob/main/LICENSE"><img src="https://img.shields.io/github/license/MatrixTM/MHDDoS?color=orange&style=for-the-badge" alt="License"></a>
+  <a href="https://github.com/MatrixTM/MHDDoS/issues"><img src="https://img.shields.io/github/issues/MatrixTM/MHDDoS?color=purple&style=for-the-badge" alt="Issues"></a>
+</p>
+
+**For authorized testing and educational use only.**  
+Do not attack systems, websites, or networks without the owner's explicit permission.
+
+[**Download**](#-downloads) · [**Features**](#-features--methods) · [**Installation**](#-getting-started) · [**Docker**](#-docker) · [**Documentation**](#-documentation) · [**Community**](#-community) · [**Hosting**](#%EF%B8%8F-hosting)
+
 </div>
 
- * [Matrix community Telegram channel](https://t.me/Matrix_Development)
- * [Matrix team Telegram Group](https://t.me/MatrixTMChat)
- * [GitHub](https://github.com/MatrixTM)
-### If u Like the project, leave a star on the repository!
-
-## Downloads
-
-You can download it from [GitHub Releases](https://github.com/MatrixTM/MHDDoS/releases)
-
-### Getting Started
-
-**Requirements**
-
-* [dnspython](https://github.com/rthalley/dnspython)
-* [cfscrape](https://github.com/Anorov/cloudflare-scrape)
-* [impacket](https://github.com/SecureAuthCorp/impacket)
-* [requests](https://github.com/psf/requests)
-* [Python3][python3]
-* [PyRoxy](https://github.com/MatrixTM/PyRoxy)
-* [icmplib](https://github.com/ValentinBELYN/icmplib)
-* [certifi](https://github.com/certifi/python-certifi)
-* [psutil](https://github.com/giampaolo/psutil)
-* [yarl](https://github.com/aio-libs/yarl)
 ---
 
-## Documentation
+<p align="center">
+  <img src="https://i.imgur.com/aNrHJcA.png" width="100%" alt="MHDDoS preview">
+</p>
 
-You can read it from [GitHub Wiki](https://github.com/MatrixTM/MHDDoS/wiki)
+<p align="center">
+  <img src="https://i.imgur.com/4Q7v2wn.png" width="100%" alt="MHDDoS script preview">
+</p>
 
-**Clone and Install Script**
+---
 
-```shell script
+## ⚠️ Important Notice
+
+> [!CAUTION]
+> **MHDDoS is 100% free.** Do **not** send money to anyone claiming to sell this project. If someone asks you to pay for MHDDoS, treat it as a scam.
+
+> [!WARNING]
+> Use this project only on infrastructure you own or have explicit authorization to test.
+
+---
+
+## ✨ Features & Methods
+
+MHDDoS includes methods for multiple network layers, utility commands, and console helpers.
+
+### 💣 Layer 7
+
+| Icon | Method | Description |
+|:---:|:---:|---|
+| <img src="https://img.icons8.com/cotton/344/domain.png" width="20" height="20" alt="GET"> | `GET` | GET Flood |
+| <img src="https://cdn0.iconfinder.com/data/icons/database-storage-5/60/server__database__fire__burn__safety-512.png" width="20" height="20" alt="POST"> | `POST` | POST Flood |
+| <img src="https://ovh.github.io/manager/ovhcloud-logo.webp" width="20" height="20" alt="OVH"> | `OVH` | Bypass OVH |
+| <img src="https://cdn-icons-png.flaticon.com/512/1691/1691948.png" width="20" height="20" alt="RHEX"> | `RHEX` | Random HEX |
+| <img src="https://cdn-icons-png.flaticon.com/512/4337/4337972.png" width="20" height="20" alt="STOMP"> | `STOMP` | Bypass `chk_captcha` |
+| <img src="https://cdn.iconscout.com/icon/premium/png-256-thumb/cyber-bullying-2557797-2152371.png" width="20" height="20" alt="STRESS"> | `STRESS` | Send HTTP packets with high byte payloads |
+| <img src="https://cdn.worldvectorlogo.com/logos/dyndns.svg" width="20" height="20" alt="DYN"> | `DYN` | Random subdomain method |
+| <img src="https://cdn-icons-png.flaticon.com/512/6991/6991643.png" width="20" height="20" alt="DOWNLOADER"> | `DOWNLOADER` | Slow data-reading method |
+| <img src="https://cdn2.iconfinder.com/data/icons/poison-and-venom-fill/160/loris2-512.png" width="20" height="20" alt="SLOW"> | `SLOW` | Slowloris method |
+| <img src="https://lyrahosting.com/wp-content/uploads/2020/06/ddos-how-work-icon.png" width="20" height="20" alt="HEAD"> | `HEAD` | HTTP HEAD method |
+| <img src="https://img.icons8.com/plasticine/2x/null-symbol.png" width="20" height="20" alt="NULL"> | `NULL` | Null User-Agent and related headers |
+| <img src="https://i.pinimg.com/originals/03/2e/7d/032e7d0755cd511c753bcb6035d44f68.png" width="20" height="20" alt="COOKIE"> | `COOKIE` | Random Cookie method |
+| <img src="https://cdn0.iconfinder.com/data/icons/dicticons-files-folders/32/office_pps-512.png" width="20" height="20" alt="PPS"> | `PPS` | Minimal `GET / HTTP/1.1` request |
+| <img src="https://cdn3.iconfinder.com/data/icons/internet-security-14/48/DDoS_website_webpage_bomb_virus_protection-512.png" width="20" height="20" alt="EVEN"> | `EVEN` | GET method with additional headers |
+| <img src="https://iili.io/HU9BC74.png" width="20" height="20" alt="GSB"> | `GSB` | Google Project Shield bypass |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/DDoS-Guard_logo.svg/1280px-DDoS-Guard_logo.svg.png" width="20" height="20" alt="DGB"> | `DGB` | DDoS-Guard bypass |
+| <img src="https://i.imgur.com/bGL8qfw.png" width="20" height="20" alt="AVB"> | `AVB` | ArvanCloud bypass |
+| <img src="https://iili.io/HU9BC74.png" width="20" height="20" alt="BOT"> | `BOT` | Googlebot-style requests |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Apache_Feather_Logo.svg/500px-Apache_Feather_Logo.svg.png" width="20" height="20" alt="APACHE"> | `APACHE` | Apache exploit method |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/WordPress_blue_logo.svg/960px-WordPress_blue_logo.svg.png" width="20" height="20" alt="XMLRPC"> | `XMLRPC` | WordPress XML-RPC method (`/xmlrpc.php`) |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png" width="20" height="20" alt="CFB"> | `CFB` | Cloudflare bypass |
+| <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png" width="20" height="20" alt="CFBUAM"> | `CFBUAM` | Cloudflare Under Attack Mode bypass |
+| <img src="https://cdn-icons-png.flaticon.com/512/905/905568.png" width="20" height="20" alt="BYPASS"> | `BYPASS` | Generic anti-DDoS bypass |
+| <img src="https://cdn-icons-png.flaticon.com/512/905/905568.png" width="20" height="20" alt="BOMB"> | `BOMB` | Bombardier-based method |
+| 🔪 | `KILLER` | Multi-threaded target method |
+| 🧅 | `TOR` | Onion/Tor target method |
+
+### 🧨 Layer 4 / Layer 3
+
+| Icon | Method | Description |
+|:---:|:---:|---|
+| <img src="https://raw.githubusercontent.com/kgretzky/pwndrop/master/media/pwndrop-logo-512.png" width="20" height="20" alt="TCP"> | `TCP` | TCP Flood |
+| <img src="https://styles.redditmedia.com/t5_2rxmiq/styles/profileIcon_snoob94cdb09-c26c-4c24-bd0c-66238623cc22-headshot.png" width="20" height="20" alt="UDP"> | `UDP` | UDP Flood |
+| <img src="https://cdn-icons-png.flaticon.com/512/1918/1918576.png" width="20" height="20" alt="SYN"> | `SYN` | SYN Flood |
+| <img src="https://images.icon-icons.com/2407/PNG/512/ovh_icon_146131.png" width="20" height="20" alt="OVH-UDP"> | `OVH-UDP` | UDP method with randomized headers and binary payload |
+| <img src="https://cdn-icons-png.flaticon.com/512/1017/1017466.png" width="20" height="20" alt="CPS"> | `CPS` | Repeated proxy connection open/close |
+| <img src="https://cdn-icons-png.flaticon.com/512/5045/5045810.png" width="20" height="20" alt="ICMP"> | `ICMP` | ICMP Echo Request flood |
+| <img src="https://s6.uupload.ir/files/1059643_g8hp.png" width="20" height="20" alt="CONNECTION"> | `CONNECTION` | Keep proxy connections alive |
+| <img src="https://ia803109.us.archive.org/27/items/source-engine-video-projects/source-engine-video-projects_itemimage.png" width="20" height="20" alt="VSE"> | `VSE` | Valve Source Engine protocol |
+| <img src="https://mycrackfree.com/wp-content/uploads/2018/08/TeamSpeak-Server-9.png" width="20" height="20" alt="TS3"> | `TS3` | TeamSpeak 3 status ping protocol |
+| <img src="https://cdn2.downdetector.com/static/uploads/logo/75ef9fcabc1abea8fce0ebd0236a4132710fcb2e.png" width="20" height="20" alt="FIVEM"> | `FIVEM` | FiveM status ping protocol |
+| <img src="https://github.com/user-attachments/assets/f40748bf-dd28-4294-b862-cb0acbc74eea" width="20" height="20" alt="FIVEM-TOKEN"> | `FIVEM-TOKEN` | FiveM confirmation token method |
+| <img src="https://cdn.iconscout.com/icon/free/png-512/redis-4-1175103.png" width="20" height="20" alt="MEM"> | `MEM` | Memcached amplification |
+| <img src="https://lyrahosting.com/wp-content/uploads/2020/06/ddos-attack-icon.png" width="20" height="20" alt="NTP"> | `NTP` | NTP amplification |
+| <img src="https://cdn-icons-png.flaticon.com/512/4712/4712139.png" width="20" height="20" alt="MCBOT"> | `MCBOT` | Minecraft bot method |
+| <img src="https://cdn.worldvectorlogo.com/logos/minecraft-1.svg" width="20" height="20" alt="MINECRAFT"> | `MINECRAFT` | Minecraft status ping protocol |
+| <img src="https://cdn.worldvectorlogo.com/logos/minecraft-1.svg" width="20" height="20" alt="MCPE"> | `MCPE` | Minecraft PE status ping protocol |
+| <img src="https://cdn-icons-png.flaticon.com/512/2653/2653461.png" width="20" height="20" alt="DNS"> | `DNS` | DNS amplification |
+| <img src="https://lyrahosting.com/wp-content/uploads/2020/06/ddos-attack-icon.png" width="20" height="20" alt="CHAR"> | `CHAR` | Chargen amplification |
+| <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRct5OvjSCpUftyRMm3evgdPOa-f8LbwJFO-A&usqp=CAU" width="20" height="20" alt="CLDAP"> | `CLDAP` | CLDAP amplification |
+| <img src="https://help.apple.com/assets/6171BD2C588E52621824409D/6171BD2D588E5262182440A4/en_US/8b631353e070420f47530bf95f1a7fae.png" width="20" height="20" alt="ARD"> | `ARD` | Apple Remote Desktop amplification |
+| <img src="https://www.tenforums.com/geek/gars/images/2/types/thumb__emote__esktop__onnection.png" width="20" height="20" alt="RDP"> | `RDP` | Remote Desktop Protocol amplification |
+
+### ⚙️ Tools
+
+Run the tools console with:
+
+```bash
+python3 start.py tools
+```
+
+| Icon | Tool | Description |
+|:---:|:---:|---|
+| 🌟 | `CFIP` | Find the real IP address of Cloudflare-powered websites |
+| 🔪 | `DNS` | Show DNS records |
+| 📍 | `TSSRV` | TeamSpeak SRV resolver |
+| ⚠️ | `PING` | Ping servers |
+| 📌 | `CHECK` | Check website status |
+| 📊 | `DSTAT` | Display sent/received byte statistics |
+
+### 🎩 Console Commands
+
+| Icon | Command | Description |
+|:---:|:---:|---|
+| ❌ | `STOP` | Stop all running methods |
+| 🌠 | `TOOLS` | Open console tools |
+| 👑 | `HELP` | Show script usage |
+
+---
+
+## 📥 Downloads
+
+Prebuilt releases are available from **[GitHub Releases](https://github.com/MatrixTM/MHDDoS/releases)**.
+
+---
+
+## 🚀 Getting Started
+
+### 📦 Requirements
+
+- [Python 3](https://python.org)
+- [dnspython](https://github.com/rthalley/dnspython)
+- [cfscrape](https://github.com/Anorov/cloudflare-scrape)
+- [impacket](https://github.com/SecureAuthCorp/impacket)
+- [requests](https://github.com/psf/requests)
+- [PyRoxy](https://github.com/MatrixTM/PyRoxy)
+- [icmplib](https://github.com/ValentinBELYN/icmplib)
+- [certifi](https://github.com/certifi/python-certifi)
+- [psutil](https://github.com/giampaolo/psutil)
+- [yarl](https://github.com/aio-libs/yarl)
+
+### 🔧 Clone & Install
+
+```bash
 git clone https://github.com/MatrixTM/MHDDoS.git
 cd MHDDoS
 pip install -r requirements.txt
 ```
 
-**One-Line Installing on Fresh VPS**
+### ⚡ One-Line Installation on a Fresh VPS
 
-```shell script
+```bash
 apt -y update && apt -y install curl wget libcurl4 libssl-dev python3 python3-pip make cmake automake autoconf m4 build-essential git && git clone https://github.com/MatrixTM/MHDDoS.git && cd MH* && pip3 install -r requirements.txt
 ```
 
-**Docker**
+---
 
-```shell script
+## 🐳 Docker
+
+```bash
 git clone https://github.com/MatrixTM/MHDDoS.git
 cd MHDDoS
 docker compose build
-# you can use the built image directly by uncommenting one line in the dockercompose
-docker compose run -it --entrypoint /bin/bash mhddos
-
 ```
 
+Then start the container:
 
-[python3]: https://python.org 'Python3'
-[github issues]: https://github.com/MatrixTM/MHDDoS/issues 'enter'
+```bash
+docker compose run -it --entrypoint /bin/bash mhddos
+```
+
+> [!TIP]
+> You can also use the built image directly by enabling the relevant line in the Docker Compose configuration.
 
 ---
 
-## Need a Cheap Server? 
+## 📚 Documentation
 
-<a href="https://pfcloud.io/aff.php?aff=80"><img src="https://github.com/user-attachments/assets/172b3543-982b-450e-937d-3c4f84764a4f" width="728" alt="pfcloud"></a>
-#### You can buy an 10Gbps cheap server from [PFcloud Hosting](https://pfcloud.io/aff.php?aff=80) with crypto (Scan Allowed).
+Full project documentation is available in the **[GitHub Wiki](https://github.com/MatrixTM/MHDDoS/wiki)**.
 
+For bug reports and repository-related issues, use **[GitHub Issues](https://github.com/MatrixTM/MHDDoS/issues)**.
 
+> [!NOTE]
+> Please do not use the Issues section for general support questions.
 
+---
 
-<a href="https://zomro.com/vps?from=428115"><img src="https://i.postimg.cc/KcH7CG8b/vps.png" width="728" height="90" alt="zomro"></a>
-#### [Zomro Hosting](https://zomro.com/vps?from=428115) allows you to purchase an hourly server using crypto and completely anonymously.
+## 🌐 Community
 
+<div align="center">
+
+[![GitHub](https://img.shields.io/badge/GitHub-MatrixTM-181717?style=for-the-badge&logo=github)](https://github.com/MatrixTM)
+[![Telegram Channel](https://img.shields.io/badge/Telegram-Channel-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/Matrix_Development)
+[![Telegram Group](https://img.shields.io/badge/Telegram-Group-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/MatrixTMChat)
+
+### ⭐ Like the project?
+
+**Consider leaving a star on the repository — it helps the project grow.**
+
+</div>
+
+---
+
+## ☁️ Hosting
+
+<div align="center">
+
+### 🚀 PFcloud
+
+<a href="https://pfcloud.io/aff.php?aff=80">
+  <img src="https://github.com/user-attachments/assets/172b3543-982b-450e-937d-3c4f84764a4f" width="728" alt="PFcloud Hosting">
+</a>
+
+<h4><strong>⚡ You can buy an 10Gbps cheap server from PFcloud Hosting with crypto (Scan Allowed).</strong></h4>
+
+<p><strong><a href="https://pfcloud.io/aff.php?aff=80">Explore PFcloud Hosting</a></strong></p>
+
+<br>
+
+### ⚡ Zomro
+
+<a href="https://zomro.com/vps?from=428115">
+  <img src="https://i.postimg.cc/KcH7CG8b/vps.png" width="728" height="90" alt="Zomro Hosting">
+</a>
+
+<h4><strong>🕒 Zomro Hosting allows you to purchase an hourly server using crypto and completely anonymously.</strong></h4>
+
+<p><strong><a href="https://zomro.com/vps?from=428115">Explore Zomro Hosting</a></strong></p>
+
+</div>
+
+---
+
+<div align="center">
+
+### MHDDoS
+
+**Made for authorized security testing and research.**
+
+<sub>Python 3 · Open Source · Community Driven</sub>
+
+</div>
