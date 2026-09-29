@@ -486,7 +486,7 @@ app.get('/api/logs/stream', (req: Request, res: Response) => {
   req.on('close', () => sseClients.delete(res));
 });
 
-app.get('*', (_req: Request, res: Response) => {
+app.get('/{*splat}', (_req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
