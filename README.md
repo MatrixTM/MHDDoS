@@ -215,15 +215,15 @@ For bug reports and repository-related issues, use **[GitHub Issues](https://git
 
 <div align="center">
 
-### 🚀 PFcloud
+### 🐈 CatLabsLLC (Recommended!!!)
 
-<a href="https://pfcloud.io/aff.php?aff=80">
-  <img src="https://github.com/user-attachments/assets/172b3543-982b-450e-937d-3c4f84764a4f" width="728" alt="PFcloud Hosting">
+<a href="https://catlabs.llc/login?ref=Matrix">
+  <img src="https://i.postimg.cc/6qKh1zcf/catlabsbanner.png" width="728" alt="CatLabs Hosting">
 </a>
 
-<h4><strong>⚡ You can buy an 10Gbps cheap server from PFcloud Hosting with crypto (Scan Allowed).</strong></h4>
+<h4><strong>😻 You can buy an 10Gbps cheap server from CatLabs Hosting with crypto (Scan Allowed & DMCA Ignored).</strong></h4>
 
-<p><strong><a href="https://pfcloud.io/aff.php?aff=80">Explore PFcloud Hosting</a></strong></p>
+<p><strong><a href="https://catlabs.llc/login?ref=Matrix">Explore CatLabsLLC Cheap Prices</a></strong></p>
 
 <br>
 
