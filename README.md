@@ -201,7 +201,6 @@ For bug reports and repository-related issues, use **[GitHub Issues](https://git
 <div align="center">
 
 [![GitHub](https://img.shields.io/badge/GitHub-MatrixTM-181717?style=for-the-badge&logo=github)](https://github.com/MatrixTM)
-[![Telegram Channel](https://img.shields.io/badge/Telegram-Channel-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/Matrix_Development)
 [![Telegram Group](https://img.shields.io/badge/Telegram-Group-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/MatrixTMChat)
 
 ### ⭐ Like the project?
