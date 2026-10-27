@@ -2,6 +2,9 @@
   "name": "mhddos-panel",
   "version": "2.4.4",
   "private": true,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec \"npx tsx\" src/server.ts",
     "start": "npx tsx src/server.ts",
@@ -13,7 +16,6 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.6.5",
-    "@types/node-fetch": "^2.6.13",
     "cors": "^2.8.6",
     "express": "^5.3.0",
     "jsonwebtoken": "^9.0.3",
