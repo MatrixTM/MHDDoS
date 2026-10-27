@@ -2017,7 +2017,22 @@ def wait_for_attack(
     logger.info("%sAttack finished.%s", Color.GREEN, Color.RESET)
 
 
+def _run_web_attack() -> None:
+    try:
+        payload = load(sys.stdin)
+        args = [str(item) for item in payload["args"]]
+    except (ValueError, KeyError, TypeError) as exc:
+        die(f"Invalid web task: {exc}")
+    if not args or args[0] == "@web-attack":
+        die("Invalid web task.")
+    main(args)
+
+
 def main(args: list[str]) -> None:
+    if args and args[0] == "@web-attack":
+        _run_web_attack()
+        return
+
     if not args:
         ToolsConsole.usage()
         return

