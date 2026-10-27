@@ -1,6 +1,6 @@
 name: 💡 Feature request
 description: Suggest an idea for this project
-labels: ["enhancement"]
+labels: [ "enhancement" ]
 assignees:
   - SudoLite
   - MHProDev
@@ -9,7 +9,7 @@ body:
     attributes:
       value: |
         #### Thanks for taking the time to fill out this Feature request!
-  
+
   - type: dropdown
     id: parts
     attributes:
@@ -28,8 +28,8 @@ body:
       label: Is there an existing issue for this?
       description: Please search to see if an issue already exists for the feature you are requesting. (https://github.com/MHProDev/MHDDoS/issues).
       options:
-      - label: I have searched the existing issues
-        required: true
+        - label: I have searched the existing issues
+          required: true
   - type: textarea
     attributes:
       label: Is your feature request related to a problem? Please describe the problem.

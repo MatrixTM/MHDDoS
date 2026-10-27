@@ -1,7 +1,7 @@
 name: 🐞 Bug Report
 description: Create a report to help us improve
 title: "[BUG Report]:"
-labels: ["bug"]
+labels: [ "bug" ]
 assignees:
   - SudoLite
   - MHProDev
@@ -10,7 +10,7 @@ body:
     attributes:
       value: |
         #### Thanks for taking the time to fill out this bug report!
-  
+
   - type: dropdown
     id: version
     attributes:
@@ -22,7 +22,7 @@ body:
         - 2.0
     validations:
       required: true
-  
+
   - type: dropdown
     id: parts
     attributes:
@@ -36,23 +36,23 @@ body:
         - Other
     validations:
       required: true
-  
+
   - type: textarea
     id: environment
     attributes:
       label: Please complete the following information
       render: true
       placeholder: |
-         - OS: [e.g. Ubuntu]
-         - Installed Requirements Version [e.g. PyRoxy1.0b5]
-         - Python Version [e.g. 3.8.x]
+        - OS: [e.g. Ubuntu]
+        - Installed Requirements Version [e.g. PyRoxy1.0b5]
+        - Python Version [e.g. 3.8.x]
       value: |
         - OS: [e.g. Ubuntu]
         - Installed Requirements Version [e.g. PyRoxy1.0b5]
         - Python Version [e.g. 3.8.x]
     validations:
       required: true
-  
+
   - type: textarea
     id: what-happened
     attributes:
@@ -62,7 +62,7 @@ body:
       value: "A bug happened!"
     validations:
       required: true
-  
+
   - type: input
     id: screenshots
     attributes:
@@ -77,26 +77,26 @@ body:
     attributes:
       label: Please provide a link to a minimal reproduction of the bug
       placeholder: ex. https://docs.python.org
-  
+
   - type: textarea
     id: logs
     attributes:
       label: Relevant log output
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
-  
+
   - type: markdown
     attributes:
       value: |
         # Recommended fix, suggestions
-  
+
   - type: textarea
     id: additional-context
     attributes:
       label: Additional context
       description: Tell us, what do you expect from us?
       placeholder: Optional
-  
+
   - type: textarea
     id: code
     attributes:

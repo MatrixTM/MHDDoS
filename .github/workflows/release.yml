@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "**"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to publish (for example: v2.4.6)"
+        required: true
+        type: string
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - name: Build release archives
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          TAG="${TAG#refs/tags/}"
+          SAFE_TAG="$(printf '%s' "$TAG" | tr -c 'A-Za-z0-9._-' '-')"
+          CLI_DIR="dist/MHDDoS-${SAFE_TAG}"
+          WEB_DIR="dist/MHDDoS-web-${SAFE_TAG}"
+
+          rm -rf dist
+          mkdir -p "${CLI_DIR}/files" "${WEB_DIR}/files" "${WEB_DIR}/web"
+
+          # Standalone CLI package.
+          cp start.py README.md LICENSE requirements.txt config.json \
+             Dockerfile docker-compose.yml "${CLI_DIR}/"
+          cp -a files/. "${CLI_DIR}/files/"
+
+          # Self-contained web panel package (CLI runtime + web/).
+          cp start.py README.md LICENSE requirements.txt config.json \
+             Dockerfile docker-compose.yml "${WEB_DIR}/"
+          cp -a files/. "${WEB_DIR}/files/"
+          cp -a web/. "${WEB_DIR}/web/"
+          rm -rf "${WEB_DIR}/web/node_modules" "${WEB_DIR}/web/dist" "${WEB_DIR}/web/.env"
+          find dist -type d \( -name __pycache__ -o -name .pytest_cache -o -name .ruff_cache \) \
+            -prune -exec rm -rf {} +
+          find dist -type f -name '*.py[co]' -delete
+
+          (cd dist && zip -qr "MHDDoS-${SAFE_TAG}.zip" "MHDDoS-${SAFE_TAG}")
+          (cd dist && zip -qr "MHDDoS-web-${SAFE_TAG}.zip" "MHDDoS-web-${SAFE_TAG}")
+
+          ls -lh dist/*.zip
+          sha256sum dist/*.zip
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          TAG="${TAG#refs/tags/}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.zip --clobber
+          else
+            gh release create "$TAG" dist/*.zip \
+              --verify-tag \
+              --title "MHDDoS ${TAG}" \
+              --generate-notes
+          fi

@@ -1,14 +1,24 @@
-version: "3.9"
-
 services:
   mhddos:
-    # image: ghcr.io/mhprodev/mhddos:latest
-    build: .
+    build:
+      context: .
+    image: ghcr.io/mhprodev/mhddos:latest
     container_name: mhddos
-    restart: unless-stopped
+    restart: "no"
+    init: true
+    stdin_open: true
+    tty: true
+    environment:
+      PYTHONUNBUFFERED: "1"
     volumes:
-      - ./config.json:/app/config.json
+      - ./config.json:/app/config.json:ro
       - ./files:/app/files
-     
-    
-    
+    # Layer 4 raw-socket methods (SYN, ICMP, amplification) need NET_RAW.
+    cap_add:
+      - NET_RAW
+    security_opt:
+      - no-new-privileges:true
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535

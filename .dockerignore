@@ -1,0 +1,23 @@
+# Keep the build context small and reproducible.
+.git
+.gitignore
+.github
+.idea
+.vscode
+.venv
+venv
+node_modules
+**/__pycache__
+**/*.py[cod]
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+*.log
+dist
+build
+web
+*.md
+docker-compose.yml
+Dockerfile
+.dockerignore
+files/proxies/*

@@ -77,5 +77,12 @@ Thumbs.db
 [Dd]esktop.ini
 
 # Project specific caches / proxies
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
 files/proxies/*
 !files/proxies/.gitkeep

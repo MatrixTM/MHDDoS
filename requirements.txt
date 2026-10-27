@@ -1,11 +1,11 @@
+certifi==2026.10.23
 cloudscraper==1.2.71
-certifi==2026.10.19
-dnspython==2.6.1
-requests==2.33.0
-impacket==0.10.0
-psutil>=5.9.3
-icmplib>=2.1.1
-pyasn1==0.6.4
-pyroxy @ git+https://github.com/MatrixTM/PyRoxy.git
-yarl>=1.7.2
-PyJWT>=2.8.0
+dnspython==2.9.0
+icmplib==3.0.4
+impacket==0.13.1
+psutil==7.2.2
+pyasn1==0.6.5
+PyJWT==2.15.1
+pyroxy @ git+https://github.com/MatrixTM/PyRoxy.git@ea0f88dbc0573292ba5672124f69e4e7a31b544d
+requests==2.34.2
+yarl==1.25.1
