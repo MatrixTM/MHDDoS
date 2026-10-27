@@ -17,7 +17,7 @@
     "cors": "^2.8.6",
     "express": "^5.3.0",
     "jsonwebtoken": "^9.0.3",
-    "node-fetch": "^2.7.0",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.15",
