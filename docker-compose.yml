@@ -2,7 +2,7 @@ services:
   mhddos:
     build:
       context: .
-    image: ghcr.io/mhprodev/mhddos:latest
+    image: ghcr.io/matrixtm/mhddos:latest
     container_name: mhddos
     restart: "no"
     init: true

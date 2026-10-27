@@ -194,7 +194,7 @@ docker compose run --rm mhddos GET https://example.com 0 100 http.txt 10 60
 ```
 
 > [!TIP]
-> The compose file builds and tags `ghcr.io/mhprodev/mhddos:latest` locally. Replace `build:` with `image:` to use the
+> The compose file builds and tags `ghcr.io/matrixtm/mhddos:latest` locally. Replace `build:` with `image:` to use the
 > published image instead.
 
 ---

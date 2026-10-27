@@ -17,7 +17,7 @@ permissions:
   packages: write
 
 env:
-  IMAGE: ghcr.io/mhprodev/mhddos
+  IMAGE: ghcr.io/matrixtm/mhddos
 
 jobs:
   build:
