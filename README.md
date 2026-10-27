@@ -2,7 +2,7 @@
 
 # MHDDoS
 
-### DDoS Testing Toolkit · 57 Methods · Python 3.11+
+### DDoS Testing Toolkit · 60 Methods · Python 3.11+
 
 <p>
   <a href="https://github.com/MatrixTM/MHDDoS/network/members"><img src="https://img.shields.io/github/forks/MatrixTM/MHDDoS?style=for-the-badge" alt="Forks"></a>
@@ -119,6 +119,8 @@ python3 start.py tools
 |  ⚠️  | `PING`  | Ping servers                                            |
 |  📌  | `CHECK` | Check website status                                    |
 |  📊  | `DSTAT` | Display sent/received byte statistics                   |
+|  🧪  | `PROXYCHECK` | Check a proxy list and show working proxies        |
+|  🔎  | `HEADERS` | Show HTTP response and security headers              |
 
 ### 🎩 Console Commands
 
@@ -128,6 +130,7 @@ python3 start.py tools
 |  🌠  | `TOOLS` | Open console tools          |
 | 🖥️  |  `WEB`  | Start the web control panel |
 |  👑  | `HELP`  | Show script usage           |
+|  🩺  | `DOCTOR` | Check the local installation |
 
 ---
 

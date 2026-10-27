@@ -9,12 +9,14 @@ The script is intentionally a single file: it is executed directly with
 """
 
 import argparse
+import importlib
 import os
 import sys
 from base64 import b64encode
 from collections.abc import Callable, Iterator
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import suppress
+from ipaddress import ip_address, ip_network
 from itertools import cycle
 from json import load
 from logging import basicConfig, getLogger, shutdown
@@ -1557,7 +1559,7 @@ def load_proxies(
 
 
 class ToolsConsole:
-    METHODS = {"INFO", "TSSRV", "CFIP", "DNS", "PING", "CHECK", "DSTAT"}
+    METHODS = {"INFO", "TSSRV", "CFIP", "DNS", "PING", "CHECK", "DSTAT", "PROXYCHECK", "HEADERS"}
 
     @staticmethod
     def check_raw_socket() -> bool:
@@ -1580,17 +1582,21 @@ class ToolsConsole:
             command = raw.split(" ", 1)[0].upper()
             if command == "HELP":
                 print("Tools: " + ", ".join(sorted(ToolsConsole.METHODS)))
-                print("Commands: HELP, CLEAR, BACK, EXIT")
+                print("Commands: HELP, CLEAR, BACK, EXIT, DOCTOR")
             elif command in EXIT_WORDS:
                 return
             elif command == "CLEAR":
                 print("\033c", end="")
+            elif command == "DOCTOR":
+                ToolsConsole.doctor()
             elif command not in ToolsConsole.METHODS:
                 print(f"{command} command not found")
             elif command == "DSTAT":
                 ToolsConsole.dstat()
-            elif command in {"CFIP", "DNS"}:
-                print("Soon")
+            elif command == "CFIP":
+                ToolsConsole.cfip_command(prompt)
+            elif command == "DNS":
+                ToolsConsole.dns_command(prompt)
             elif command == "CHECK":
                 ToolsConsole.check(prompt)
             elif command == "INFO":
@@ -1599,6 +1605,10 @@ class ToolsConsole:
                 ToolsConsole.tssrv_command(prompt)
             elif command == "PING":
                 ToolsConsole.ping_command(prompt)
+            elif command == "PROXYCHECK":
+                ToolsConsole.proxycheck_command(prompt)
+            elif command == "HEADERS":
+                ToolsConsole.headers_command(prompt)
 
     @staticmethod
     def stop() -> None:
@@ -1632,7 +1642,7 @@ class ToolsConsole:
         layer7 = ", ".join(sorted(Methods.LAYER7_METHODS))
         tools = ", ".join(sorted(ToolsConsole.METHODS))
         script = SCRIPT_NAME
-        total = len(Methods.ALL_METHODS) + len(ToolsConsole.METHODS) + 4
+        total = len(Methods.ALL_METHODS) + len(ToolsConsole.METHODS) + 5
         print(f"""* MHDDoS {__version__} - stress-testing toolkit with {total} methods
 Note: If the proxy list is empty, the attack runs without proxies.
       If the proxy file doesn't exist, proxies are downloaded and checked.
@@ -1643,7 +1653,7 @@ Note: If the proxy list is empty, the attack runs without proxies.
  - Layer 4 ({len(Methods.LAYER4_METHODS)}): {layer4}
  - Layer 7 ({len(Methods.LAYER7_METHODS)}): {layer7}
  - Tools ({len(ToolsConsole.METHODS)}): {tools}
- - Commands (4): HELP, STOP, TOOLS, WEB
+ - Commands (5): HELP, STOP, TOOLS, WEB, DOCTOR
 
 Example:
    L7: python3 {script} GET https://example.com 0 100 http.txt 10 60
@@ -1756,6 +1766,221 @@ Example:
                 result.packets_sent,
                 "ONLINE" if result.is_alive else "OFFLINE",
             )
+
+    @staticmethod
+    def _cloudflare_networks() -> list[Any]:
+        networks = []
+        for url in ("https://www.cloudflare.com/ips-v4", "https://www.cloudflare.com/ips-v6"):
+            try:
+                with get(url, timeout=10) as response:
+                    for line in response.text.splitlines():
+                        try:
+                            networks.append(ip_network(line.strip()))
+                        except ValueError:
+                            continue
+            except (OSError, RequestException):
+                continue
+        return networks
+
+    @staticmethod
+    def cfip_command(prompt: str) -> None:
+        for value in ToolsConsole._prompt_lines(prompt, "give-me-domain"):
+            domain = host_only(value).lower()
+            print("please wait ...")
+            names = {domain}
+            names.update(
+                f"{prefix}.{domain}"
+                for prefix in (
+                    "www",
+                    "mail",
+                    "direct",
+                    "origin",
+                    "ftp",
+                    "cpanel",
+                    "webmail",
+                    "dev",
+                    "staging",
+                    "api",
+                    "admin",
+                    "vpn",
+                    "portal",
+                )
+            )
+            try:
+                with get(
+                    f"https://crt.sh/?q=%25.{domain}&output=json",
+                    timeout=20,
+                    headers={"User-Agent": "MHDDoS"},
+                ) as response:
+                    data = response.json()
+                if isinstance(data, list):
+                    for entry in data:
+                        if not isinstance(entry, dict):
+                            continue
+                        for name in str(entry.get("name_value", "")).splitlines():
+                            name = name.strip().lower().removeprefix("*.")
+                            if name == domain or name.endswith("." + domain):
+                                names.add(name)
+            except (OSError, RequestException, ValueError):
+                logger.warning("crt.sh lookup failed")
+
+            networks = ToolsConsole._cloudflare_networks()
+            if not networks:
+                logger.warning("Cloudflare ranges unavailable; results may include Cloudflare IPs")
+
+            found = {}
+            for name in sorted(names)[:100]:
+                try:
+                    answers = resolver.resolve(name, "A", lifetime=2)
+                except (DNSException, OSError):
+                    continue
+                for answer in answers:
+                    address = ip_address(str(answer))
+                    if any(
+                        address.version == network.version and address in network
+                        for network in networks
+                    ):
+                        continue
+                    found.setdefault(str(address), set()).add(name)
+
+            if not found:
+                print("No non-Cloudflare addresses found.")
+                continue
+
+            for address, hosts in sorted(found.items()):
+                print(f"{address}  {', '.join(sorted(hosts)[:3])}")
+
+    @staticmethod
+    def dns_command(prompt: str) -> None:
+        for value in ToolsConsole._prompt_lines(prompt, "give-me-domain"):
+            domain = host_only(value)
+            dns_resolver = resolver.Resolver()
+            dns_resolver.timeout = 2
+            dns_resolver.lifetime = 3
+            print(domain)
+            found = False
+            for record_type in ("A", "AAAA", "MX", "NS", "TXT", "CNAME", "SOA"):
+                try:
+                    answers = dns_resolver.resolve(domain, record_type)
+                except (DNSException, OSError):
+                    continue
+                for answer in answers:
+                    print(f"  {record_type:5} {answer}")
+                    found = True
+            if not found:
+                print("  no records found")
+
+    @staticmethod
+    def proxycheck_command(prompt: str) -> None:
+        for value in ToolsConsole._prompt_lines(prompt, "give-me-proxy-file"):
+            path = PROXY_DIR / filename_arg(value, "Proxy list")
+            if not path.exists():
+                print(f"File not found: {path}")
+                continue
+
+            try:
+                proxies = ProxyUtiles.readFromFile(path)
+            except (OSError, ValueError) as exc:
+                print(f"Cannot read {path}: {exc}")
+                continue
+
+            if not proxies:
+                print("No proxies found.")
+                continue
+
+            print(f"Checking {len(proxies)} proxies ...")
+            try:
+                working = ProxyChecker.checkAll(
+                    proxies, timeout=5, threads=100, url="http://httpbin.org/get"
+                )
+            except (OSError, RuntimeError, RequestException, ValueError) as exc:
+                print(f"Check failed: {exc}")
+                continue
+
+            print(f"{len(working)} / {len(proxies)} proxies are working")
+            for proxy in sorted(working, key=str)[:20]:
+                print(f"  {proxy}")
+
+    @staticmethod
+    def headers_command(prompt: str) -> None:
+        for value in ToolsConsole._prompt_lines(prompt, "give-me-url"):
+            url = value if value.startswith(("http://", "https://")) else "http://" + value
+            logger.info("please wait ...")
+            try:
+                with get(url, timeout=15, allow_redirects=True) as response:
+                    print(f"status: {response.status_code} {response.reason}")
+                    for header in (
+                        "Server",
+                        "Content-Type",
+                        "Strict-Transport-Security",
+                        "Content-Security-Policy",
+                        "X-Frame-Options",
+                        "X-Content-Type-Options",
+                        "Referrer-Policy",
+                        "Permissions-Policy",
+                    ):
+                        header_value = response.headers.get(header)
+                        if header_value:
+                            print(f"{header}: {header_value}")
+            except (OSError, RequestException, ValueError) as exc:
+                logger.error("Request failed: %s", exc)
+
+    @staticmethod
+    def doctor() -> int:
+        checks = [
+            ("Python 3.11+", sys.version_info >= (3, 11), sys.version.split()[0]),
+        ]
+
+        for module in (
+            "cloudscraper",
+            "dns",
+            "icmplib",
+            "impacket",
+            "psutil",
+            "requests",
+            "yarl",
+            "jwt",
+            "PyRoxy",
+        ):
+            try:
+                importlib.import_module(module)
+            except (ImportError, OSError) as exc:
+                checks.append((f"import {module}", False, str(exc)))
+            else:
+                checks.append((f"import {module}", True, "ok"))
+
+        try:
+            with CONFIG_FILE.open(encoding="utf-8") as handle:
+                config = load(handle)
+        except (OSError, ValueError) as exc:
+            checks.append(("config.json", False, str(exc)))
+        else:
+            checks.append(("config.json", isinstance(config, dict), "valid"))
+
+        checks.append(("user agents", USER_AGENT_FILE.exists(), str(USER_AGENT_FILE)))
+        checks.append(("referers", REFERER_FILE.exists(), str(REFERER_FILE)))
+        checks.append(("proxy directory", PROXY_DIR.exists(), str(PROXY_DIR)))
+        checks.append(
+            (
+                "web panel scripts",
+                (WEB_SCRIPTS / "start.sh").exists() or (WEB_SCRIPTS / "start.bat").exists(),
+                str(WEB_SCRIPTS),
+            )
+        )
+        checks.append(
+            (
+                "raw sockets",
+                ToolsConsole.check_raw_socket(),
+                "needed for SYN, ICMP and amplification",
+            )
+        )
+
+        for label, ok, detail in checks:
+            print(f"[{'OK' if ok else 'FAIL'}] {label}: {detail}")
+
+        failed = sum(1 for _, ok, _ in checks if not ok)
+        print(f"{len(checks) - failed}/{len(checks)} checks passed")
+        return 1 if failed else 0
 
     @staticmethod
     def ts_srv(domain: str) -> dict[str, str]:
@@ -2044,6 +2269,8 @@ def main(args: list[str]) -> None:
     if command in {"VERSION", "-V", "--VERSION"}:
         print(f"MHDDoS {__version__}")
         return
+    if command == "DOCTOR":
+        raise SystemExit(ToolsConsole.doctor())
     if command == "TOOLS":
         ToolsConsole.run_console()
         return
