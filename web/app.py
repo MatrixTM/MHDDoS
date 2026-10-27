@@ -323,6 +323,10 @@ def start_attack():
 
     task_id = str(uuid4())[:8]
 
+    # List-form Popen, no shell; all values are validated or allowlisted.
+    if any(argument.startswith("-") for argument in safe_cmd[1:]):
+        return jsonify({"success": False, "error": "Invalid target."}), 400
+
     try:
         proc = Popen(
             safe_cmd,
@@ -331,6 +335,7 @@ def start_attack():
             stderr=STDOUT,
             stdin=PIPE,
             bufsize=1,
+            shell=False,
         )
 
         with process_lock:

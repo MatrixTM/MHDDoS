@@ -37,7 +37,7 @@ from socket import (
     gethostname,
     socket,
 )
-from ssl import CERT_NONE, TLSVersion, create_default_context
+from ssl import CERT_NONE, PROTOCOL_TLS_CLIENT, SSLContext, TLSVersion
 from struct import pack
 from subprocess import run
 from threading import Event, Lock, Thread
@@ -291,10 +291,11 @@ def local_ip() -> str:
 
 LOCAL_IP = local_ip()
 
-SSL_CONTEXT = create_default_context()
-SSL_CONTEXT.check_hostname = False
-SSL_CONTEXT.verify_mode = CERT_NONE
-SSL_CONTEXT.minimum_version = TLSVersion.TLSv1_2
+# Verification is disabled by design; one context is reused for all connections.
+_SSL_CONTEXT = SSLContext(PROTOCOL_TLS_CLIENT)
+_SSL_CONTEXT.check_hostname = False
+_SSL_CONTEXT.verify_mode = CERT_NONE
+_SSL_CONTEXT.minimum_version = TLSVersion.TLSv1_2
 
 
 def read_wordlist(path: Path, label: str) -> set[str]:
@@ -989,6 +990,17 @@ def detect_minecraft_protocol(target: str, port: int, default: int) -> int:
     return protocol if 47 <= protocol <= 758 else default
 
 
+def _wrap_tls(sock: socket, hostname: str) -> socket:
+    _SSL_CONTEXT.minimum_version = TLSVersion.TLSv1_2
+    return _SSL_CONTEXT.wrap_socket(
+        sock,
+        server_hostname=hostname,
+        server_side=False,
+        do_handshake_on_connect=True,
+        suppress_ragged_eofs=True,
+    )
+
+
 class HttpFlood(FloodWorker):
     """Layer 7 flood worker. One instance per thread."""
 
@@ -1132,13 +1144,8 @@ class HttpFlood(FloodWorker):
             sock.settimeout(0.9)
             sock.connect(address or self._raw_target)
             if self._target.scheme.lower() == "https":
-                sock = SSL_CONTEXT.wrap_socket(
-                    sock,
-                    server_hostname=address[0] if address else self._target.host,
-                    server_side=False,
-                    do_handshake_on_connect=True,
-                    suppress_ragged_eofs=True,
-                )
+                server_hostname = address[0] if address else self._target.host
+                sock = _wrap_tls(sock, server_hostname)
             connected = True
         finally:
             if not connected:
@@ -1799,7 +1806,6 @@ class CommandParser(argparse.ArgumentParser):
 
 
 def positive_int(value: str) -> int:
-    """Argparse type for integers greater than zero."""
     try:
         number = int(value)
     except ValueError as exc:
