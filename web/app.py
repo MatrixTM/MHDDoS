@@ -295,7 +295,8 @@ def start_attack():
     duration = _safe_int(data.get("duration", 60), 60, 1, 86400)
 
     start_py = str(BASE_DIR / "start.py")
-    safe_cmd = [PYTHON_EXE, start_py, safe_method, target]
+    # Pass the target over stdin so user input never appears in argv.
+    safe_cmd = [PYTHON_EXE, start_py, safe_method, "@stdin"]
 
     if layer == "L7":
         socks_type = _safe_int(data.get("socks_type", 0), 0, 0, 6)
@@ -334,9 +335,21 @@ def start_attack():
             stdout=PIPE,
             stderr=STDOUT,
             stdin=PIPE,
-            bufsize=1,
             shell=False,
         )
+
+        stdin = proc.stdin
+        if stdin is None:
+            proc.terminate()
+            return jsonify({"success": False, "error": "Failed to start process."}), 500
+
+        try:
+            stdin.write((target + "\n").encode("utf-8"))
+            stdin.close()
+        except OSError:
+            proc.terminate()
+            logger.exception("Failed to send target for task %s", task_id)
+            return jsonify({"success": False, "error": "Failed to start process."}), 500
 
         with process_lock:
             active_processes[task_id] = {

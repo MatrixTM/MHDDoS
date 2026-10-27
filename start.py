@@ -991,8 +991,11 @@ def detect_minecraft_protocol(target: str, port: int, default: int) -> int:
 
 
 def _wrap_tls(sock: socket, hostname: str) -> socket:
-    _SSL_CONTEXT.minimum_version = TLSVersion.TLSv1_2
-    return _SSL_CONTEXT.wrap_socket(
+    context = _SSL_CONTEXT
+    context.minimum_version = TLSVersion.TLSv1_2
+    context.check_hostname = False
+    context.verify_mode = CERT_NONE
+    return context.wrap_socket(
         sock,
         server_hostname=hostname,
         server_side=False,
@@ -2041,6 +2044,10 @@ def main(args: list[str]) -> None:
         die("Target is required")
 
     target = args[1]
+    if target == "@stdin":
+        target = sys.stdin.readline().strip()
+        if not target:
+            die("Target is required")
     params = args[2:]
     config = load_config()
     if command in Methods.LAYER7_METHODS:
