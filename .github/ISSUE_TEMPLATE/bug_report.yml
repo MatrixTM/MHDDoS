@@ -1,106 +1,138 @@
-name: 🐞 Bug Report
-description: Create a report to help us improve
-title: "[BUG Report]:"
-labels: [ "bug" ]
-assignees:
-  - SudoLite
-  - MHProDev
+name: Bug report
+description: Something in MHDDoS is broken or behaves unexpectedly
+title: "[Bug]: "
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        #### Thanks for taking the time to fill out this bug report!
+        Thanks for taking the time to report a problem.
+
+        Before you continue, run `python start.py DOCTOR` and include the output.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and did not find a duplicate
+          required: true
+        - label: I am reporting a bug in MHDDoS, not asking for help attacking a target
+          required: true
+        - label: I removed proxy credentials, tokens, and private keys from this report
+          required: true
 
   - type: dropdown
     id: version
     attributes:
       label: Version
-      description: What version of our software are you running?
       options:
-        - 2.4 (Default)
-        - 2.3
-        - 2.0
+        - 2.4.9
+        - 2.4.8
+        - 2.4.7
+        - main branch
+        - older release
     validations:
       required: true
 
   - type: dropdown
-    id: parts
+    id: area
     attributes:
-      label: Which section is the problem?
+      label: Area
       options:
-        - L7 (DDoS Attack Layer 7)
-        - L4 (DDoS Attack Layer 4)
-        - Script Base
-        - Tools
+        - Layer 7 method
+        - Layer 4 method
+        - Amplification
+        - Proxy handling
+        - Tools console
+        - Web panel
+        - Docker
         - Wiki
         - Other
     validations:
       required: true
 
+  - type: input
+    id: method
+    attributes:
+      label: Method or command
+      description: The method name or command that failed, if relevant
+      placeholder: e.g. GET, DNS, MCBOT, DOCTOR
+    validations:
+      required: false
+
   - type: textarea
     id: environment
     attributes:
-      label: Please complete the following information
-      render: true
-      placeholder: |
-        - OS: [e.g. Ubuntu]
-        - Installed Requirements Version [e.g. PyRoxy1.0b5]
-        - Python Version [e.g. 3.8.x]
+      label: Environment
+      description: Fill in what you have. Do not paste secrets.
       value: |
-        - OS: [e.g. Ubuntu]
-        - Installed Requirements Version [e.g. PyRoxy1.0b5]
-        - Python Version [e.g. 3.8.x]
+        - OS:
+        - Python:
+        - Install method: source / Docker / release archive
+        - Docker version:
+        - Node version:
+      render: markdown
     validations:
       required: true
 
   - type: textarea
-    id: what-happened
+    id: command
     attributes:
-      label: What happened (Describe the bug) ?
-      description: Also tell us, what did you expect to happen?
-      placeholder: A bug happened!
-      value: "A bug happened!"
+      label: Command
+      description: The exact command, with credentials and target details removed
+      render: shell
     validations:
       required: true
 
-  - type: input
-    id: screenshots
+  - type: textarea
+    id: expected
     attributes:
-      label: Screenshots
-      description: Just upload screenshots
-      placeholder: https://imgur.com/uWteNty
+      label: Expected behavior
     validations:
       required: true
 
-  - type: input
-    id: reproduction
+  - type: textarea
+    id: actual
     attributes:
-      label: Please provide a link to a minimal reproduction of the bug
-      placeholder: ex. https://docs.python.org
+      label: Actual behavior
+      description: Include the full error or traceback, not just the last line
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Install with ...
+        2. Run ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: DOCTOR output
+      description: Paste `python start.py DOCTOR`
+      render: shell
+    validations:
+      required: false
 
   - type: textarea
     id: logs
     attributes:
-      label: Relevant log output
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      label: Relevant logs
+      description: Add debug output if the command supports it
       render: shell
-
-  - type: markdown
-    attributes:
-      value: |
-        # Recommended fix, suggestions
+    validations:
+      required: false
 
   - type: textarea
-    id: additional-context
+    id: context
     attributes:
       label: Additional context
-      description: Tell us, what do you expect from us?
-      placeholder: Optional
-
-  - type: textarea
-    id: code
-    attributes:
-      label: Your code
-      description: Please enter the suggested code to resolve the issue. This will be automatically formatted into code, so no need for backticks.
-      render: true
- 
+      description: Screenshots, related issues, or a suggested fix
+    validations:
+      required: false

@@ -1,0 +1,35 @@
+title: "[General]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        General discussion about MHDDoS, testing practice, or the project.
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Topic
+      options:
+        - Project direction
+        - Testing practice
+        - Documentation
+        - Tooling
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Keep it specific and on topic
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Links, screenshots, or related threads
+    validations:
+      required: false

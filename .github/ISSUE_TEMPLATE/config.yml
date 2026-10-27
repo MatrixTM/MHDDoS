@@ -1,5 +1,11 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: 📃 Documentation
+  - name: Documentation
     url: https://github.com/MatrixTM/MHDDoS/wiki
-    about: Please read the documentation from here.
+    about: Installation, usage, methods, proxies, Docker, and troubleshooting
+  - name: Questions and setup help
+    url: https://github.com/MatrixTM/MHDDoS/discussions/categories/q-a
+    about: Ask for help in Discussions instead of opening an issue
+  - name: Report a security issue
+    url: https://github.com/MatrixTM/MHDDoS/security/advisories/new
+    about: Report vulnerabilities privately, not in a public issue

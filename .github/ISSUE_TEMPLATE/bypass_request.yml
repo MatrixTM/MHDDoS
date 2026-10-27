@@ -1,0 +1,76 @@
+name: Bypass or provider issue
+description: An existing method is blocked by a WAF or provider challenge
+title: "[Bypass]: "
+labels: ["bypass request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when a method that used to work is now answered with a challenge, 403, or a different page.
+
+        Do not include credentials or data from a third-party target you do not own.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I am testing a target I own or have permission to test
+          required: true
+        - label: I removed credentials, cookies, and private target data
+          required: true
+
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider
+      options:
+        - Cloudflare
+        - DDoS-Guard
+        - ArvanCloud
+        - Google Project Shield
+        - OVH
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: method
+    attributes:
+      label: Method
+      placeholder: e.g. CFB, DGB, GSB, BYPASS
+    validations:
+      required: true
+
+  - type: textarea
+    id: response
+    attributes:
+      label: Observed response
+      description: Status code, challenge page, or cookie flow
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Use debug mode if available
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Suggested fix, related issue, or a redacted screenshot
+    validations:
+      required: false

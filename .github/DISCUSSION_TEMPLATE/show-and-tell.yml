@@ -1,0 +1,38 @@
+title: "[Show and tell]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share a lab setup, a test harness, a dashboard, or a fix. Do not post third-party target data.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What did you build?
+    validations:
+      required: true
+
+  - type: textarea
+    id: setup
+    attributes:
+      label: Setup
+      description: OS, Python, Docker, proxies, and any relevant configuration
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: result
+    attributes:
+      label: Result
+      description: What worked, what failed, and what you learned
+    validations:
+      required: true
+
+  - type: textarea
+    id: links
+    attributes:
+      label: Links
+      description: Repository, gist, screenshots, or documentation
+    validations:
+      required: false

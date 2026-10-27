@@ -1,0 +1,81 @@
+title: "[Q&A]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ask a specific question. Include the command, the environment, and the full error.
+
+        Do not ask for help attacking a third-party target.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before posting
+      options:
+        - label: I checked the wiki and the existing discussions
+          required: true
+        - label: I removed credentials and private target data
+          required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Installation
+        - Layer 7
+        - Layer 4
+        - Amplification
+        - Proxies
+        - Tools
+        - Web panel
+        - Docker
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      value: |
+        - OS:
+        - Python:
+        - Install method:
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What are you trying to do, and where are you stuck?
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command or code
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: DOCTOR output
+      description: Paste `python start.py DOCTOR` if the problem is local
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      render: shell
+    validations:
+      required: false

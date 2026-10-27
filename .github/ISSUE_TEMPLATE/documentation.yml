@@ -1,0 +1,47 @@
+name: Documentation issue
+description: Report missing, outdated, or incorrect README or wiki content
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for README and wiki problems. For setup help, use Discussions Q&A.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked the current README and wiki
+          required: true
+
+  - type: input
+    id: page
+    attributes:
+      label: Page or file
+      description: Link or path to the page that needs work
+      placeholder: https://github.com/MatrixTM/MHDDoS/wiki/Usage
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong or missing?
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested wording or fix
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+    validations:
+      required: false

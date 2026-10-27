@@ -1,0 +1,57 @@
+title: "[Idea]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the problem first. A clear use case is more useful than a large feature list.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Layer 7 method
+        - Layer 4 method
+        - Amplification
+        - Proxies
+        - Tools
+        - Web panel
+        - Docker
+        - Documentation
+        - Developer experience
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is hard or missing today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What should change?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Workarounds or other tools you tried
+    validations:
+      required: false
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Which files, platforms, or layers would change?
+    validations:
+      required: false

@@ -1,0 +1,81 @@
+name: New method request
+description: Propose a new Layer 4 or Layer 7 method
+title: "[Method]: "
+labels: ["new method"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        New methods are a significant change and need maintainer approval before implementation.
+
+        Describe the protocol and the gap it fills. Do not include a working exploit against a third-party service.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and discussions
+          required: true
+        - label: This method is for authorized testing only
+          required: true
+        - label: I understand that new attack methods require a maintainer decision
+          required: true
+
+  - type: dropdown
+    id: layer
+    attributes:
+      label: Layer
+      options:
+        - Layer 7 (HTTP)
+        - Layer 4 (TCP/UDP/raw)
+        - Amplification
+    validations:
+      required: true
+
+  - type: input
+    id: name
+    attributes:
+      label: Proposed method name
+      placeholder: e.g. HTTP2, SLOWPOST
+    validations:
+      required: true
+
+  - type: textarea
+    id: protocol
+    attributes:
+      label: Protocol and behaviour
+      description: What does the method send, and what does it expect back?
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirements
+      description: Raw socket, proxy support, reflector file, TLS, or a new dependency?
+    validations:
+      required: true
+
+  - type: textarea
+    id: gap
+    attributes:
+      label: Why existing methods are not enough
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: RFC, protocol documentation, or an open-source implementation
+    validations:
+      required: false
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Proposed implementation
+      description: Where would it live, and what would change?
+    validations:
+      required: false

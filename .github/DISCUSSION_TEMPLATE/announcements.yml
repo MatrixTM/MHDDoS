@@ -1,0 +1,29 @@
+title: "[Announcement]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Maintainer announcement. Keep it short and link the release or issue.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What changed, who is affected, and what users should do
+    validations:
+      required: true
+
+  - type: textarea
+    id: links
+    attributes:
+      label: Links
+      description: Release, pull request, issue, or wiki page
+    validations:
+      required: false

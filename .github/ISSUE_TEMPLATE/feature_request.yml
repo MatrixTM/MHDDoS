@@ -1,53 +1,78 @@
-name: 💡 Feature request
-description: Suggest an idea for this project
-labels: [ "enhancement" ]
-assignees:
-  - SudoLite
-  - MHProDev
+name: Feature request
+description: Suggest a new capability, method, or improvement
+title: "[Feature]: "
+labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        #### Thanks for taking the time to fill out this Feature request!
+        Thanks for the suggestion. Please describe the problem before the solution.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and discussions
+          required: true
+        - label: This request is not asking for help attacking a third-party target
+          required: true
 
   - type: dropdown
-    id: parts
+    id: area
     attributes:
-      label: Which section is this feature request for?
+      label: Area
       options:
-        - L7 (DDoS Attack Layer 7)
-        - L4 (DDoS Attack Layer 4)
-        - Script Base
-        - Tools
-        - Wiki
+        - Layer 7 method
+        - Layer 4 method
+        - Amplification
+        - Proxy handling
+        - Tools console
+        - Web panel
+        - Docker
+        - Documentation or wiki
+        - Developer experience
         - Other
     validations:
       required: true
-  - type: checkboxes
-    attributes:
-      label: Is there an existing issue for this?
-      description: Please search to see if an issue already exists for the feature you are requesting. (https://github.com/MHProDev/MHDDoS/issues).
-      options:
-        - label: I have searched the existing issues
-          required: true
+
   - type: textarea
+    id: problem
     attributes:
-      label: Is your feature request related to a problem? Please describe the problem.
-      description: A clear and concise description of what the problem is.
-      placeholder: I am trying to do [...] but [...]
-    validations:
-      required: false
-  - type: textarea
-    attributes:
-      label: Describe the solution you'd like
-      description: |
-        A clear and concise description of what you want to happen. Include any alternative solutions you've considered.
+      label: What problem does this solve?
+      description: Describe the current limitation or friction
+      placeholder: I am trying to ... but ...
     validations:
       required: true
+
   - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What should MHDDoS do instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches, workarounds, or tools
+    validations:
+      required: false
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and impact
+      description: Which platforms, layers, or files would change?
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
     attributes:
       label: Additional context
-      description: |
-        Add any other context or screenshots about the feature request here.
+      description: Links, screenshots, or examples
     validations:
       required: false
