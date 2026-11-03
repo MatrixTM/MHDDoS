@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.12-slim-bookworm
+FROM python:3.15-slim-bookworm
 
 LABEL org.opencontainers.image.title="MHDDoS" \
       org.opencontainers.image.description="Layer 4/7 stress-testing toolkit" \
