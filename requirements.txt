@@ -1,6 +1,6 @@
 certifi==2026.10.23
 cloudscraper==1.2.71
-dnspython==2.9.1
+dnspython==2.9.2
 icmplib==3.0.4
 impacket==0.13.1
 psutil==7.2.2
