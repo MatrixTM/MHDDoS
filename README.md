@@ -256,18 +256,6 @@ For bug reports and repository-related issues, use **[GitHub Issues](https://git
 
 <div align="center">
 
-### 🐈 CatLabsLLC (Recommended!!!)
-
-<a href="https://catlabs.llc/login?ref=Matrix">
-  <img src="https://i.postimg.cc/6qKh1zcf/catlabsbanner.png" width="728" alt="CatLabs Hosting">
-</a>
-
-<h4><strong>😻 You can buy an 10Gbps cheap server from CatLabs Hosting with crypto (Scan Allowed & DMCA
-Ignored).</strong></h4>
-
-<p><strong><a href="https://catlabs.llc/login?ref=Matrix">Explore CatLabsLLC Cheap Prices</a></strong></p>
-
-<br>
 
 ### ⚡ Zomro
 
