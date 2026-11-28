@@ -1,4 +1,4 @@
-certifi==2026.10.23
+certifi==2026.11.20
 cloudscraper==1.2.71
 dnspython==2.9.2
 icmplib==3.0.4
